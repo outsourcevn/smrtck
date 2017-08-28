@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewBag.Title = "QR CODE GENERATOR";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>QR CODE GENERATOR</h2>
+<div class="col-md-8" style="height:500px;border:1px solid #ff0000;border-radius:5px;">
+    <textarea id="content" class="form-control" placeholder="Nhập nội dung text để sinh QR code ở đây" rows="5">
+
+    </textarea>
+    <input class="btn btn-primary btn-lg btn-create" type="button" value="Tạo QR CODE" onclick="generate();">
+</div>
+<div class="col-md-4" style="height:500px;border:1px solid #ff0000;border-radius:5px;">
+    <img src="/images/qrcode.png" id="imgdl" style="text-align:center;width:150px;height:150px;" class="form-control"/>
+    <input class="form-control" type="button" value="Download" onclick="download();">
+</div>
+<script>
+    function generate() {
+        $.ajax({
+            url: "/Admin/generateCode", type: 'post',            
+            data: { content: $("#content").val() },
+            success: function (rs) {
+                if (rs != '') {
+                    //alert(rs);
+                    $("#imgdl").attr("src", rs);
+                } else {
+                    alert(rs);
+                }
+            }
+        })
+    }
+</script>

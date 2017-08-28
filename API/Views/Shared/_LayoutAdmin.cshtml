@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewBag.Title -Quản trị SmartCheck.Vn</title>
+    <!-- Favicons
+    ================================================== -->
+    <link rel="shortcut icon" href="~/Content/1a/img/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="~/Content/1a/img/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="~/Content/1a/img/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="~/Content/1a/img/apple-touch-icon-114x114.png">
+    <!-- Bootstrap Core CSS -->
+    <link href="~/Content/admin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- MetisMenu CSS -->
+    <link href="~/Content/admin/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link href="~/Content/admin/css/sb-admin-2.min.css" rel="stylesheet" />
+    <!-- Morris Charts CSS -->
+    <link href="~/Content/admin/vendor/morrisjs/morris.css" rel="stylesheet" />
+    <!-- Custom Fonts -->
+    <link href="~/Content/admin/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/admin/css/styles.css" rel="stylesheet" />
+    <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+    <!-- jQuery -->
+    @*<script src="~/Content/admin/vendor/jquery/jquery.min.js"></script>*@
+    <script type="text/javascript" src="~/Content/1a/js/jquery-1.11.2.min.js"></script>
+    @*<script src="~/Content/1a/js/jquery.1.11.1.js"></script>*@
+    <link rel="stylesheet" href="~/Content/1a/js/jquery-ui.css">
+    <script src="~/Content/1a/js/jquery-ui.js"></script>
+    <script src="~/Scripts/jquery.number.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    @*<script src="~/Content/admin/vendor/bootstrap/js/bootstrap.min.js"></script>*@
+    <script type="text/javascript" src="~/Content/1a/js/bootstrap.js"></script>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="~/Content/1a/Plugin/ckeditor/ckeditor.js"></script>
+    <script src="~/Content/1a/Plugin/maskMoney/jquery.maskMoney.min.js"></script>
+    <script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-87911238-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+</head>
+
+<body>
+    <div class="overlayDiv"></div>
+    <div id="wrapper">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/admin">Trang quản trị</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-product-hunt fa-fw"></i>Quản lý khách hàng</a>
+                        </li>
+                        <li>
+                            <a href="/Admin/Generate"><i class="fa fa-product-hunt fa-fw"></i>Sinh ngẫu nhiên QR Code</a>
+                        </li>
+                        <li>
+                            <a href="/home"><i class="fa fa-home fa-fw"></i> Quay lại trang chủ</a>
+                        </li>
+                        <li>
+                            <a href="javascript:document.getElementById('logoutForm').submit();"><i class="fa fa-home fa-fw"></i> Đăng Xuất</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+        <form id="logoutForm" action="@Url.Action("Logout","Admin")" method="post"></form>
+        <div id="page-wrapper">
+            @RenderBody()
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <script src="~/Content/admin/vendor/metisMenu/metisMenu.min.js"></script>
+    <script src="~/Content/admin/vendor/raphael/raphael.min.js"></script>
+    <script src="~/Content/admin/vendor/morrisjs/morris.min.js"></script>
+    <script src="~/Content/admin/js/sb-admin-2.min.js"></script>   
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

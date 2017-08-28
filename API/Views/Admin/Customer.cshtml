@@ -1,0 +1,63 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Khách Hàng SmartCheck";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Quản Lý Khách Hàng</h2>
+<h2>@ViewBag.Title</h2>
+<button type="button" class="btn btn-primary" onclick="openCustomer(0)">Thêm Mới</button><br /><br />
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập số điện thoại hoặc email của khách" value="@ViewBag.k" style="width:360px;" onkeyup="searchCustomer();" />
+        </div>
+        @*<div class="form-group">
+            <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
+        </div>*@
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Họ Tên</th><th>Email</th><th>Số Phone</th><th>Ngày Đăng Ký</th></tr>
+    @foreach (var item in (PagedList<customer>)ViewBag.OnePage)
+    {
+      
+        <tr>
+            <td>@item.name</td>
+            <td>@item.email</td>
+            <td>@item.phone</td>
+            <td>@item.date_time</td>
+            <td><a href="#" onclick="openCustomer(@item.id, @item.name, @item.email,@item.phone)">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelCustomer(@item.id);">Xóa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Index", new { page }))
+
+<div id="CustomerDialog" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Thêm/Sửa Giá</div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID" />
+        <p>Họ Tên</p>
+        <input id="cp_name" type="text" class="form-control" placeholder="Họ tên">
+        <p>Email</p>
+        <input id="cp_email" type="text" class="form-control" placeholder="Nhập email">
+        <p>Phone</p>
+        <input id="cp_phone" type="text" class="form-control" placeholder="Nhập phone">
+        <p>Mật khẩu</p>
+        <input id="cp_pass" type="password" class="form-control" placeholder="Nhập mật khẩu">
+        <p>Nhập Lại Mật khẩu</p>
+        <input id="cp_pass2" type="password" class="form-control" placeholder="Nhập lại mật khẩu">
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveCustomer()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#CustomerDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var url_addUpdateCustomer = '@Url.Action("addUpdateCustomer","Admin")', url_deleteCustomer = '@Url.Action("deleteCustomer", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/Customer.js"></script>
