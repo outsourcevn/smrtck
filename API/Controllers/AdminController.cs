@@ -18,6 +18,7 @@ namespace API.Controllers
         {
             return View();
         }
+
         public ActionResult Customer(string k, int? page)
         {
             if (k == null) k = "";
@@ -124,6 +125,18 @@ namespace API.Controllers
             {
                 return View();
             }
+        }
+        [HttpPost]
+        public string addUpdateCustomer(customer cp)
+        {
+            if (cp.id == 0) cp.date_time = DateTime.Now;
+            return DBContext.addUpdatecustomer(cp);
+        }
+
+        [HttpPost]
+        public string deleteCustomer(int cpId)
+        {
+            return DBContext.deletecustomer(cpId);
         }
     }
 }

@@ -173,7 +173,7 @@ namespace API.Controllers
         //3. Báo tích điểm với mã sản phẩm là guid, nếu đã tích điểm rồi cũng báo, hiện số điểm sau khi tích điểm, gửi kèm cả trường total là số điểm hiện thời sau khi tích điểm
         //Nếu lỗi sql trả về rỗng các trường và lỗi chi tiết
         [HttpPost]
-        public string check(string guid,long? user_id,double lon, double lat,string address, double? key)
+        public string check(string guid,long? user_id,double lon, double lat,string address, double? key,int? os)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -194,6 +194,7 @@ namespace API.Controllers
                     sn_active sa = new sn_active();
                     sa.date_time = DateTime.Now;
                     sa.guid = guid;
+                    sa.os = os;
                     db.sn_active.Add(sa);
                     db.SaveChanges();
                 }
@@ -219,6 +220,8 @@ namespace API.Controllers
                     sl.lat = lat;
                     sl.lon = lon;
                     sl.user_id = user_id;
+                    sl.date_time = DateTime.Now;
+                    sl.os = os;
                     db.sn_locations.Add(sl);
                     db.SaveChanges();
                 }
@@ -236,6 +239,7 @@ namespace API.Controllers
                     ssp.guid = guid;
                     ssp.points = 1;
                     ssp.user_id = user_id;
+                    ssp.os = os;
                     db.sn_smart_point.Add(ssp);
                     db.SaveChanges();
                     int count = db.sn_smart_point.Count(o => o.user_id == user_id);
