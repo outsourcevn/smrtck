@@ -19,5 +19,6 @@ namespace API.Models
         public Nullable<long> user_id { get; set; }
         public Nullable<System.DateTime> date_time { get; set; }
         public Nullable<int> points { get; set; }
+        public Nullable<int> os { get; set; }
     }
 }

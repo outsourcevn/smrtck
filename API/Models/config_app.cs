@@ -12,15 +12,14 @@ namespace API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class sn_locations
+    public partial class config_app
     {
-        public long id { get; set; }
-        public string guid { get; set; }
-        public Nullable<double> lon { get; set; }
-        public Nullable<double> lat { get; set; }
-        public string address { get; set; }
-        public Nullable<long> user_id { get; set; }
-        public Nullable<int> os { get; set; }
-        public Nullable<System.DateTime> date_time { get; set; }
+        public int id { get; set; }
+        public string text_in_qr_code { get; set; }
+        public string text_in_active { get; set; }
+        public string text_in_location { get; set; }
+        public string text_in_point { get; set; }
+        public Nullable<int> code_company { get; set; }
+        public string company { get; set; }
     }
 }

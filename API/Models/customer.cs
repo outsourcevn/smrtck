@@ -19,5 +19,6 @@ namespace API.Models
         public string email { get; set; }
         public string phone { get; set; }
         public string pass { get; set; }
+        public Nullable<System.DateTime> date_time { get; set; }
     }
 }

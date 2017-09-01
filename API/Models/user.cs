@@ -12,15 +12,11 @@ namespace API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class sn_locations
+    public partial class user
     {
-        public long id { get; set; }
-        public string guid { get; set; }
-        public Nullable<double> lon { get; set; }
-        public Nullable<double> lat { get; set; }
-        public string address { get; set; }
-        public Nullable<long> user_id { get; set; }
-        public Nullable<int> os { get; set; }
-        public Nullable<System.DateTime> date_time { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public string pass { get; set; }
+        public string pagecode { get; set; }
     }
 }
