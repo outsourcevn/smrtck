@@ -18,18 +18,28 @@ namespace API.Controllers
         {
             return View();
         }
-
         public ActionResult Customer(string k, int? page)
         {
             if (k == null) k = "";
            
                 var ctm = db.customers;
                 var pageNumber = page ?? 1;
-                var onePage = ctm.Where(o => o.phone.Contains(k) || o.email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                var onePage = ctm.Where(o => o.phone.Contains(k) || o.email.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
                 ViewBag.onePage = onePage;
                 ViewBag.k = k;
             return View();
             
+        }
+        public ActionResult Company(string k, int? page)
+        {
+            if (k == null) k = "";
+            var ctm = db.companies;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.phone.Contains(k) || o.email.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
+
         }
         public ActionResult Generate()
         {
@@ -129,7 +139,7 @@ namespace API.Controllers
         [HttpPost]
         public string addUpdateCustomer(customer cp)
         {
-            if (cp.id == 0) cp.date_time = DateTime.Now;
+            cp.date_time = DateTime.Now;
             return DBContext.addUpdatecustomer(cp);
         }
 
@@ -137,6 +147,28 @@ namespace API.Controllers
         public string deleteCustomer(int cpId)
         {
             return DBContext.deletecustomer(cpId);
+        }
+        [HttpPost]
+        public string addUpdateCompany(company cp)
+        {
+            cp.date_time = DateTime.Now;
+            return DBContext.addUpdatecompany(cp);
+        }
+
+        [HttpPost]
+        public string deleteCompany(int cpId)
+        {
+            return DBContext.deletecompany(cpId);
+        }
+        [HttpPost]
+        public bool checkDuplicateCode(int code)
+        {
+            return db.companies.Any(o => o.code == code);
+        }
+        [HttpPost]
+        public int? getMaxCompanyCode()
+        {
+            return db.companies.Max(o => o.code)+1;
         }
     }
 }

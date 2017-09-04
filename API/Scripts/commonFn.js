@@ -19,8 +19,8 @@ function notifyOK() {
     var action = $("#notifyAction").val();
     if (action == "deleteCustomer") {
         deleteCustomer();
-    } else if (action == "delNotice") {
-        deleteNotice();
+    } else if (action == "deleteCompany") {
+        deleteCompany();
     } else if (action == "delUser") {
         deleteUser();
     } else if (action == "delDriver") {
