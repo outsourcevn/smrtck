@@ -39,6 +39,7 @@
           <Property Name="phone" Type="nvarchar" MaxLength="50" />
           <Property Name="pass" Type="nvarchar" MaxLength="50" />
           <Property Name="date_time" Type="datetime" />
+          <Property Name="is_admin" Type="int" />
         </EntityType>
         <EntityType Name="qrcode">
           <Key>
@@ -212,6 +213,7 @@
           <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="is_admin" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -310,6 +312,7 @@
           <EntitySetMapping Name="customers">
             <EntityTypeMapping TypeName="smartcheckModel.customer">
               <MappingFragment StoreEntitySet="customers">
+                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
                 <ScalarProperty Name="date_time" ColumnName="date_time" />
                 <ScalarProperty Name="pass" ColumnName="pass" />
                 <ScalarProperty Name="phone" ColumnName="phone" />

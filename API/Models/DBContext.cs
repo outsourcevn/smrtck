@@ -91,6 +91,49 @@ namespace API.Models
                 return "Thất bại: " + ex.Message;
             }
         }
+        //Config
+        //Company
+        public static string addUpdatecompanyConfig(config_app cp)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    if (cp.id == 0)
+                    {
+                        db.config_app.Add(cp);
+                    }
+                    else
+                    {
+                        db.Entry(cp).State = EntityState.Modified;
+                    }
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
+
+        public static string deletecompanyConfig(int cpId)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    var cp = new config_app() { id = cpId };
+                    db.Entry(cp).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
         
     }
 }

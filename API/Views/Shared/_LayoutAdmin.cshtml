@@ -94,13 +94,22 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a href="#"><i class="fa fa-product-hunt fa-fw"></i>Quản lý khách hàng</a>
+                            <a href="/Admin/Company"><i class="fa fa-product-hunt fa-fw"></i>Quản lý Doanh Nghiệp</a>
                         </li>
                         <li>
-                            <a href="/Admin/Generate"><i class="fa fa-product-hunt fa-fw"></i>Sinh ngẫu nhiên QR Code</a>
+                            <a href="/Admin/CompanyQrcodeConfig"><i class="fa fa-product-hunt fa-fw"></i>Cấu hình APP Qr Code cho Doanh nghiệp</a>
                         </li>
                         <li>
-                            <a href="/home"><i class="fa fa-home fa-fw"></i> Quay lại trang chủ</a>
+                            <a href="/Admin/Customer"><i class="fa fa-product-hunt fa-fw"></i>Quản lý Khách Hàng</a>
+                        </li>
+                        <li>
+                            <a href="/Admin/CompanyQrCode"><i class="fa fa-product-hunt fa-fw"></i>Quản lý in Qr Code</a>
+                        </li>
+                        <li>
+                            <a href="/home"><i class="fa fa-home fa-fw"></i>Quay lại trang chủ</a>
+                        </li>
+                        <li>
+                            <a href="/Admin/Login"><i class="fa fa-home fa-fw"></i> Đăng Nhập</a>
                         </li>
                         <li>
                             <a href="javascript:document.getElementById('logoutForm').submit();"><i class="fa fa-home fa-fw"></i> Đăng Xuất</a>
@@ -111,7 +120,7 @@
             </div>
             <!-- /.navbar-static-side -->
         </nav>
-        <form id="logoutForm" action="@Url.Action("Logout","Admin")" method="post"></form>
+        <form id="logoutForm" action="@Url.Action("LogOff", "Admin")" method="post"></form>
         <div id="page-wrapper">
             @RenderBody()
         </div>

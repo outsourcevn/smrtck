@@ -1,0 +1,70 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Cấu hình APP Qr Code cho Doanh nghiệp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    textarea {
+        height: 67px;    }
+</style>
+<h2>@ViewBag.Title</h2>
+<button type="button" class="btn btn-primary" onclick="openCompanyConfig(0)">Thêm Mới</button><br /><br />
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập mã hoặc tên của công ty" value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchCompanyConfig();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+        @*<div class="form-group">
+                <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
+            </div>*@
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo ở QR Code(phủ)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th></tr>
+    @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.company</td>
+            <td>@item.code_company</td>
+            <td>@item.text_in_qr_code</td>
+            <td>@item.text_in_active</td>
+            <td>@item.text_in_location</td>
+            <td>@item.text_in_point</td>
+            <td><a href="#" onclick="openCompanyConfig(@item.id)">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelCompanyConfig(@item.id,'@item.company');">Xóa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyConfig", new { page }))
+<!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
+<div id="CompanyConfigDialog" style="display:none;min-height:600px;" class="col-sm-4 dDialog" >
+    <div class="dTitle">Thêm/Sửa</div>
+    <div class="dDialogContent" style="min-height: 600px;">
+        <input type="hidden" id="cp_ID" />
+        <p>Tên Doanh Nghiệp</p>
+        <input id="cp_company" type="text" class="form-control" placeholder="Nhập tên">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" onblur="checkDuplicateQrCode();">
+        <p>Thông báo ở QR Code(phủ) - <i>có định dạng text...{GUID} ở cuối</i></p>
+        <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
+        <p>Thông báo kích hoạt</p>
+        <textarea id="cp_text_in_active"  class="form-control" placeholder="Thông báo kích hoạt" style="height:67px;"></textarea>
+        <p>Thông báo Địa Điểm</p>
+        <textarea id="cp_text_in_location"  class="form-control" placeholder="Thông báo Địa Điểm" style="height:67px;"></textarea>        
+        <p>Thông báo Tích Điểm</p>
+        <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;"></textarea>
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyConfigDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var url_addUpdateCompanyConfig = '@Url.Action("addUpdateCompanyConfig","Admin")', url_deleteCompanyConfig = '@Url.Action("deleteCompanyConfig", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/CompanyConfig.js"></script>

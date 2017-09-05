@@ -29,5 +29,32 @@ namespace API
             // Return the hexadecimal string. 
             return sBuilder.ToString();
         }
+        public static void setCookie(string field, string value)
+        {
+            HttpCookie MyCookie = new HttpCookie(field);
+            MyCookie.Value = value;
+            MyCookie.Expires = DateTime.Now.AddDays(365);
+            HttpContext.Current.Response.Cookies.Add(MyCookie);
+            //Response.Cookies.Add(MyCookie);           
+        }
+        public static string getCookie(string v)
+        {
+            try
+            {
+                return HttpContext.Current.Request.Cookies[v].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+        public static void removeCookie(string field)
+        {
+            HttpCookie MyCookie = new HttpCookie(field);
+            MyCookie.Value = "1";
+            MyCookie.Expires = DateTime.Now.AddDays(-1);
+            HttpContext.Current.Response.Cookies.Add(MyCookie);
+            //Response.Cookies.Add(MyCookie);           
+        }
     }
 }

@@ -63,6 +63,20 @@ function deleteCustomer() {
         }
     });
 }
+function confirmAdmin(id) {
+    $.ajax({
+        url: "/Admin/confirmAdmin", type: 'post',
+        data: { id: id },
+        success: function (rs) {
+            if (rs == '1') {
+                alert("Đã xác nhận quyền admin");
+                location.reload();
+            } else {
+                alert(rs);
+            }
+        }
+    });
+}
 function searchCustomer() {
     
         window.location.href = "/Admin/Customer?k=" + $("#keyword").val();

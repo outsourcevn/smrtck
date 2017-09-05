@@ -7,6 +7,8 @@ using QRCoder;
 using System.Drawing;
 using API.Models;
 using PagedList;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
 namespace API.Controllers
 {
     
@@ -18,8 +20,40 @@ namespace API.Controllers
         {
             return View();
         }
+        public ActionResult Login(string message)
+        {
+            ViewBag.message = message;
+            return View();
+        }
+        public ActionResult LogOff()
+        {
+            Config.removeCookie("user_id");
+            Config.removeCookie("user_name");
+            Config.removeCookie("user_email");
+            return View();
+        }
+        [HttpPost]
+        public ActionResult SubmitLogin(string phone, string pass)
+        {
+            MD5 md5Hash = MD5.Create();
+            pass = Config.GetMd5Hash(md5Hash,pass);
+            if (db.customers.Any(o => o.phone == phone && o.pass == pass && o.is_admin==1))
+            {
+                var us = db.customers.Where(o => o.phone == phone && o.pass == pass).FirstOrDefault();
+                Config.setCookie("user_id", us.id.ToString());
+                Config.setCookie("user_name", us.name);
+                Config.setCookie("user_email", us.email);
+                return RedirectToAction("Company");
+            }
+            else
+            {
+                ViewBag.message = "Sai số điện thoại hoặc mật khẩu";
+                return RedirectToAction("Login", new { message = ViewBag.message });
+            }
+        }
         public ActionResult Customer(string k, int? page)
         {
+            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
            
                 var ctm = db.customers;
@@ -32,6 +66,7 @@ namespace API.Controllers
         }
         public ActionResult Company(string k, int? page)
         {
+            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
             var ctm = db.companies;
             var pageNumber = page ?? 1;
@@ -39,11 +74,33 @@ namespace API.Controllers
             ViewBag.onePage = onePage;
             ViewBag.k = k;
             return View();
-
+        }
+        public ActionResult CompanyQrcodeConfig(string k, int? page)
+        {
+            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
+            if (k == null) k = "";
+            var ctm = db.config_app;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.code_company.ToString().Contains(k) || o.company.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
         }
         public ActionResult Generate()
         {
             return View();
+        }
+        [HttpPost]
+        public string confirmAdmin(long id)
+        {
+            try { 
+                db.Database.ExecuteSqlCommand("update customers set is_admin=1 where id=" + id);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
         }
         [HttpPost]
         public string generateCode(string content)
@@ -139,7 +196,9 @@ namespace API.Controllers
         [HttpPost]
         public string addUpdateCustomer(customer cp)
         {
-            cp.date_time = DateTime.Now;
+            MD5 md5Hash = MD5.Create();
+            cp.pass = Config.GetMd5Hash(md5Hash, cp.pass);
+            cp.date_time = DateTime.Now;            
             return DBContext.addUpdatecustomer(cp);
         }
 
@@ -161,14 +220,35 @@ namespace API.Controllers
             return DBContext.deletecompany(cpId);
         }
         [HttpPost]
+        public string addUpdateCompanyConfig(config_app cp)
+        {            
+            return DBContext.addUpdatecompanyConfig(cp);
+        }
+
+        [HttpPost]
+        public string deleteCompanyConfig(int cpId)
+        {
+            return DBContext.deletecompanyConfig(cpId);
+        }
+        [HttpPost]
         public bool checkDuplicateCode(int code)
         {
             return db.companies.Any(o => o.code == code);
         }
         [HttpPost]
+        public bool checkDuplicateQrCode(int code)
+        {
+            return db.config_app.Any(o => o.code_company == code);
+        }
+        [HttpPost]
         public int? getMaxCompanyCode()
         {
             return db.companies.Max(o => o.code)+1;
+        }
+        [HttpGet]
+        public string GetCompanyQrCodeInfo(int id)
+        {
+            return JsonConvert.SerializeObject(db.config_app.Where(o=>o.id==id).ToList());
         }
     }
 }

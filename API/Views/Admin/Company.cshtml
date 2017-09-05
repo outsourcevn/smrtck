@@ -1,0 +1,65 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Doanh Nghiệp SmartCheck";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<button type="button" class="btn btn-primary" onclick="openCompany(0)">Thêm Mới</button><br /><br />
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập số điện thoại hoặc email, tên của công ty" value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchCompany();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+        @*<div class="form-group">
+                <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
+            </div>*@
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Email</th><th>Số Phone</th><th>Ngày Đăng Ký</th></tr>
+    @foreach (var item in (PagedList<company>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.name</td>
+            <td>@item.code</td>
+            <td>@item.email</td>
+            <td>@item.phone</td>            
+            <td>@item.date_time</td>
+            <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code)">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelCompany(@item.id,'@item.name');">Xóa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Company", new { page }))
+
+<div id="CompanyDialog" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Thêm/Sửa</div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID" />
+        <p>Tên Doanh Nghiệp</p>
+        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code" type="text" class="form-control" placeholder="Nhập tên" onblur="checkDuplicateCode();">
+        <p>Email</p>
+        <input id="cp_email" type="text" class="form-control" placeholder="Nhập email">
+        <p>Phone</p>
+        <input id="cp_phone" type="text" class="form-control" placeholder="Nhập phone">
+        <p>Mật khẩu</p>
+        <input id="cp_pass" type="password" class="form-control" placeholder="Nhập mật khẩu">
+        <p>Nhập Lại Mật khẩu</p>
+        <input id="cp_pass2" type="password" class="form-control" placeholder="Nhập lại mật khẩu">
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveCompany()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var url_addUpdateCompany = '@Url.Action("addUpdateCompany","Admin")', url_deleteCompany = '@Url.Action("deleteCompany", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/Company.js"></script>
