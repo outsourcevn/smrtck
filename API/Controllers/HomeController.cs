@@ -115,6 +115,7 @@ namespace API.Controllers
                     ct.name = name;
                     ct.pass = hash;
                     ct.phone = phone;
+                    ct.date_time = DateTime.Now;
                     db.customers.Add(ct);
                     db.SaveChanges();
                     field.Add("user_id", ct.id.ToString());
@@ -130,6 +131,7 @@ namespace API.Controllers
                     ct.name = name;
                     ct.pass = hash;
                     ct.phone = phone;
+                    ct.date_time = DateTime.Now;
                     db.SaveChanges();
                     field.Add("user_id", user_id.ToString());
                     return Api("success", field, "Cập nhật thành công!");
@@ -183,14 +185,35 @@ namespace API.Controllers
                     field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
                     return Api("failed", field, "Bảo mật server, hàm api này không chạy được do ngày giờ ở máy bị sai số quá 10 phút hoặc chưa gửi key bảo mật!");
                 }
-                //Kích hoạt
-                if (db.sn_active.Any(o => o.guid == guid))
-                {
-                    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi.");// + db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time.ToString()
+                string active = "";
+                string location = "";
+                string point = "";
+                //Kiểm tra xem guid này có config cho cty nào không?
+                if (db.qrcodes.Any(o=>o.guid==guid)){
+                    int? code_company = db.qrcodes.Where(o => o.guid == guid).FirstOrDefault().code_company;
+                    var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
+                    active = info.text_in_active;
+                    location = info.text_in_location;
+                    point = info.text_in_point;
                 }
                 else
                 {
-                    field.Add("active", "Kích hoạt bảo hành sản phẩm thành công");
+                    var info = db.config_app.Where(o => o.id==1).FirstOrDefault();
+                    active = info.text_in_active;
+                    location = info.text_in_location;
+                    point = info.text_in_point;
+                }
+                active = active.Replace("{NGAYTHANG}",DateTime.Now.ToString());
+                
+                //Kích hoạt
+                if (db.sn_active.Any(o => o.guid == guid))
+                {
+                    DateTime? atvd = db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time;
+                    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + atvd.ToString());// + db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time.ToString()
+                }
+                else
+                {
+                    field.Add("active", active);
                     sn_active sa = new sn_active();
                     sa.date_time = DateTime.Now;
                     sa.guid = guid;
@@ -198,10 +221,12 @@ namespace API.Controllers
                     db.sn_active.Add(sa);
                     db.SaveChanges();
                 }
+                location = location.Replace("{DIADIEM}", address);
                 //Báo địa điểm 
                 if (db.sn_locations.Any(o => o.guid == guid))
                 {
-                    field.Add("location", "Sản phẩm này đã báo địa điểm bán rồi");
+                    var locs = db.sn_locations.Where(o => o.guid == guid).FirstOrDefault();
+                    field.Add("location", "Sản phẩm này đã báo địa điểm " + locs.address + " trước đó tại thời điểm " + locs.date_time.ToString());
                 }
                 else
                 {
@@ -210,9 +235,9 @@ namespace API.Controllers
                     {
                         address = RetrieveFormatedAddress(lat, lon);
                         if (address != null && address != "")
-                            field.Add("location", "Báo địa điểm sản phẩm thành công");
+                            field.Add("location", location);
                         else
-                            field.Add("location", "Báo địa điểm được nhưng không lấy được địa chỉ cụ thể");
+                            field.Add("location", location+" - (Địa chỉ chưa lấy được)");
                     }
                     sn_locations sl = new sn_locations();
                     sl.address = address;
@@ -229,7 +254,8 @@ namespace API.Controllers
                 if (db.sn_smart_point.Any(o => o.guid == guid))
                 {
                     int count = db.sn_smart_point.Count(o => o.user_id == user_id);
-                    field.Add("point", "Sản phẩm này đã được tích điểm 1 lần rồi");
+                    var pt = db.sn_smart_point.Where(o => o.guid == guid).FirstOrDefault();
+                    field.Add("point", "Sản phẩm này đã được tích điểm vào lúc "+pt.date_time.ToString()+", bạn không thể tích thêm điểm");
                     field.Add("total", count.ToString());
                 }
                 else
@@ -243,7 +269,8 @@ namespace API.Controllers
                     db.sn_smart_point.Add(ssp);
                     db.SaveChanges();
                     int count = db.sn_smart_point.Count(o => o.user_id == user_id);
-                    field.Add("point", "Tích điểm thành công, số điểm hiện tại của bạn là " + count.ToString());
+                    point = point.Replace("{DIEM}", count.ToString());
+                    field.Add("point", point);
                     field.Add("total", count.ToString());
                 }
                 return Api("success", field, "Gửi thông tin về server thành công!");

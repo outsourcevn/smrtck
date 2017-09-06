@@ -45,10 +45,10 @@
     <div class="dTitle">Thêm/Sửa</div>
     <div class="dDialogContent" style="min-height: 600px;">
         <input type="hidden" id="cp_ID" />
-        <p>Tên Doanh Nghiệp</p>
-        <input id="cp_company" type="text" class="form-control" placeholder="Nhập tên">
+        <p>Chọn Doanh Nghiệp</p>        
+        <input id="cp_company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
         <p>Mã Doanh Nghiệp</p>
-        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" onblur="checkDuplicateQrCode();">
+        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã">
         <p>Thông báo ở QR Code(phủ) - <i>có định dạng text...{GUID} ở cuối</i></p>
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
         <p>Thông báo kích hoạt</p>
@@ -68,3 +68,18 @@
     var url_addUpdateCompanyConfig = '@Url.Action("addUpdateCompanyConfig","Admin")', url_deleteCompanyConfig = '@Url.Action("deleteCompanyConfig", "Admin")';
 </script>
 <script type="text/javascript" src="~/Scripts/CompanyConfig.js"></script>
+<script>
+    function searchCompanyName(type) {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+</script>

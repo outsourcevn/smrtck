@@ -25,6 +25,7 @@ namespace API.Controllers
             ViewBag.message = message;
             return View();
         }
+        [HttpPost]
         public ActionResult LogOff()
         {
             Config.removeCookie("user_id");
@@ -249,6 +250,13 @@ namespace API.Controllers
         public string GetCompanyQrCodeInfo(int id)
         {
             return JsonConvert.SerializeObject(db.config_app.Where(o=>o.id==id).ToList());
+        }
+        public string getCompanyList(string k)
+        {
+            if (k == null) k = "";
+            //return JsonConvert.SerializeObject(db.companies.Where(o => o.name.Contains(k)).OrderBy(o => o.name).ToList());
+            var p = (from q in db.companies where q.name.Contains(k) select new { value = q.name, id = q.code }).Distinct().ToList();
+            return JsonConvert.SerializeObject(p);
         }
     }
 }

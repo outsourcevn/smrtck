@@ -24,7 +24,7 @@
         });
     } else {
         $("#cp_ID").val(0);
-        $("#cp_company").val("Công ty...");
+        $("#cp_company").val("");
         $("#cp_code_company").val("");
         $("#cp_text_in_qr_code").val("Đây là....Mã sản phẩm là {GUID}");
         $("#cp_text_in_active").val("Kích hoạt thành công..., thời điểm bảo hành được tính từ {NGAYTHANG}...");
@@ -36,7 +36,7 @@
 }
 
 function saveCompanyConfig() {
-   
+    if ($("#cp_ID").val() == "0") { checkDuplicateQrCode(); }
     if ($("#cp_code_company").val() == "-1") {
         alert("Nhập doanh nghiệp!");
         return;
@@ -55,6 +55,22 @@ function saveCompanyConfig() {
     }
     if ($("#cp_text_in_point").val() == "") {
         alert("Nhập Thông báo tích điểm!");
+        return;
+    }
+    if ($("#cp_text_in_qr_code").val().indexOf("{GUID}")<0) {
+        alert("Nhập Thông báo ở QR Code(phủ) phải tồn tại ký tự {GUID}!");
+        return;
+    }
+    if ($("#cp_text_in_active").val().indexOf("{NGAYTHANG}") < 0) {
+        alert("Nhập Thông báo kích hoạt phải tồn tại ký tự {NGAYTHANG}!");
+        return;
+    }
+    if ($("#cp_text_in_location").val().indexOf("{DIADIEM}") < 0) {
+        alert("Nhập Thông báo địa điểm phải tồn tại ký tự {DIADIEM}!");
+        return;
+    }
+    if ($("#cp_text_in_point").val().indexOf("{DIEM}") < 0) {
+        alert("Nhập Thông báo tích điểm phải tồn tại ký tự {DIEM}!");
         return;
     }
     $.ajax({
