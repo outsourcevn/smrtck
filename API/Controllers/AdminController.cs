@@ -38,23 +38,37 @@ namespace API.Controllers
         {
             MD5 md5Hash = MD5.Create();
             pass = Config.GetMd5Hash(md5Hash,pass);
-            if (db.customers.Any(o => o.phone == phone && o.pass == pass && o.is_admin==1))
+            if (db.companies.Any(o => o.phone == phone && o.pass == pass && o.is_admin==1))
             {
-                var us = db.customers.Where(o => o.phone == phone && o.pass == pass).FirstOrDefault();
-                Config.setCookie("user_id", us.id.ToString());
-                Config.setCookie("user_name", us.name);
-                Config.setCookie("user_email", us.email);
+                var us = db.companies.Where(o => o.phone == phone && o.pass == pass).FirstOrDefault();
+                Config.setCookie("is_admin", "1");
+                Config.setCookie("company_id", us.id.ToString());
+                Config.setCookie("company_name", us.name);
+                Config.setCookie("company_email", us.email);
+                Config.setCookie("company_code", us.code.ToString());
                 return RedirectToAction("Company");
             }
             else
             {
-                ViewBag.message = "Sai số điện thoại hoặc mật khẩu";
-                return RedirectToAction("Login", new { message = ViewBag.message });
+                if (db.companies.Any(o => o.phone == phone && o.pass == pass))
+                {
+                    var us = db.companies.Where(o => o.phone == phone && o.pass == pass).FirstOrDefault();
+                    Config.setCookie("is_admin", "0");
+                    Config.setCookie("company_id", us.id.ToString());
+                    Config.setCookie("company_name", us.name);
+                    Config.setCookie("company_email", us.email);
+                    Config.setCookie("company_code", us.code.ToString());
+                    return RedirectToAction("CompanyQrCode");
+                }
+                else { 
+                    ViewBag.message = "Sai số điện thoại hoặc mật khẩu";
+                    return RedirectToAction("Login", new { message = ViewBag.message });
+                }
             }
         }
         public ActionResult Customer(string k, int? page)
         {
-            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
            
                 var ctm = db.customers;
@@ -67,7 +81,7 @@ namespace API.Controllers
         }
         public ActionResult Company(string k, int? page)
         {
-            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
             var ctm = db.companies;
             var pageNumber = page ?? 1;
@@ -78,7 +92,7 @@ namespace API.Controllers
         }
         public ActionResult CompanyQrcodeConfig(string k, int? page)
         {
-            if (Config.getCookie("user_id") == "") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
             var ctm = db.config_app;
             var pageNumber = page ?? 1;

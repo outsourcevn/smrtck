@@ -12,15 +12,11 @@ namespace API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class company
+    public partial class partner
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public Nullable<int> code { get; set; }
-        public string email { get; set; }
-        public string phone { get; set; }
-        public string pass { get; set; }
-        public Nullable<System.DateTime> date_time { get; set; }
-        public Nullable<int> is_admin { get; set; }
+        public long id { get; set; }
+        public Nullable<int> code_company { get; set; }
+        public string company { get; set; }
+        public string partner1 { get; set; }
     }
 }

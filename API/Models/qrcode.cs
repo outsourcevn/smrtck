@@ -24,5 +24,8 @@ namespace API.Models
         public Nullable<System.DateTime> date_time { get; set; }
         public Nullable<int> date_id { get; set; }
         public Nullable<int> status { get; set; }
+        public Nullable<long> stt { get; set; }
+        public Nullable<int> id_partner { get; set; }
+        public string partner { get; set; }
     }
 }

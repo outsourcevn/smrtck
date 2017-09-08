@@ -183,7 +183,7 @@ namespace API.Controllers
                 if (key == null || !getKeyApi(key))
                 {
                     field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
-                    return Api("failed", field, "Bảo mật server, hàm api này không chạy được do ngày giờ ở máy bị sai số quá 10 phút hoặc chưa gửi key bảo mật!");
+                    return Api("failed", field, "Ngày giờ ở máy bị sai số quá 10 phút nên ứng dụng không chạy được, Bạn cần chỉnh lại thời gian ở điện thoại!");
                 }
                 string active = "";
                 string location = "";
@@ -203,76 +203,117 @@ namespace API.Controllers
                     location = info.text_in_location;
                     point = info.text_in_point;
                 }
-                active = active.Replace("{NGAYTHANG}",DateTime.Now.ToString());
-                
-                //Kích hoạt
-                if (db.sn_active.Any(o => o.guid == guid))
-                {
-                    DateTime? atvd = db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time;
-                    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + atvd.ToString());// + db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time.ToString()
-                }
-                else
-                {
-                    field.Add("active", active);
-                    sn_active sa = new sn_active();
-                    sa.date_time = DateTime.Now;
-                    sa.guid = guid;
-                    sa.os = os;
-                    db.sn_active.Add(sa);
-                    db.SaveChanges();
-                }
+                DateTime dtn = DateTime.Now;
+                active = active.Replace("{NGAYTHANG}", Config.formatDateTime(dtn));
                 location = location.Replace("{DIADIEM}", address);
-                //Báo địa điểm 
-                if (db.sn_locations.Any(o => o.guid == guid))
+                // Kết hợp duy nhất trong 1 bảng
+                if (db.checkalls.Any(o => o.guid == guid))
                 {
-                    var locs = db.sn_locations.Where(o => o.guid == guid).FirstOrDefault();
-                    field.Add("location", "Sản phẩm này đã báo địa điểm " + locs.address + " trước đó tại thời điểm " + locs.date_time.ToString());
+                    var cka = db.checkalls.Where(o => o.guid == guid).FirstOrDefault();
+                    string dtfm = Config.formatDateTime(cka.date_time);
+                    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
+                    field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
+                    int count = db.checkalls.Count(o => o.user_id == user_id);
+                    field.Add("point", "Sản phẩm này đã được tích điểm vào lúc " + dtfm + ", bạn không thể tích thêm điểm");
+                    field.Add("total", count.ToString());
                 }
                 else
                 {
-                                 
+                    checkall cka = new checkall();
+                    cka.address = address;
+                    cka.date_time = dtn;
+                    cka.guid = guid;
+                    cka.lat = lat;
+                    cka.lon = lon;
+                    cka.os = os;
+                    cka.points = 1;
+                    cka.user_id = user_id;
+                    cka.province = Config.getProvince(address);
+                    db.checkalls.Add(cka);
+                    db.SaveChanges();
+                    int count = db.checkalls.Count(o => o.user_id == user_id);
+                    field.Add("active", active);
                     if (address == null || address == "")
                     {
                         address = RetrieveFormatedAddress(lat, lon);
                         if (address != null && address != "")
                             field.Add("location", location);
                         else
-                            field.Add("location", location+" - (Địa chỉ chưa lấy được)");
+                            field.Add("location", location + " - (Địa chỉ chưa lấy được)");
                     }
-                    sn_locations sl = new sn_locations();
-                    sl.address = address;
-                    sl.guid = guid;
-                    sl.lat = lat;
-                    sl.lon = lon;
-                    sl.user_id = user_id;
-                    sl.date_time = DateTime.Now;
-                    sl.os = os;
-                    db.sn_locations.Add(sl);
-                    db.SaveChanges();
-                }
-                //Tích điểm
-                if (db.sn_smart_point.Any(o => o.guid == guid))
-                {
-                    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
-                    var pt = db.sn_smart_point.Where(o => o.guid == guid).FirstOrDefault();
-                    field.Add("point", "Sản phẩm này đã được tích điểm vào lúc "+pt.date_time.ToString()+", bạn không thể tích thêm điểm");
-                    field.Add("total", count.ToString());
-                }
-                else
-                {
-                    sn_smart_point ssp = new sn_smart_point();
-                    ssp.date_time = DateTime.Now;
-                    ssp.guid = guid;
-                    ssp.points = 1;
-                    ssp.user_id = user_id;
-                    ssp.os = os;
-                    db.sn_smart_point.Add(ssp);
-                    db.SaveChanges();
-                    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
                     point = point.Replace("{DIEM}", count.ToString());
                     field.Add("point", point);
                     field.Add("total", count.ToString());
                 }
+                
+                //Kích hoạt
+                //if (db.sn_active.Any(o => o.guid == guid))
+                //{
+                //    DateTime? atvd = db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time;
+                //    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + atvd.ToString());// + db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time.ToString()
+                //}
+                //else
+                //{
+                //    field.Add("active", active);
+                //    sn_active sa = new sn_active();
+                //    sa.date_time = DateTime.Now;
+                //    sa.guid = guid;
+                //    sa.os = os;
+                //    db.sn_active.Add(sa);
+                //    db.SaveChanges();
+                //}
+                //location = location.Replace("{DIADIEM}", address);
+                ////Báo địa điểm 
+                //if (db.sn_locations.Any(o => o.guid == guid))
+                //{
+                //    var locs = db.sn_locations.Where(o => o.guid == guid).FirstOrDefault();
+                //    field.Add("location", "Sản phẩm này đã báo địa điểm " + locs.address + " trước đó tại thời điểm " + locs.date_time.ToString());
+                //}
+                //else
+                //{
+                                 
+                //    if (address == null || address == "")
+                //    {
+                //        address = RetrieveFormatedAddress(lat, lon);
+                //        if (address != null && address != "")
+                //            field.Add("location", location);
+                //        else
+                //            field.Add("location", location+" - (Địa chỉ chưa lấy được)");
+                //    }
+                //    sn_locations sl = new sn_locations();
+                //    sl.address = address;
+                //    sl.guid = guid;
+                //    sl.lat = lat;
+                //    sl.lon = lon;
+                //    sl.user_id = user_id;
+                //    sl.date_time = DateTime.Now;
+                //    sl.os = os;
+                //    db.sn_locations.Add(sl);
+                //    db.SaveChanges();
+                //}
+                ////Tích điểm
+                //if (db.sn_smart_point.Any(o => o.guid == guid))
+                //{
+                //    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
+                //    var pt = db.sn_smart_point.Where(o => o.guid == guid).FirstOrDefault();
+                //    field.Add("point", "Sản phẩm này đã được tích điểm vào lúc "+pt.date_time.ToString()+", bạn không thể tích thêm điểm");
+                //    field.Add("total", count.ToString());
+                //}
+                //else
+                //{
+                //    sn_smart_point ssp = new sn_smart_point();
+                //    ssp.date_time = DateTime.Now;
+                //    ssp.guid = guid;
+                //    ssp.points = 1;
+                //    ssp.user_id = user_id;
+                //    ssp.os = os;
+                //    db.sn_smart_point.Add(ssp);
+                //    db.SaveChanges();
+                //    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
+                //    point = point.Replace("{DIEM}", count.ToString());
+                //    field.Add("point", point);
+                //    field.Add("total", count.ToString());
+                //}
                 return Api("success", field, "Gửi thông tin về server thành công!");
             }
             catch (Exception ex)
