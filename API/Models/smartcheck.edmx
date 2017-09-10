@@ -64,7 +64,8 @@
           <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="code_company" Type="int" />
           <Property Name="company" Type="nvarchar" MaxLength="501" />
-          <Property Name="partner" Type="nvarchar" MaxLength="501" />
+          <Property Name="name" Type="nvarchar" MaxLength="501" />
+          <Property Name="date_time" Type="datetime" />
         </EntityType>
         <EntityType Name="qrcode">
           <Key>
@@ -150,9 +151,9 @@
           <EntitySet Name="users" EntityType="smartcheckModel.user" />
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
           <EntitySet Name="companies" EntityType="smartcheckModel.company" />
-          <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
           <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
           <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
+          <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
         </EntityContainer>
         <EntityType Name="config_app">
           <Key>
@@ -233,15 +234,6 @@
           <Property Name="date_time" Type="DateTime" Precision="3" />
           <Property Name="is_admin" Type="Int32" />
         </EntityType>
-        <EntityType Name="partner">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="partner1" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="qrcode">
           <Key>
             <PropertyRef Name="id" />
@@ -274,6 +266,16 @@
           <Property Name="date_time" Type="DateTime" Precision="3" />
           <Property Name="points" Type="Int32" />
           <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="partner">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -367,16 +369,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="partners">
-            <EntityTypeMapping TypeName="smartcheckModel.partner">
-              <MappingFragment StoreEntitySet="partner">
-                <ScalarProperty Name="partner1" ColumnName="partner" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="qrcodes">
             <EntityTypeMapping TypeName="smartcheckModel.qrcode">
               <MappingFragment StoreEntitySet="qrcode">
@@ -408,6 +400,17 @@
                 <ScalarProperty Name="lat" ColumnName="lat" />
                 <ScalarProperty Name="lon" ColumnName="lon" />
                 <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="partners">
+            <EntityTypeMapping TypeName="smartcheckModel.partner">
+              <MappingFragment StoreEntitySet="partner">
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

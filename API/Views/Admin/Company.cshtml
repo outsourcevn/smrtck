@@ -24,13 +24,23 @@
     {
 
         <tr>
-            <td>@item.name</td>
+            <td>
+                @if (item.is_admin != null)
+                {
+                    <span style="color:red;"><b>@item.name</b>(admin)</span>
+                }
+                else
+                {
+                    @item.name
+                }
+            </td>
             <td>@item.code</td>
             <td>@item.email</td>
             <td>@item.phone</td>            
             <td>@item.date_time</td>
             <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code)">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompany(@item.id,'@item.name');">Xóa</a></td>
+            <td><a href="#" onclick="confirmAdmin(@item.id);">Đặt Làm Admin</a></td>
         </tr>
     }
 </table>

@@ -28,9 +28,11 @@ namespace API.Controllers
         [HttpPost]
         public ActionResult LogOff()
         {
-            Config.removeCookie("user_id");
-            Config.removeCookie("user_name");
-            Config.removeCookie("user_email");
+            Config.removeCookie("is_admin");
+            Config.removeCookie("company_id");
+            Config.removeCookie("company_name");
+            Config.removeCookie("company_email");
+            Config.removeCookie("company_code");
             return View();
         }
         [HttpPost]
@@ -68,7 +70,7 @@ namespace API.Controllers
         }
         public ActionResult Customer(string k, int? page)
         {
-            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
            
                 var ctm = db.customers;
@@ -81,7 +83,7 @@ namespace API.Controllers
         }
         public ActionResult Company(string k, int? page)
         {
-            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
             var ctm = db.companies;
             var pageNumber = page ?? 1;
@@ -90,9 +92,26 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
+        public ActionResult Partner(string k,int? code_company, int? page)
+        {
+            if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
+            {
+                code_company = int.Parse(Config.getCookie("company_code"));
+            }
+            if (k == null) k = "";
+            var ctm = db.partners;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.company.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            ViewBag.company = Config.getCookie("company_name");
+            ViewBag.code_company = Config.getCookie("company_code");
+            return View();
+        }
         public ActionResult CompanyQrcodeConfig(string k, int? page)
         {
-            if (Config.getCookie("is_admin") == "1") return RedirectToAction("Login", "Admin");
+            if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin");
             if (k == null) k = "";
             var ctm = db.config_app;
             var pageNumber = page ?? 1;
@@ -110,6 +129,19 @@ namespace API.Controllers
         {
             try { 
                 db.Database.ExecuteSqlCommand("update customers set is_admin=1 where id=" + id);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+        [HttpPost]
+        public string confirmAdminCompany(long id)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand("update company set is_admin=1 where id=" + id);
                 return "1";
             }
             catch
@@ -223,8 +255,22 @@ namespace API.Controllers
             return DBContext.deletecustomer(cpId);
         }
         [HttpPost]
+        public string addUpdatePartner(partner cp)
+        {
+            cp.date_time = DateTime.Now;
+            return DBContext.addUpdatepartner(cp);
+        }
+
+        [HttpPost]
+        public string deletePartner(int cpId)
+        {
+            return DBContext.deletepartner(cpId);
+        }
+        [HttpPost]
         public string addUpdateCompany(company cp)
         {
+            MD5 md5Hash = MD5.Create();
+            cp.pass = Config.GetMd5Hash(md5Hash, cp.pass);
             cp.date_time = DateTime.Now;
             return DBContext.addUpdatecompany(cp);
         }

@@ -100,3 +100,17 @@ function searchCompany() {
     window.location.href = "/Admin/Company?k=" + $("#keyword").val();
 
 }
+function confirmAdmin(id) {
+    $.ajax({
+        url: "/Admin/confirmAdminCompany", type: 'post',
+        data: { id: id },
+        success: function (rs) {
+            if (rs == '1') {
+                alert("Đã xác nhận quyền admin");
+                location.reload();
+            } else {
+                alert(rs);
+            }
+        }
+    });
+}

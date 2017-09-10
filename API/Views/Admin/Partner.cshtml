@@ -1,0 +1,114 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Nhà Phân Phối Của Doanh Nghiệp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<button type="button" class="btn btn-primary" onclick="openPartner(0)">Thêm Mới</button><br /><br />
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập tên hoặc mã doanh nghiệp" value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchPartner();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+        @*<div class="form-group">
+                <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
+            </div>*@
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên</th><th>Doanh Nghiệp</th><th>Mã Doanh Nghiệp</th></tr>
+    @foreach (var item in (PagedList<partner>)ViewBag.OnePage)
+    {
+        <tr>
+            <td>
+                @item.name
+                @*@if (item.is_admin != null)
+                    {
+                        <span style="color:red;"><b>@item.name</b></span>
+                    }
+                    else
+                    {
+                        @item.name
+                    }*@
+            </td>
+            <td>@item.company</td>
+            <td>@item.code_company</td>           
+            <td><a href="#" onclick="openPartner(@item.id, '@item.name', '@item.company','@item.code_company')">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelPartner(@item.id,'@item.name');">Xóa</a></td>
+            @*<td><a href="#" onclick="confirmAdmin(@item.id);">Đặt Làm Admin</a></td>*@
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Partner", new { page }))
+
+<div id="PartnerDialog" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Thêm/Sửa</div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID" />
+        <p>Tên Nhà Phân Phối</p>
+        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên">
+        <p>Tên doanh nghiệp</p>
+        <input id="cp_company" type="text" class="form-control" placeholder="Nhập tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <p>Mã doanh nghiệp</p>
+        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã doanh nghiệp" disabled>
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="savePartner()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#PartnerDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var url_addUpdatePartner = '@Url.Action("addUpdatePartner","Admin")', url_deletePartner = '@Url.Action("deletePartner", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/Partner.js"></script>
+<script>
+    function searchCompanyName(type) {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function openPartner(id, name, company, code_company) {
+        $("#cp_ID").val(id);
+        $("#cp_name").val(name);
+        $("#cp_company").val(company);
+        $("#cp_code_company").val(code_company);
+        $("#PartnerDialog").show();
+    }
+    function savePartner() {
+
+        if ($("#cp_name").val() == "") {
+            alert("Nhập tên!");
+            return;
+        }
+        if ($("#cp_company").val() == "") {
+            alert("Nhập tên công ty!");
+            return;
+        }
+       
+        $.ajax({
+            url: url_addUpdatePartner, type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                ID: $("#cp_ID").val(), name: $("#cp_name").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val()
+            }),
+            success: function (rs) {
+                if (rs == '') {
+                    location.reload();
+                } else {
+                    alert(rs);
+                }
+            }
+        })
+    }
+</script>

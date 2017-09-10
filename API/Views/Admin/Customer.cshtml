@@ -25,21 +25,22 @@
       
         <tr>
             <td>
-                @if (item.is_admin != null)
+                @item.name
+                @*@if (item.is_admin != null)
                 {
                     <span style="color:red;"><b>@item.name</b></span>
                 }
                 else
                 {
                     @item.name
-                }
+                }*@
             </td>
             <td>@item.email</td>
             <td>@item.phone</td>
             <td>@item.date_time</td>
             <td><a href="#" onclick="openCustomer(@item.id, '@item.name', '@item.email','@item.phone')">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCustomer(@item.id,'@item.email');">Xóa</a></td>
-            <td><a href="#" onclick="confirmAdmin(@item.id);">Đặt Làm Admin</a></td>
+            @*<td><a href="#" onclick="confirmAdmin(@item.id);">Đặt Làm Admin</a></td>*@
         </tr>
     }
 </table>

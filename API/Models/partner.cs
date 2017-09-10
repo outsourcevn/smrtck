@@ -17,6 +17,7 @@ namespace API.Models
         public long id { get; set; }
         public Nullable<int> code_company { get; set; }
         public string company { get; set; }
-        public string partner1 { get; set; }
+        public string name { get; set; }
+        public Nullable<System.DateTime> date_time { get; set; }
     }
 }
