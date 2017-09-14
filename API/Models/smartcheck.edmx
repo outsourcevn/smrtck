@@ -19,6 +19,10 @@
           <Property Name="date_time" Type="datetime" />
           <Property Name="points" Type="int" />
           <Property Name="province" Type="nvarchar" MaxLength="150" />
+          <Property Name="id_partner" Type="int" />
+          <Property Name="partner" Type="nvarchar" MaxLength="501" />
+          <Property Name="company" Type="nvarchar" MaxLength="501" />
+          <Property Name="code_company" Type="int" />
         </EntityType>
         <EntityType Name="company">
           <Key>
@@ -85,6 +89,13 @@
           <Property Name="id_partner" Type="int" />
           <Property Name="partner" Type="nvarchar" MaxLength="501" />
         </EntityType>
+        <EntityType Name="qrcode_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="actions" Type="nvarchar" MaxLength="3501" />
+        </EntityType>
         <EntityType Name="sn_active">
           <Key>
             <PropertyRef Name="id" />
@@ -134,6 +145,7 @@
           <EntitySet Name="customers" EntityType="Self.customers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="partner" EntityType="Self.partner" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="qrcode" EntityType="Self.qrcode" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="qrcode_log" EntityType="Self.qrcode_log" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sn_active" EntityType="Self.sn_active" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sn_locations" EntityType="Self.sn_locations" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sn_smart_point" EntityType="Self.sn_smart_point" Schema="dbo" store:Type="Tables" />
@@ -154,6 +166,7 @@
           <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
           <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
           <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
+          <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
         </EntityContainer>
         <EntityType Name="config_app">
           <Key>
@@ -266,6 +279,10 @@
           <Property Name="date_time" Type="DateTime" Precision="3" />
           <Property Name="points" Type="Int32" />
           <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
         </EntityType>
         <EntityType Name="partner">
           <Key>
@@ -276,6 +293,13 @@
           <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="qrcode_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -391,6 +415,10 @@
           <EntitySetMapping Name="checkalls">
             <EntityTypeMapping TypeName="smartcheckModel.checkall">
               <MappingFragment StoreEntitySet="checkall">
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
                 <ScalarProperty Name="province" ColumnName="province" />
                 <ScalarProperty Name="points" ColumnName="points" />
                 <ScalarProperty Name="date_time" ColumnName="date_time" />
@@ -411,6 +439,14 @@
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="company" ColumnName="company" />
                 <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="qrcode_log">
+            <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
+              <MappingFragment StoreEntitySet="qrcode_log">
+                <ScalarProperty Name="actions" ColumnName="actions" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

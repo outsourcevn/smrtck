@@ -23,7 +23,7 @@
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo ở QR Code(phủ)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th></tr>
+    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo thông tin sản phẩm(khi quét app)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
     {
 
@@ -48,8 +48,8 @@
         <p>Chọn Doanh Nghiệp</p>        
         <input id="cp_company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
         <p>Mã Doanh Nghiệp</p>
-        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã">
-        <p>Thông báo ở QR Code(phủ) - <i>có định dạng text...{GUID} ở cuối</i></p>
+        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>Thông báo thông tin sản phẩm(khi quét app) </i></p>
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
         <p>Thông báo kích hoạt</p>
         <textarea id="cp_text_in_active"  class="form-control" placeholder="Thông báo kích hoạt" style="height:67px;"></textarea>

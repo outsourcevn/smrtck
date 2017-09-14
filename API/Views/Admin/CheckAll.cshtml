@@ -1,0 +1,180 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Thống kê báo cáo sản phẩm được quét bằng App SmartCheck";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    textarea {
+        height: 67px;
+    }
+</style>
+<h2>@ViewBag.Title</h2>
+<!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
+<div id="CompanyQrCodeDialog" style="display:block;" class="col-md-12">
+    <div class="dDialogContent" style="min-height: 600px;">
+        <p>Chọn Doanh Nghiệp</p>
+        <input id="cp_company" value="@ViewBag.company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code_company" value="@ViewBag.code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>Chọn nhà phân phối</p>
+        <input id="cp_partner" value="@ViewBag.partner" type="text" class="form-control" placeholder="Gõ tìm tên nhà phân phối" onkeyup="searchPartnerName();">
+        <p>Mã nhà phân phối</p>
+        <input id="cp_id_partner" value="@ViewBag.id_partner" type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>Từ ngày</p>
+        <input id="cp_from" value="@ViewBag.fdate" type="text" class="form-control" placeholder="Nhập từ ngày">
+        <p>Đến ngày</i></p>
+        <input id="cp_to" value="@ViewBag.tdate" type="text" class="form-control" placeholder="Đến ngày">
+        <div class="divBtn">
+            @*<button type="button" class="btn btn-primary" onclick="exportCheckAll()">Xuất ra file Excel</button>*@
+            <button type="button" class="btn btn-primary" onclick="searchCheckAll()">Tìm kiếm</button>
+            <a href="/Admin/CheckAll" class="btn btn-primary" >Tất Cả</a>
+        </div>
+        @if (ViewBag.notice != null && ViewBag.notice != "")
+        {
+            <h4><i>Nhật Ký: @ViewBag.notice</i></h4>
+        }
+    </div>
+</div>
+<div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Ảnh để quét</div>
+    <div class="dDialogContent">
+        <img src="" id="qrcodeload" />
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="$('#DialogImage').hide();">Thoát</button>
+    </div>
+</div>
+
+<div class="panel-heading">
+    <div class="form-inline" id="load">
+        <h1>Danh Sách @ViewBag.countall Qr Code Đã Quét Bằng Ứng Dụng SmartCheck</h1>
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th>Kích hoạt ngày</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
+    @foreach (var item in (PagedList<checkall>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.company</td>
+            <td>@item.partner</td>
+            <td>@item.guid</td>
+            <td>@item.date_time</td>
+            <td>@item.address</td>
+            <td>@item.province</td>
+            <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>            
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CheckAll", new { page }))
+
+<script>
+    $(function () {
+        $('#cp_from').datepicker();
+        $('#cp_to').datepicker();
+    });
+    function searchCompanyName() {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function searchPartnerName() {
+        var keyword = document.getElementById("cp_partner").value;
+        var code = document.getElementById("cp_code_company").value;
+        var urlSearch = '/Admin/getPartnerList?k=';
+        $('#cp_partner').autocomplete({
+            source: urlSearch + keyword + "&code_company=" + code,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_id_partner').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function exportCheckAll() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG TẠO FILE EXCEL, XIN CHỜ.......</h1>");
+        var url = "/Admin/exportCheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
+        window.open(url, "_blank");
+    }
+    function searchCheckAll() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+
+        if ("@ViewBag.is_admin" != "1" && "@ViewBag.code_company" != $("#cp_code_company").val()) {
+            alert("Bạn không được xem báo cáo của doanh nghiệp khác!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ ngày!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến ngày!");
+            return;
+        }
+        var url = "/Admin/CheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+        window.location.href = url;
+    }
+    function Generate(guid) {
+        $("#DialogImage").show();
+        $("#qrcodeload").attr("src","/Images/loader.gif");
+        $.ajax({
+            url: "/Admin/generateCode", type: 'post',
+            data: {
+                content: guid
+            },
+            success: function (rs) {
+                //alert(rs);
+                $("#qrcodeload").attr("src", rs);
+            }
+        });
+    }
+    function Undo(guid) {
+        $.ajax({
+            url: "/Admin/UndoQrCode", type: 'post',
+            data: {
+                content: guid
+            },
+            success: function (rs) {
+                if (rs == "1") {
+                    alert("Phục hồi thành công!");
+                } else {
+                    alert("Lỗi server");
+                }
+            }
+        });
+    }
+</script>

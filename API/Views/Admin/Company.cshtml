@@ -25,7 +25,7 @@
 
         <tr>
             <td>
-                @if (item.is_admin != null)
+                @if (item.is_admin ==1)
                 {
                     <span style="color:red;"><b>@item.name</b>(admin)</span>
                 }
@@ -40,7 +40,8 @@
             <td>@item.date_time</td>
             <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code)">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompany(@item.id,'@item.name');">Xóa</a></td>
-            <td><a href="#" onclick="confirmAdmin(@item.id);">Đặt Làm Admin</a></td>
+            <td><a href="#" onclick="confirmAdmin(@item.id,1);">Đặt Làm Admin</a></td>
+            <td><a href="#" onclick="confirmAdmin(@item.id,0);">Bỏ quyền Admin</a></td>
         </tr>
     }
 </table>
@@ -73,3 +74,19 @@
     var url_addUpdateCompany = '@Url.Action("addUpdateCompany","Admin")', url_deleteCompany = '@Url.Action("deleteCompany", "Admin")';
 </script>
 <script type="text/javascript" src="~/Scripts/Company.js"></script>
+<script>
+    function confirmAdmin(id,val) {
+        $.ajax({
+            url: "/Admin/confirmAdminCompany", type: 'post',
+            data: { id: id ,val:val},
+            success: function (rs) {
+                if (rs == '1') {
+                    alert("Đã xác nhận quyền admin");
+                    location.reload();
+                } else {
+                    alert(rs);
+                }
+            }
+        });
+    }
+</script>

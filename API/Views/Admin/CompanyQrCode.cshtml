@@ -1,0 +1,212 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "In Qr Code cho doanh nghiệp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    textarea {
+        height: 67px;
+    }
+</style>
+<h2>@ViewBag.Title</h2>
+<!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
+<div id="CompanyQrCodeDialog" style="display:block;" class="col-md-12">    
+    <div class="dDialogContent" style="min-height: 600px;">
+        <p>Chọn Doanh Nghiệp</p>
+        <input id="cp_company" value="@ViewBag.company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code_company" value="@ViewBag.code_company"  type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>Chọn nhà phân phối</p>
+        <input id="cp_partner" value="@ViewBag.partner"  type="text" class="form-control" placeholder="Gõ tìm tên nhà phân phối" onkeyup="searchPartnerName();">
+        <p>Mã nhà phân phối</p>
+        <input id="cp_id_partner" value="@ViewBag.id_partner"  type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>In từ số thứ tự</p>
+        <input id="cp_from" value="@ViewBag.ffrom"  type="text" class="form-control" placeholder="Nhập số thứ tự">
+        <p>Đến số thứ tự</i></p>
+        <input id="cp_to" value="@ViewBag.tto"  type="text" class="form-control" placeholder="Đến số thứ tự">
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveCompanyQrCode()">In Mã Qr Code</button>            
+            <button type="button" class="btn btn-primary" onclick="exportCompanyQrCode()">Xuất ra file Excel</button>
+            <button type="button" class="btn btn-primary" onclick="searchCompanyQrCode()">Tìm kiếm</button>
+            <button type="button" class="btn btn-primary" onclick="cancelCompanyQrCode()">Hủy in Mã Qr Code</button>
+        </div>
+        @if (ViewBag.notice != null && ViewBag.notice != "")
+        {
+            <h4><i>Nhật Ký: @ViewBag.notice</i></h4>
+        }
+    </div>
+</div>
+<div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Ảnh để quét</div>
+    <div class="dDialogContent">
+        <img src="" id="qrcodeload"/>
+    </div>
+    <div class="divBtn">       
+        <button type="button" class="btn btn-primary" onclick="$('#DialogImage').hide();">Thoát</button>
+    </div>
+</div>
+
+<div class="panel-heading">
+    <div class="form-inline" id="load">
+        <h1>Danh Sách Qr Code Đã In</h1>
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Qr Code 2 (phủ cào)</th><th>Guid</th><th>Số thứ tự</th><th>Nhà phân phối</th><th>Trạng thái</th><th></th><th></th></tr>
+    @foreach (var item in (PagedList<qrcode>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.company</td>
+            <td>@item.code_company</td>
+            <td>@item.qrcode2</td>
+            <td>@item.guid</td>
+            <td>@item.stt</td>
+            <td>@item.partner</td>
+            <td>
+                @if (item.status==0)
+                {
+                    <text>Đã in</text>
+                }
+                else
+                {
+                    <text>Đã hủy</text>
+                }
+            </td>
+            <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>
+            <td><a href="#" onclick="Undo('@item.guid')">Phục hồi quét thử</a></td>             
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrCode", new { page }))
+
+<script>
+    function searchCompanyName() {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function searchPartnerName() {
+        var keyword = document.getElementById("cp_partner").value;
+        var code = document.getElementById("cp_code_company").value;
+        var urlSearch = '/Admin/getPartnerList?k=';
+        $('#cp_partner').autocomplete({
+            source: urlSearch + keyword + "&code_company=" + code,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_id_partner').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function saveCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG SINH QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+        $.ajax({
+            url: "/Admin/generateQrCodeCompany", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+            },
+            success: function (rs) {
+                alert(rs);
+                location.reload();
+            }
+         });
+    }
+    function exportCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG TẠO FILE EXCEL, XIN CHỜ.......</h1>");
+        var url = "/Admin/exportCompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
+        window.open(url, "_blank");
+    }
+    function searchCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        var url = "/Admin/CompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
+        window.location.href = url;
+    }
+    function Generate(guid) {
+        $("#DialogImage").show();
+        $("#qrcodeload").attr("src","/Images/loader.gif");
+        $.ajax({
+            url: "/Admin/generateCode", type: 'post',
+            data: {
+                content: guid
+            },
+            success: function (rs) {
+                //alert(rs);
+                $("#qrcodeload").attr("src", rs);
+            }
+        });
+    }
+    function Undo(guid) {       
+        $.ajax({
+            url: "/Admin/UndoQrCode", type: 'post',
+            data: {
+                guid: guid
+            },
+            success: function (rs) {
+                if (rs == "1") {
+                    alert("Phục hồi thành công!");
+                } else {
+                    alert("Lỗi server");
+                }
+            }
+        });
+    }
+</script>

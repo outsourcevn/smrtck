@@ -185,23 +185,51 @@ namespace API.Controllers
                     field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
                     return Api("failed", field, "Ngày giờ ở máy bị sai số quá 10 phút nên ứng dụng không chạy được, Bạn cần chỉnh lại thời gian ở điện thoại!");
                 }
+                string label = "";
                 string active = "";
                 string location = "";
                 string point = "";
+                int? code_company = 0;
+                string company = "";
+                string partner = "";
+                int? id_partner = 0;
                 //Kiểm tra xem guid này có config cho cty nào không?
-                if (db.qrcodes.Any(o=>o.guid==guid)){
-                    int? code_company = db.qrcodes.Where(o => o.guid == guid).FirstOrDefault().code_company;
-                    var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
-                    active = info.text_in_active;
-                    location = info.text_in_location;
-                    point = info.text_in_point;
+                if (db.qrcodes.Any(o=>o.guid==guid && o.status==0)){
+                    var rs = db.qrcodes.Where(o => o.guid == guid && o.status == 0).FirstOrDefault();
+                    code_company = rs.code_company;
+                    company = rs.company;
+                    partner = rs.partner;
+                    id_partner = rs.id_partner;
+                    if (db.config_app.Any(o => o.code_company == code_company))
+                    {
+                        var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
+                        label = info.text_in_qr_code;
+                        active = info.text_in_active;
+                        location = info.text_in_location;
+                        point = info.text_in_point;
+                    }
+                    else
+                    {
+                        var info = db.config_app.Where(o => o.id == 1).FirstOrDefault();
+                        label = info.text_in_qr_code;
+                        active = info.text_in_active;
+                        location = info.text_in_location;
+                        point = info.text_in_point;
+                    }
                 }
                 else
                 {
-                    var info = db.config_app.Where(o => o.id==1).FirstOrDefault();
-                    active = info.text_in_active;
-                    location = info.text_in_location;
-                    point = info.text_in_point;
+                    field.Add("info", "Sản phẩm này không được cấp mã tem của An Hà");
+                    field.Add("active", "Sản phẩm này không được kích hoạt");
+                    field.Add("location", "Tại địa điểm " + address);                   
+                    field.Add("point", "Sản phẩm này không được tính tích điểm");
+                    field.Add("total", "...");
+                    return Api("success", field, "Gửi thông tin về server thành công!");
+                    //var info = db.config_app.Where(o => o.id==1).FirstOrDefault();
+                    //label = info.text_in_qr_code;
+                    //active = info.text_in_active;
+                    //location = info.text_in_location;
+                    //point = info.text_in_point;
                 }
                 DateTime dtn = DateTime.Now;
                 active = active.Replace("{NGAYTHANG}", Config.formatDateTime(dtn));
@@ -211,6 +239,7 @@ namespace API.Controllers
                 {
                     var cka = db.checkalls.Where(o => o.guid == guid).FirstOrDefault();
                     string dtfm = Config.formatDateTime(cka.date_time);
+                    field.Add("info", label);
                     field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
                     field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
                     int count = db.checkalls.Count(o => o.user_id == user_id);
@@ -229,9 +258,14 @@ namespace API.Controllers
                     cka.points = 1;
                     cka.user_id = user_id;
                     cka.province = Config.getProvince(address);
+                    cka.company = company;
+                    cka.code_company = code_company;
+                    cka.id_partner = id_partner;
+                    cka.partner = partner;
                     db.checkalls.Add(cka);
                     db.SaveChanges();
                     int count = db.checkalls.Count(o => o.user_id == user_id);
+                    field.Add("info", label);
                     field.Add("active", active);
                     if (address == null || address == "")
                     {

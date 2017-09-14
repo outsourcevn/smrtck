@@ -56,5 +56,48 @@ namespace API
             HttpContext.Current.Response.Cookies.Add(MyCookie);
             //Response.Cookies.Add(MyCookie);           
         }
+        public static string formatDateTime(DateTime? val)
+        {
+            try
+            {
+                return String.Format("{0:dd/MM/yyyy hh:mm tt}", val);
+            }
+            catch
+            {
+                return val.ToString();
+            }
+        }
+        public static string getProvince(string val)
+        {
+            if (val == null || val.Trim() == "") return val;
+            try
+            {
+                string[] pr = val.Split(',');
+                return pr[pr.Length - 2].Trim();
+
+            }
+            catch
+            {
+                return "";
+            }
+        }
+        public static int datetimeid()
+        {
+            DateTime d1;
+            try
+            {
+
+                d1 = DateTime.Now;//.ToUniversalTime();
+                string rs = d1.Year.ToString() + d1.Month.ToString("00") + d1.Day.ToString("00");
+                return int.Parse(rs);
+
+            }
+            catch (Exception ex)
+            {
+                d1 = DateTime.Now;//.ToUniversalTime();
+                string rs = d1.Year.ToString() + d1.Month.ToString("00") + d1.Day.ToString("00");
+                return int.Parse(rs);
+            }
+        }
     }
 }

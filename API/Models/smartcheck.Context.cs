@@ -35,5 +35,6 @@ namespace API.Models
         public virtual DbSet<qrcode> qrcodes { get; set; }
         public virtual DbSet<checkall> checkalls { get; set; }
         public virtual DbSet<partner> partners { get; set; }
+        public virtual DbSet<qrcode_log> qrcode_log { get; set; }
     }
 }

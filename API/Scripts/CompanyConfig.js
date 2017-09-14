@@ -57,10 +57,10 @@ function saveCompanyConfig() {
         alert("Nhập Thông báo tích điểm!");
         return;
     }
-    if ($("#cp_text_in_qr_code").val().indexOf("{GUID}")<0) {
-        alert("Nhập Thông báo ở QR Code(phủ) phải tồn tại ký tự {GUID}!");
-        return;
-    }
+    //if ($("#cp_text_in_qr_code").val().indexOf("{GUID}")<0) {
+    //    alert("Nhập Thông báo ở QR Code(phủ) phải tồn tại ký tự {GUID}!");
+    //    return;
+    //}
     if ($("#cp_text_in_active").val().indexOf("{NGAYTHANG}") < 0) {
         alert("Nhập Thông báo kích hoạt phải tồn tại ký tự {NGAYTHANG}!");
         return;
