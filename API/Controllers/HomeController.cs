@@ -398,7 +398,46 @@ namespace API.Controllers
 
             return View();
         }
+        public ActionResult Reset(string message)
+        {
+            ViewBag.Message = message;
 
+            return View();
+        }
+        public ActionResult ConfirmReset1(string message)
+        {
+            ViewBag.Message = message;
+
+            return View();
+        }
+        public ActionResult ConfirmReset2(string email,string code)
+        {
+
+            if (!db.customers.Any(o => o.email==email && o.pass == code))
+            {
+                return RedirectToAction("Reset", "Home", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+            ViewBag.code = code;
+            ViewBag.email = email;            
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ConfirmReset3(string email,string code, string pass, string pass2)
+        {
+            if (!db.customers.Any(o => o.email==email && o.pass == code))
+            {
+                return RedirectToAction("Reset", "Home", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+             MD5 md5Hash = MD5.Create();
+             string hash = Config.GetMd5Hash(md5Hash, pass);
+             db.Database.ExecuteSqlCommand("update customers set pass=N'" + hash + "' where email=N'" + email + "' and pass=N'" + code + "'");
+             return RedirectToAction("ConfirmReset4", "Home", new { message = "Đổi mật khẩu thành công, xin dùng số điện thoại bạn đã đăng ký đăng nhập cùng mật khẩu mới này" });
+        }
+        public ActionResult ConfirmReset4(string message)
+        {
+            ViewBag.Message = message;
+            return View();
+        }
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";

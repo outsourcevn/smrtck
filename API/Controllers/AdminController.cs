@@ -10,6 +10,8 @@ using PagedList;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
+using System.IO;
+using System.Configuration;
 namespace API.Controllers
 {
     
@@ -68,6 +70,29 @@ namespace API.Controllers
                     return RedirectToAction("Login", new { message = ViewBag.message });
                 }
             }
+        }
+        [HttpPost]
+        public ActionResult ResetEmail(string email)
+        {
+            try
+            {
+                if (db.customers.Any(o=>o.email==email)){
+                    string mailuser = ConfigurationManager.AppSettings["mailuser"];
+                    string mailpass = ConfigurationManager.AppSettings["mailpass"];//localhost:59340
+                    string link = "http://api.smartcheck.vn/home/ConfirmReset2?email=" + email + "&code=" + db.customers.Where(o => o.email == email).OrderBy(o => o.id).FirstOrDefault().pass;//api.smartcheck.vn
+                    if (Config.Sendmail(mailuser, mailpass, email, "Lấy lại mật khẩu của ứng dụng SmartCheck.Vn", "Ai đó đã dùng email này để yêu cầu lấy lại mật khấu, nếu là bạn xin xác nhận click vào đường link này để nhập lại mật khẩu " + link + ", nếu không phải là bạn xin bỏ qua email này.<br>http://smartcheck.vn"))
+                    {
+                        return RedirectToAction("ConfirmReset1", "Home", new { message = "Chúng tôi đã gửi mail đến địa chỉ email bạn cung cấp, vui lòng click vào link trong mail để đặt lại mật khẩu." });
+                    }
+                }else{
+                    return RedirectToAction("Reset","Home", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+                }
+            }
+            catch
+            {
+                    return RedirectToAction("Reset","Home", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+            return View();
         }
         public ActionResult Customer(string k, int? page)
         {
@@ -467,7 +492,123 @@ namespace API.Controllers
             {
                 return;
             }
+        }
+        public void exportCheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string provin, int? type)
+        {
 
+            try
+            {
+                if (type == 0)
+                {
+                   
+                    var rs = db.checkalls.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate).OrderByDescending(f => f.id).ToList();
+
+                    StringBuilder sb = new StringBuilder();
+                    //sb.Append("sn,qrcode\r\n");
+                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Guid</th><th>Thời Gian</th><th>Địa Chỉ</th><th>Tỉnh Thành</th><tr>");
+                    for (int i = 0; i < rs.Count; i++)
+                    {
+                        //sb.Append("\"" + rs[i].company + "\",\"" + rs[i].partner + "\",\"" + rs[i].guid + "\",\"" + rs[i].date_time + "\",\"" + rs[i].address + "\",\"" + rs[i].province + "\"\r\n");
+                        sb.Append("<tr><td>" + rs[i].company + "</td><td>" + rs[i].partner + "</td><td>" + rs[i].guid + "</td><td>" + rs[i].date_time + "</td><td>" + rs[i].address + "</td><td>" + rs[i].province + "</td></tr>");
+                    }
+                    //Encoding csvEncoding = Encoding.Unicode;
+                    Response.Clear();
+                    Response.ClearContent();
+                    Response.ClearHeaders();
+                    Response.BufferOutput = true;                    
+                    //Response.ContentType = "text/plain";
+                    //Response.AddHeader("Content-Disposition", "attachment; filename=" + code_company + "_" + id_partner + "_"+ffrom+"_"+tto+".txt");
+                    Response.ContentType = "application/vnd.ms-excel";//"text/csv";// 
+                    //Response.ContentEncoding = csvEncoding;
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + code_company + "_" + id_partner + "_" + fdate + "_" + tdate + ".xls");
+                    //string allines = sb.ToString();
+                    //UTF8Encoding utf8 = new UTF8Encoding();
+                    //var preamble = utf8.GetPreamble();
+                    //var data = utf8.GetBytes(allines);
+                    //Response.BinaryWrite(data);
+                    //Response.Write(htmlContent.ToString());
+                    //byte[] buffer = Encoding.Unicode.GetBytes(sb.ToString());
+                    //string convertedUtf8 = Encoding.Unicode.GetString(buffer);
+                    //byte[] bytesUtf8 = Encoding.Unicode.GetBytes(convertedUtf8);
+                    //Response.BinaryWrite(bytesUtf8);
+                    Response.Write("<table cellspacing=0 cellpadding=0 border=\"1\">" + sb.ToString() + "</table>");
+                    //Encoding encoding = Encoding.UTF8;
+                    //var bytes = encoding.GetBytes(sb.ToString());
+                    //MemoryStream stream = new MemoryStream(bytes);
+                    //StreamReader reader = new StreamReader(stream);
+                    //Response.Charset = encoding.BodyName;                    
+                    //Response.ContentEncoding = Encoding.Unicode;
+                    //Response.Output.Write(reader.ReadToEnd());
+                    Response.Flush();
+                    Response.Close();
+                    Response.End();
+                }
+                else
+                {
+                    string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+                    var rs = db.Database.SqlQuery<itemCheckAll>(query).ToList();
+                    StringBuilder sb = new StringBuilder();
+                    //sb.Append("sn,qrcode\r\n");
+                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th><tr>");
+                    for (int i = 0; i < rs.Count; i++)
+                    {
+                        //sb.Append("\"" + rs[i].company + "\",\"" + rs[i].partner + "\",\"" + rs[i].guid + "\",\"" + rs[i].date_time + "\",\"" + rs[i].address + "\",\"" + rs[i].province + "\"\r\n");
+                        sb.Append("<tr><td>" + rs[i].company + "</td><td>" + rs[i].partner + "</td><td>" + rs[i].province + "</td><td>" + rs[i].count + "</td></tr>");
+                    }
+                    //Encoding csvEncoding = Encoding.Unicode;
+                    Response.Clear();
+                    Response.ClearContent();
+                    Response.ClearHeaders();
+                    Response.BufferOutput = true;
+                    //Response.ContentType = "text/plain";
+                    //Response.AddHeader("Content-Disposition", "attachment; filename=" + code_company + "_" + id_partner + "_"+ffrom+"_"+tto+".txt");
+                    Response.ContentType = "application/vnd.ms-excel";//"text/csv";// 
+                    //Response.ContentEncoding = csvEncoding;
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + code_company + "_" + id_partner + "_" + fdate + "_" + tdate + ".xls");
+                    //string allines = sb.ToString();
+                    //UTF8Encoding utf8 = new UTF8Encoding();
+                    //var preamble = utf8.GetPreamble();
+                    //var data = utf8.GetBytes(allines);
+                    //Response.BinaryWrite(data);
+                    //Response.Write(htmlContent.ToString());
+                    //byte[] buffer = Encoding.Unicode.GetBytes(sb.ToString());
+                    //string convertedUtf8 = Encoding.Unicode.GetString(buffer);
+                    //byte[] bytesUtf8 = Encoding.Unicode.GetBytes(convertedUtf8);
+                    //Response.BinaryWrite(bytesUtf8);
+                    Response.Write("<table cellspacing=0 cellpadding=0 border=\"1\">" + sb.ToString() + "</table>");
+                    //Encoding encoding = Encoding.UTF8;
+                    //var bytes = encoding.GetBytes(sb.ToString());
+                    //MemoryStream stream = new MemoryStream(bytes);
+                    //StreamReader reader = new StreamReader(stream);
+                    //Response.Charset = encoding.BodyName;                    
+                    //Response.ContentEncoding = Encoding.Unicode;
+                    //Response.Output.Write(reader.ReadToEnd());
+                    Response.Flush();
+                    Response.Close();
+                    Response.End();
+                }
+
+            }
+            catch (Exception exmain)
+            {
+                return;
+            }
+        }
+        public class itemCheckAll
+        {
+            public string company { get; set; }
+            public string partner { get; set; }
+            public string province { get; set; }
+            public int count { get; set; }
+        }
+        [HttpPost]
+        public string showCheckAll(string company, string partner, DateTime? fdate, DateTime? tdate)
+        {
+            /****** Script for SelectTopNRows command from SSMS  ******/
+            string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+            var p = db.Database.SqlQuery<itemCheckAll>(query).ToList();
+            return JsonConvert.SerializeObject(p);
+ 
         }
     }
 }

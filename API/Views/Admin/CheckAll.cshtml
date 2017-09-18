@@ -26,10 +26,12 @@
         <input id="cp_from" value="@ViewBag.fdate" type="text" class="form-control" placeholder="Nhập từ ngày">
         <p>Đến ngày</i></p>
         <input id="cp_to" value="@ViewBag.tdate" type="text" class="form-control" placeholder="Đến ngày">
-        <div class="divBtn">
-            @*<button type="button" class="btn btn-primary" onclick="exportCheckAll()">Xuất ra file Excel</button>*@
+        <div class="divBtn">            
             <button type="button" class="btn btn-primary" onclick="searchCheckAll()">Tìm kiếm</button>
+            <button type="button" class="btn btn-primary" onclick="exportCheckAll()">Xuất ra file Excel</button>
             <a href="/Admin/CheckAll" class="btn btn-primary" >Tất Cả</a>
+            <input type="radio" name="typerp" id="typerp" value="0" checked> Chi tiết
+            <input type="radio" name="typerp" id="typerp" value="1">Tổng hợp<br>
         </div>
         @if (ViewBag.notice != null && ViewBag.notice != "")
         {
@@ -52,7 +54,7 @@
         <h1>Danh Sách @ViewBag.countall Qr Code Đã Quét Bằng Ứng Dụng SmartCheck</h1>
     </div>
 </div>
-<table class="table marginBottom0">
+<table class="table marginBottom0" id="listmain">
     <tr><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th>Kích hoạt ngày</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
     @foreach (var item in (PagedList<checkall>)ViewBag.OnePage)
     {
@@ -103,6 +105,7 @@
         });
     }
     function exportCheckAll() {
+        var type = $("#typerp:checked").val();
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
@@ -112,18 +115,20 @@
             return;
         }
         if ($("#cp_from").val() == "") {
-            alert("Nhập từ số thứ tự!");
+            alert("Nhập từ ngày!");
             return;
         }
         if ($("#cp_to").val() == "") {
-            alert("Nhập đến số thứ tự!");
+            alert("Nhập đến ngày!");
             return;
         }
+        
         $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG TẠO FILE EXCEL, XIN CHỜ.......</h1>");
-        var url = "/Admin/exportCheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
+        var url = "/Admin/exportCheckAll?type=" + type + "&code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
         window.open(url, "_blank");
     }
     function searchCheckAll() {
+        var type = $("#typerp:checked").val();
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
@@ -145,8 +150,40 @@
             alert("Nhập đến ngày!");
             return;
         }
-        var url = "/Admin/CheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
-        window.location.href = url;
+        if (type == 0) {
+            var url = "/Admin/CheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+            window.location.href = url;
+        } else {
+            var url = "/Admin/showCheckAll?company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+            //$.getJSON(url, function (data) {
+            //    var items = [];
+            //    $.each(data, function (key, val) {
+            //        items.push("<li id='" + key + "'>" + val + "</li>");
+            //    });
+            //});
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    $.ajax({
+                        type: 'POST',
+                        url: url,                      
+                        success: function (data) {
+                            //alert(data);
+                            var json = $.parseJSON(data);
+                            //now json variable contains data in json format
+                            //let's display a few items
+                            $("#listmain").html("<tr><th>Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th></tr>");
+                            for (var i = 0; i < json.length; ++i) {
+                                $("#listmain").append("<tr><td>" + json[i].company + "</td><td>" + json[i].partner + "</td><td>" + json[i].province + "</td><td>" + json[i].count + "</td></tr>");
+                                //alert(json[i].company);
+                            }
+                        }
+                    });
+                }
+            };
+            xmlhttp.open("POST", url, true);
+            xmlhttp.send();
+        }
     }
     function Generate(guid) {
         $("#DialogImage").show();

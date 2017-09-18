@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "Reset";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="col-md-12" style="min-height:200px;">
+    <h1 style="text-align:center;">Lấy Lại Mật Khẩu Người Dùng</h1>
+    <h2 style="color:red;text-align:center;">@ViewBag.message</h2>
+    <div class="row" style="width:75%;top:25%;left:12%;background:#f4f4f4;color:#000000;position:relative;padding-left:5px;padding-right:5px;text-align:left;display:block;z-index:1002;" id="dv_user_comment">
+
+        <div>
+            <form class="form-horizontal" action="/Admin/ResetEmail" method="post" id="register">
+                <fieldset>
+                    <legend class="text-center">Điền email của bạn, chúng tôi sẽ gửi cho bạn 1 đường link qua email để lấy lại mật khẩu</legend>
+                    <!-- Phone input-->
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="email">Nhập Email Của Bạn</label>
+                        <div class="col-md-9">
+                            <input id="email" name="email" type="text" placeholder="Nhập email của bạn" class="form-control">
+                            <input type="button" value="XÁC NHẬN" class="btn btn-primary btn-block" onclick="submitF();" style="margin-bottom:5px;" />
+                        </div>
+                    </div>                   
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function submitF() {
+        if ($('#email').val() == "") {
+            alert("Nhập email!");
+            document.getElementById("email").focus();
+            return;
+        }
+        document.getElementById("register").submit();
+    }
+</script>
+
+
