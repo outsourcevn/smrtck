@@ -26,10 +26,12 @@
         <input id="cp_from" value="@ViewBag.fdate" type="text" class="form-control" placeholder="Nhập từ ngày">
         <p>Đến ngày</i></p>
         <input id="cp_to" value="@ViewBag.tdate" type="text" class="form-control" placeholder="Đến ngày">
+        <p>Từ khóa</i></p>
+        <input id="cp_k" value="@ViewBag.k" type="text" class="form-control" placeholder="Nhập số thứ tự, email, số điện thoại, mã sản phẩm...">
         <div class="divBtn">            
             <button type="button" class="btn btn-primary" onclick="searchCheckAll()">Tìm kiếm</button>
             <button type="button" class="btn btn-primary" onclick="exportCheckAll()">Xuất ra file Excel</button>
-            <a href="/Admin/CheckAll" class="btn btn-primary" >Tất Cả</a>
+            @if (Config.getCookie("is_admin") == "1") { <a href="/Admin/CheckAll" class="btn btn-primary" >Tất Cả</a>}
             <input type="radio" name="typerp" id="typerp" value="0" checked> Chi tiết
             <input type="radio" name="typerp" id="typerp" value="1">Tổng hợp<br>
         </div>
@@ -55,7 +57,7 @@
     </div>
 </div>
 <table class="table marginBottom0" id="listmain">
-    <tr><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th>Kích hoạt ngày</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
+    <tr><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th>Số thứ tự</th><th>Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
     @foreach (var item in (PagedList<checkall>)ViewBag.OnePage)
     {
 
@@ -63,16 +65,20 @@
             <td>@item.company</td>
             <td>@item.partner</td>
             <td>@item.guid</td>
+            <td>@item.stt</td>
             <td>@item.date_time</td>
+            <td>@item.user_email</td>
+            <td>@item.user_phone</td>
             <td>@item.address</td>
             <td>@item.province</td>
             <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>            
         </tr>
     }
 </table>
-@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CheckAll", new { page }))
+@*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CheckAll", new { page }))*@
 
 <script>
+    var order = "@ViewBag.order";
     $(function () {
         $('#cp_from').datepicker();
         $('#cp_to').datepicker();
@@ -110,10 +116,10 @@
             alert("Nhập doanh nghiệp!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
-            alert("Nhập nhà phân phối!");
-            return;
-        }
+        //if ($("#cp_id_partner").val() == "") {
+        //    alert("Nhập nhà phân phối!");
+        //    return;
+        //}
         if ($("#cp_from").val() == "") {
             alert("Nhập từ ngày!");
             return;
@@ -138,23 +144,23 @@
             alert("Bạn không được xem báo cáo của doanh nghiệp khác!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
-            alert("Nhập nhà phân phối!");
-            return;
-        }
-        if ($("#cp_from").val() == "") {
-            alert("Nhập từ ngày!");
-            return;
-        }
-        if ($("#cp_to").val() == "") {
-            alert("Nhập đến ngày!");
-            return;
-        }
+        //if ($("#cp_id_partner").val() == "") {
+        //    alert("Nhập nhà phân phối!");
+        //    return;
+        //}
+        //if ($("#cp_from").val() == "") {
+        //    alert("Nhập từ ngày!");
+        //    return;
+        //}
+        //if ($("#cp_to").val() == "") {
+        //    alert("Nhập đến ngày!");
+        //    return;
+        //}
         if (type == 0) {
-            var url = "/Admin/CheckAll?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+            var url = "/Admin/CheckAll?type=0&code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
             window.location.href = url;
         } else {
-            var url = "/Admin/showCheckAll?company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+            var url = "/Admin/showCheckAll?type=1&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
             //$.getJSON(url, function (data) {
             //    var items = [];
             //    $.each(data, function (key, val) {

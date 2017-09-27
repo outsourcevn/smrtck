@@ -87,12 +87,22 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/admin">SmartCheck.Vn Version 1.0</a>
+                <span style="float:right;display:block;position:fixed;right:0px;">
+                    @{
+                        <text>
+                            Người dùng: <b>@Config.getCookie("company_name")</b>, 
+                            Email: <b>@Config.getCookie("company_email")</b>,  
+                            Điện thoại: <b>@Config.getCookie("company_phone")</b>
+                        </text>
+                    }                
+                </span>
             </div>
             <!-- /.navbar-header -->
 
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
+                        @if (Config.getCookie("is_admin") == "1") { 
                         <li>
                             <a href="/Admin/Company"><i class="fa fa-product-hunt fa-fw"></i>Quản lý Doanh Nghiệp</a>
                         </li>
@@ -109,17 +119,21 @@
                                 <li><a href="/Admin/CompanyQrCode"><i class="fa fa-bars fa-fw"></i>In Qr Code</a></li>
                             </ul>
                         </li>
+                        }
                         <li>
                             <a href="/Admin/CheckAll"><i class="fa fa-product-hunt fa-fw"></i>Báo Cáo Thống Kê</a>
                         </li>
-                        <li>
+                        @*<li>
                             <a href="/home"><i class="fa fa-home fa-fw"></i>Quay lại trang chủ</a>
-                        </li>
+                        </li>*@
                         <li>
                             <a href="/Admin/Login"><i class="fa fa-home fa-fw"></i> Đăng Nhập</a>
                         </li>
                         <li>
                             <a href="javascript:document.getElementById('logoutForm').submit();"><i class="fa fa-home fa-fw"></i> Đăng Xuất</a>
+                        </li>
+                        <li>
+                            <a href="/Admin/Reset"><i class="fa fa-home fa-fw"></i> Đổi mật khẩu</a>
                         </li>
                     </ul>
                 </div>

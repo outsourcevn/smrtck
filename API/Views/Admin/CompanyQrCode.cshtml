@@ -28,9 +28,11 @@
         <input id="cp_to" value="@ViewBag.tto"  type="text" class="form-control" placeholder="Đến số thứ tự">
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyQrCode()">In Mã Qr Code</button>            
-            <button type="button" class="btn btn-primary" onclick="exportCompanyQrCode()">Xuất ra file Excel</button>
+            <button type="button" class="btn btn-danger" onclick="exportCompanyQrCode()">Xuất ra file Excel</button>
             <button type="button" class="btn btn-primary" onclick="searchCompanyQrCode()">Tìm kiếm</button>
-            <button type="button" class="btn btn-primary" onclick="cancelCompanyQrCode()">Hủy in Mã Qr Code</button>
+            <button type="button" class="btn btn-danger" onclick="cancelCompanyQrCode()">Hủy in Mã Qr Code</button>
+            <button type="button" class="btn btn-primary" onclick="delCompanyQrCode()">Xóa in Mã Qr Code</button>
+            <button type="button" class="btn btn-danger" onclick="updateCompanyQrCode()">Cập nhật lại nhà phân phối</button>
         </div>
         @if (ViewBag.notice != null && ViewBag.notice != "")
         {
@@ -72,7 +74,7 @@
                 }
                 else
                 {
-                    <text>Đã hủy</text>
+                    <text><span style="color:red;">Đã hủy</span></text>
                 }
             </td>
             <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>
@@ -80,8 +82,33 @@
         </tr>
     }
 </table>
-@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrCode", new { page }))
-
+@*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrCode", new { page }))*@
+<ul class="pagination pagination-lg">
+    <li><a href="#">Trang:</a></li>
+    @{ int maxPage = ViewBag.PageCount > 5 ? 5 : ViewBag.PageCount;}
+    @for (int i = 1; i <= maxPage; i++)
+    {
+        if (i != ViewBag.page)
+        {
+            <text>
+                <li><a href="/Admin/CompanyQrCode?code_company=@ViewBag.code_company&id_partner=@ViewBag.id_partner&ffrom=@ViewBag.ffrom&tto=@ViewBag.tto&page=@i">@i</a></li></text>
+        }
+        else
+        {
+            <text>
+                <li><a href="/Admin/CompanyQrCode?code_company=@ViewBag.code_company&id_partner=@ViewBag.id_partner&ffrom=@ViewBag.ffrom&tto=@ViewBag.tto&page=@i" class="active" style="background-color: #c52d2f;border-color: #c52d2f;color:#fff;">@i</a></li></text>
+        }
+    }
+    @{
+        int page = ViewBag.page;
+        int nextpage = page + 1;
+        <text>
+            <li><a href="/Admin/CompanyQrCode?code_company=@ViewBag.code_company&id_partner=@ViewBag.id_partner&ffrom=@ViewBag.ffrom&tto=@ViewBag.tto&page=@nextpage">Trang tiếp</a></li>
+            <li>...</li>
+            <li><a href="/Admin/CompanyQrCode?code_company=@ViewBag.code_company&id_partner=@ViewBag.id_partner&ffrom=@ViewBag.ffrom&tto=@ViewBag.tto&page=@ViewBag.PageCount">Trang cuối</a></li>
+        </text>
+    }
+</ul><!--/.pagination-->
 <script>
     function searchCompanyName() {
         var keyword = document.getElementById("cp_company").value;
@@ -179,6 +206,93 @@
         }
         var url = "/Admin/CompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
         window.location.href = url;
+    }
+    function cancelCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG HỦY QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+        $.ajax({
+            url: "/Admin/cancelCompanyQrCode", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+            },
+            success: function (rs) {
+                alert(rs);
+                location.reload();
+            }
+        });
+    }
+    function delCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG XÓA QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+        $.ajax({
+            url: "/Admin/delCompanyQrCode", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+            },
+            success: function (rs) {
+                alert(rs);
+                location.reload();
+            }
+        });
+    }
+    function updateCompanyQrCode() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_id_partner").val() == "") {
+            alert("Nhập nhà phân phối!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG CẬP NHẬT QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+        $.ajax({
+            url: "/Admin/updateCompanyQrCode", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+            },
+            success: function (rs) {
+                alert(rs);
+                location.reload();
+            }
+        });
     }
     function Generate(guid) {
         $("#DialogImage").show();

@@ -35,6 +35,7 @@ namespace API.Controllers
             Config.removeCookie("company_id");
             Config.removeCookie("company_name");
             Config.removeCookie("company_email");
+            Config.removeCookie("company_phone");
             Config.removeCookie("company_code");
             return View();
         }
@@ -50,6 +51,7 @@ namespace API.Controllers
                 Config.setCookie("company_id", us.id.ToString());
                 Config.setCookie("company_name", us.name);
                 Config.setCookie("company_email", us.email);
+                Config.setCookie("company_phone", us.phone);
                 Config.setCookie("company_code", us.code.ToString());
                 return RedirectToAction("Company");
             }
@@ -62,6 +64,7 @@ namespace API.Controllers
                     Config.setCookie("company_id", us.id.ToString());
                     Config.setCookie("company_name", us.name);
                     Config.setCookie("company_email", us.email);
+                    Config.setCookie("company_phone", us.phone);
                     Config.setCookie("company_code", us.code.ToString());
                     return RedirectToAction("CheckAll");
                 }
@@ -92,6 +95,66 @@ namespace API.Controllers
             {
                     return RedirectToAction("Reset","Home", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
             }
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ResetEmailCompany(string email)
+        {
+            try
+            {
+                if (db.companies.Any(o => o.email == email))
+                {
+                    string mailuser = ConfigurationManager.AppSettings["mailuser"];
+                    string mailpass = ConfigurationManager.AppSettings["mailpass"];//localhost:59340
+                    string link = "http://api.smartcheck.vn/Admin/ConfirmReset2?email=" + email + "&code=" + db.companies.Where(o => o.email == email).OrderBy(o => o.id).FirstOrDefault().pass;//api.smartcheck.vn
+                    if (Config.Sendmail(mailuser, mailpass, email, "Đổi hoặc Lấy lại mật khẩu của ứng dụng SmartCheck.Vn", "Ai đó đã dùng email này để yêu cầu lấy lại mật khấu, nếu là bạn xin xác nhận click vào đường link này để nhập lại mật khẩu " + link + ", nếu không phải là bạn xin bỏ qua email này.<br>http://smartcheck.vn"))
+                    {
+                        return RedirectToAction("ConfirmReset1", "Admin", new { message = "Chúng tôi đã gửi mail đến địa chỉ email bạn cung cấp, vui lòng click vào link trong mail để đặt lại mật khẩu." });
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Reset", "Admin", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+                }
+            }
+            catch
+            {
+                return RedirectToAction("Reset", "Admin", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+            return View();
+        }
+        public ActionResult ConfirmReset1(string message)
+        {
+            ViewBag.Message = message;
+
+            return View();
+        }
+        public ActionResult ConfirmReset2(string email, string code)
+        {
+
+            if (!db.companies.Any(o => o.email == email && o.pass == code))
+            {
+                return RedirectToAction("Reset", "Admin", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+            ViewBag.code = code;
+            ViewBag.email = email;
+            return View();
+        }
+        [HttpPost]
+        public ActionResult ConfirmReset3(string email, string code, string pass, string pass2)
+        {
+            if (!db.companies.Any(o => o.email == email && o.pass == code))
+            {
+                return RedirectToAction("Reset", "Admin", new { message = "Không tìm thấy email này trong dữ liệu, vui lòng điền email khác mà bạn dùng để đăng ký" });
+            }
+            MD5 md5Hash = MD5.Create();
+            string hash = Config.GetMd5Hash(md5Hash, pass);
+            db.Database.ExecuteSqlCommand("update company set pass=N'" + hash + "' where email=N'" + email + "' and pass=N'" + code + "'");
+            return RedirectToAction("ConfirmReset4", "Admin", new { message = "Đổi mật khẩu thành công, xin dùng số điện thoại bạn đã đăng ký đăng nhập cùng mật khẩu mới này" });
+        }
+        public ActionResult ConfirmReset4(string message)
+        {
+            ViewBag.Message = message;
             return View();
         }
         public ActionResult Customer(string k, int? page)
@@ -158,40 +221,105 @@ namespace API.Controllers
                 onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.stt >= ffrom && o.stt <= tto).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             }
             ViewBag.onePage = onePage;
+            ViewBag.PageCount = onePage.PageCount;
             ViewBag.code_company = code_company;
             ViewBag.company = company;
             ViewBag.partner = partner;
             ViewBag.id_partner = id_partner;
             ViewBag.ffrom = ffrom;
             ViewBag.tto = tto;
+            ViewBag.page = page==null?1:page;
             var nt= db.qrcode_log.OrderByDescending(o=>o.id).FirstOrDefault();
             ViewBag.notice = nt!=null?nt.actions:"";
             return View();
         }
-        public ActionResult CheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string provin,int? type, int? page)
+        public ActionResult CheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string k,int? order, int? page)
         {
             if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
             if (Config.getCookie("is_admin") != "1") { 
                 code_company = int.Parse(Config.getCookie("company_code"));
+                company = Config.getCookie("company_name");
             }
-            if (provin == null) provin = "";
+            if (k == null) k = "";
             var ctm = db.checkalls;
             var pageNumber = page ?? 1;
-            var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            var onePage = db.checkalls.Select(p => p); //ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            if (fdate == null) fdate = DateTime.Now.AddDays(-90);
+            if (tdate == null) tdate = DateTime.Now;
+            //if (id_partner != null && code_company != null && id_partner != 0 && company != "")
+            //{
+            //    if (order == null) { 
+            //        onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            //    }
+            //    else
+            //        if (order == 1)//sn, stt
+            //        {
+            //            onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderBy(f => f.stt).ToPagedList(pageNumber, 20);
+            //        } else
+            //            if (order == 2)//sn, stt
+            //            {
+            //                onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.stt).ToPagedList(pageNumber, 20);
+            //            }
+                
+
+            //}
+            //else
+            //{
+            //    if (code_company != null && company != "")
+            //    {
+            //        onePage = ctm.Where(o => o.code_company == code_company && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            //    }
+            //}
+            if (code_company != null)
+            {
+                onePage = onePage.Where(o => o.code_company == code_company);
+            }
             if (id_partner != null)
             {
-                onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
-                
+                onePage = onePage.Where(o => o.id_partner == id_partner);
             }
-            ViewBag.onePage = onePage;
+            if (fdate != null)
+            {
+                onePage = onePage.Where(o => o.date_time >= fdate);
+            }
+            if (tdate != null)
+            {
+                onePage = onePage.Where(o => o.date_time <= tdate);
+            }
+            if (k != "")
+            {
+                onePage = onePage.Where(o => o.stt.ToString()==k || o.user_phone==k || o.user_email==k || o.guid==k);
+            }
+            if (order == null){
+                ViewBag.onePage = onePage.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            }
+            if (order == 1)//sn asc 
+            {
+                ViewBag.onePage = onePage.OrderBy(f => f.stt).ToPagedList(pageNumber, 20); 
+            }
+            if (order == 2)//sn desc 
+            {
+                ViewBag.onePage = onePage.OrderByDescending(f => f.stt).ToPagedList(pageNumber, 20);
+            }
+            if (order == 3)//date asc 
+            {
+                ViewBag.onePage = onePage.OrderBy(f => f.date_time).ToPagedList(pageNumber, 20);
+            }
+            if (order == 4)//date asc 
+            {
+                ViewBag.onePage = onePage.OrderByDescending(f => f.date_time).ToPagedList(pageNumber, 20);
+            }
+            //ViewBag.onePage = onePage;
             ViewBag.code_company = code_company;            
             ViewBag.id_partner = id_partner;
             ViewBag.company = company;
             ViewBag.partner = partner;
             ViewBag.fdate = fdate;
             ViewBag.tdate = tdate;
-            ViewBag.countall = onePage.Count;
+            ViewBag.countall = ViewBag.onePage.Count;
             ViewBag.is_admin = Config.getCookie("is_admin");
+            ViewBag.k = k;
+            ViewBag.order = order;
             return View();
         }
         public ActionResult Generate()
@@ -267,12 +395,12 @@ namespace API.Controllers
                     long? maxstt=db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o=>o.stt);
                     return "Đã tồn tại khoảng thứ tự này, đề nghị chọn khoảng in khác, đã in đến số thứ tự " + maxstt;
                 }
-                string info = db.config_app.Where(o => o.id==1).OrderBy(o => o.id).FirstOrDefault().text_in_qr_code;
-                if (db.config_app.Any(o => o.code_company == code_company))
-                {
+                //string info = db.config_app.Where(o => o.id==1).OrderBy(o => o.id).FirstOrDefault().text_in_qr_code;
+                //if (db.config_app.Any(o => o.code_company == code_company))
+                //{
 
-                    info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o => o.id).FirstOrDefault().text_in_qr_code;
-                }
+                //    info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o => o.id).FirstOrDefault().text_in_qr_code;
+                //}
                 
                 DateTime fromtime = DateTime.Now;
                 for (long i = ffrom; i <= tto; i++)
@@ -303,6 +431,84 @@ namespace API.Controllers
             catch(Exception ex)
             {
                 return "Có lỗi xảy ra khi in "+ex.ToString();
+            }
+        }
+        [HttpPost]
+        public string cancelCompanyQrCode(int code_company, string company, string partner, int id_partner, long ffrom, long tto)
+        {
+            try
+            {
+                if (db.checkalls.Any(o => o.code_company == code_company && o.id_partner == id_partner && o.stt >= ffrom && o.stt <= tto))
+                {
+                    long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
+                    return "Không hủy được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự ("+ffrom+"->"+tto+"), đề nghị chọn khoảng số thứ tự khác để hủy";
+                }
+              
+                DateTime fromtime = DateTime.Now;
+                db.Database.ExecuteSqlCommand("update qrcode set status=1 where code_company=" + code_company + " and id_partner=" + id_partner + " and stt>=" + ffrom + " and stt<=" + tto);
+                qrcode_log ql = new qrcode_log();
+                int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
+                string notice = "Đã hủy các mã qr code cho công ty " + company + ", nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
+                ql.actions = notice;
+                db.qrcode_log.Add(ql);
+                db.SaveChanges();
+                return notice;
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
+            }
+        }
+        [HttpPost]
+        public string delCompanyQrCode(int code_company, string company, string partner, int id_partner, long ffrom, long tto)
+        {
+            try
+            {
+                if (db.checkalls.Any(o => o.code_company == code_company && o.id_partner == id_partner && o.stt >= ffrom && o.stt <= tto))
+                {
+                    long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
+                    return "Không xóa được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + ffrom + "->" + tto + "), đề nghị chọn khoảng số thứ tự khác để hủy";
+                }
+
+                DateTime fromtime = DateTime.Now;
+                db.Database.ExecuteSqlCommand("delete from qrcode where code_company=" + code_company + " and id_partner=" + id_partner + " and stt>=" + ffrom + " and stt<=" + tto);
+                qrcode_log ql = new qrcode_log();
+                int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
+                string notice = "Đã xóa các mã qr code cho công ty " + company + ", nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
+                ql.actions = notice;
+                db.qrcode_log.Add(ql);
+                db.SaveChanges();
+                return notice;
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
+            }
+        }
+        [HttpPost]
+        public string updateCompanyQrCode(int code_company, string company, string partner, int id_partner, long ffrom, long tto)
+        {
+            try
+            {
+                if (db.checkalls.Any(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto))
+                {
+                    //long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
+                    return "Không cập nhật được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + ffrom + "->" + tto + "), đề nghị chọn khoảng số thứ tự khác để hủy";
+                }
+
+                DateTime fromtime = DateTime.Now;
+                db.Database.ExecuteSqlCommand("update qrcode set id_partner=" + id_partner + ",partner=N'" + partner + "' where code_company=" + code_company + " and stt>=" + ffrom + " and stt<=" + tto);
+                qrcode_log ql = new qrcode_log();
+                int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
+                string notice = "Đã cập nhật các mã qr code cho công ty " + company + ", thành nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
+                ql.actions = notice;
+                db.qrcode_log.Add(ql);
+                db.SaveChanges();
+                return notice;
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
             }
         }
         // GET: Admin/Details/5
@@ -484,7 +690,7 @@ namespace API.Controllers
                 Response.Write(sb.ToString());
                 //Response.Write(htmlContent.ToString());
                 Response.Flush();
-                Response.Close();
+                //Response.Close();
                 Response.End();
 
             }
@@ -493,23 +699,77 @@ namespace API.Controllers
                 return;
             }
         }
-        public void exportCheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string provin, int? type)
+        public void exportCheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, int? order, string k,int? type)
         {
 
             try
             {
+                if (k == null) k = "";
                 if (type == 0)
                 {
-                   
-                    var rs = db.checkalls.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate).OrderByDescending(f => f.id).ToList();
 
+                    var rs = db.checkalls.Select(p => p);
+                    //var rs = db.checkalls.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate).OrderByDescending(f => f.id).ToList();
+                    //if (id_partner != null && code_company != null && id_partner != 0 && company != "")
+                    //{
+                    //    rs = db.checkalls.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.id).ToList();
+
+                    //}
+                    //else
+                    //{
+                    //    if (code_company != null && company != "")
+                    //    {
+                    //        rs = db.checkalls.Where(o => o.code_company == code_company && o.date_time >= fdate && o.date_time <= tdate && o.province.Contains(provin)).OrderByDescending(f => f.id).ToList();
+                    //    }
+                    //}
+                    if (code_company != null)
+                    {
+                        rs = rs.Where(o => o.code_company == code_company);
+                    }
+                    if (id_partner != null)
+                    {
+                        rs = rs.Where(o => o.id_partner == id_partner);
+                    }
+                    if (fdate != null)
+                    {
+                        rs = rs.Where(o => o.date_time >= fdate);
+                    }
+                    if (tdate != null)
+                    {
+                        rs = rs.Where(o => o.date_time <= tdate);
+                    }
+                    if (k != "")
+                    {
+                        rs = rs.Where(o => o.stt.ToString() == k || o.user_phone == k || o.user_email == k || o.guid == k);
+                    }
+                    if (order == null)
+                    {
+                        rs = rs.OrderByDescending(f => f.id);
+                    }
+                    if (order == 1)//sn asc 
+                    {
+                        rs = rs.OrderBy(f => f.stt);
+                    }
+                    if (order == 2)//sn desc 
+                    {
+                        rs = rs.OrderByDescending(f => f.stt);
+                    }
+                    if (order == 3)//date asc 
+                    {
+                        rs = rs.OrderBy(f => f.date_time);
+                    }
+                    if (order == 4)//date asc 
+                    {
+                        rs = rs.OrderByDescending(f => f.date_time);
+                    }
+                    var rss = rs.ToList();
                     StringBuilder sb = new StringBuilder();
                     //sb.Append("sn,qrcode\r\n");
-                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Guid</th><th>Thời Gian</th><th>Địa Chỉ</th><th>Tỉnh Thành</th><tr>");
-                    for (int i = 0; i < rs.Count; i++)
+                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Guid</th><th>Số thứ tự</th><th>Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa Chỉ</th><th>Tỉnh Thành</th><tr>");
+                    for (int i = 0; i < rss.Count; i++)
                     {
                         //sb.Append("\"" + rs[i].company + "\",\"" + rs[i].partner + "\",\"" + rs[i].guid + "\",\"" + rs[i].date_time + "\",\"" + rs[i].address + "\",\"" + rs[i].province + "\"\r\n");
-                        sb.Append("<tr><td>" + rs[i].company + "</td><td>" + rs[i].partner + "</td><td>" + rs[i].guid + "</td><td>" + rs[i].date_time + "</td><td>" + rs[i].address + "</td><td>" + rs[i].province + "</td></tr>");
+                        sb.Append("<tr><td>" + rss[i].company + "</td><td>" + rss[i].partner + "</td><td>" + rss[i].guid + "</td><td>" + rss[i].stt + "</td><td>" + rss[i].date_time + "</td><td>" + rss[i].user_email + "</td><td>" + rss[i].user_phone + "</td><td>" + rss[i].address + "</td><td>" + rss[i].province + "</td></tr>");
                     }
                     //Encoding csvEncoding = Encoding.Unicode;
                     Response.Clear();
@@ -540,12 +800,25 @@ namespace API.Controllers
                     //Response.ContentEncoding = Encoding.Unicode;
                     //Response.Output.Write(reader.ReadToEnd());
                     Response.Flush();
-                    Response.Close();
+                    //Response.Close();
                     Response.End();
                 }
                 else
                 {
                     string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+
+                    if (id_partner != null && code_company != null && id_partner != 0 && company != "")
+                    {
+                        query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+
+                    }
+                    else
+                    {
+                        if (code_company != null && company != "")
+                        {
+                            query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+                        }
+                    }
                     var rs = db.Database.SqlQuery<itemCheckAll>(query).ToList();
                     StringBuilder sb = new StringBuilder();
                     //sb.Append("sn,qrcode\r\n");
@@ -584,7 +857,7 @@ namespace API.Controllers
                     //Response.ContentEncoding = Encoding.Unicode;
                     //Response.Output.Write(reader.ReadToEnd());
                     Response.Flush();
-                    Response.Close();
+                    //Response.Close();
                     Response.End();
                 }
 
@@ -602,13 +875,34 @@ namespace API.Controllers
             public int count { get; set; }
         }
         [HttpPost]
-        public string showCheckAll(string company, string partner, DateTime? fdate, DateTime? tdate)
+        public string showCheckAll(string company, string partner, DateTime? fdate, DateTime? tdate,int? type)
         {
             /****** Script for SelectTopNRows command from SSMS  ******/
             string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+            if (type == 1)
+            {
+                if (partner != null && company != null && partner!="" && company!="")
+                {
+                    query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+
+                }
+                else
+                {
+                    if (company != null && company != "")
+                    {
+                        query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+                    }
+                }
+            }
             var p = db.Database.SqlQuery<itemCheckAll>(query).ToList();
             return JsonConvert.SerializeObject(p);
  
+        }
+        public ActionResult Reset(string message)
+        {
+            ViewBag.Message = message;
+
+            return View();
         }
     }
 }

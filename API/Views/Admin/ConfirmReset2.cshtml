@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewBag.Title = "Xác nhận mật khẩu mới";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+<div class="col-md-12" style="min-height:200px;">
+    <h1 style="text-align:center;">Nhập Mật Khẩu Mới</h1>
+    <div class="row" style="width:75%;top:25%;left:12%;background:#f4f4f4;color:#000000;position:relative;padding-left:5px;padding-right:5px;text-align:left;display:block;z-index:1002;" id="dv_user_comment">
+
+        <div>
+            <form class="form-horizontal" action="/Admin/ConfirmReset3" method="post" id="register">
+                <fieldset>
+                    <legend class="text-center">Nhập mật khẩu mới của bạn</legend>
+                    <input id="code" name="code" type="hidden" value="@ViewBag.code">
+                    <input id="email" name="email" type="hidden" value="@ViewBag.email">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="email">Mật khẩu mới là</label>
+                        <div class="col-md-9">
+                            <input id="pass" name="pass" type="password" placeholder="Mật khẩu" class="form-control">
+                        </div>
+                    </div>
+                    <!-- Phone input-->
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="email">Xác nhận lần nữa</label>
+                        <div class="col-md-9">
+                            <input id="pass2" name="pass2" type="password" placeholder="Mật khẩu" class="form-control">
+                            <input type="button" value="XÁC NHẬN" class="btn btn-primary btn-block" onclick="submitF();" style="margin-bottom:5px;" />
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function submitF() {
+        if ($('#pass').val() == "") {
+            alert("Nhập mật khẩu!");
+            document.getElementById("pass").focus();
+            return;
+        }
+        if ($('#pass2').val() != $('#pass').val()) {
+            alert("Nhập mật khẩu không khớp!");
+            document.getElementById("pass2").focus();
+            return;
+        }
+        document.getElementById("register").submit();
+    }
+</script>

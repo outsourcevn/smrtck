@@ -31,10 +31,10 @@ namespace API.Models
         public virtual DbSet<sn_smart_point> sn_smart_point { get; set; }
         public virtual DbSet<user> users { get; set; }
         public virtual DbSet<customer> customers { get; set; }
-        public virtual DbSet<company> companies { get; set; }
         public virtual DbSet<qrcode> qrcodes { get; set; }
-        public virtual DbSet<checkall> checkalls { get; set; }
         public virtual DbSet<partner> partners { get; set; }
         public virtual DbSet<qrcode_log> qrcode_log { get; set; }
+        public virtual DbSet<company> companies { get; set; }
+        public virtual DbSet<checkall> checkalls { get; set; }
     }
 }

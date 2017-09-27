@@ -96,6 +96,8 @@ namespace API.Controllers
                     field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
                     return Api("failed", field, "Bảo mật server, hàm api này không chạy được do ngày giờ ở máy bị sai số quá 10 phút hoặc chưa gửi key bảo mật!");
                 }
+                phone = phone.Trim();
+                email = email.Trim();
                 if (phone == "" || phone == null || pass == "" || pass == null)
                 {
                     field.Add("user_id", "");
@@ -193,6 +195,7 @@ namespace API.Controllers
                 string company = "";
                 string partner = "";
                 int? id_partner = 0;
+                long? stt = 0;
                 //Kiểm tra xem guid này có config cho cty nào không?
                 if (db.qrcodes.Any(o=>o.guid==guid && o.status==0)){
                     var rs = db.qrcodes.Where(o => o.guid == guid && o.status == 0).FirstOrDefault();
@@ -200,6 +203,7 @@ namespace API.Controllers
                     company = rs.company;
                     partner = rs.partner;
                     id_partner = rs.id_partner;
+                    stt = rs.stt;
                     if (db.config_app.Any(o => o.code_company == code_company))
                     {
                         var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
@@ -248,6 +252,8 @@ namespace API.Controllers
                 }
                 else
                 {
+                    customer ctm = db.customers.Find(user_id);
+
                     checkall cka = new checkall();
                     cka.address = address;
                     cka.date_time = dtn;
@@ -257,11 +263,15 @@ namespace API.Controllers
                     cka.os = os;
                     cka.points = 1;
                     cka.user_id = user_id;
+                    cka.user_email = ctm.email;
+                    cka.user_name = ctm.name;
+                    cka.user_phone = ctm.phone;
                     cka.province = Config.getProvince(address);
                     cka.company = company;
                     cka.code_company = code_company;
                     cka.id_partner = id_partner;
                     cka.partner = partner;
+                    cka.stt = stt;
                     db.checkalls.Add(cka);
                     db.SaveChanges();
                     int count = db.checkalls.Count(o => o.user_id == user_id);

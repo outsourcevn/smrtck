@@ -11,10 +11,14 @@
           </Key>
           <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="guid" Type="nvarchar" MaxLength="150" />
+          <Property Name="stt" Type="bigint" />
           <Property Name="lon" Type="float" />
           <Property Name="lat" Type="float" />
           <Property Name="address" Type="nvarchar" MaxLength="501" />
           <Property Name="user_id" Type="bigint" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="user_email" Type="nvarchar" MaxLength="50" />
+          <Property Name="user_phone" Type="nvarchar" MaxLength="50" />
           <Property Name="os" Type="int" />
           <Property Name="date_time" Type="datetime" />
           <Property Name="points" Type="int" />
@@ -162,11 +166,11 @@
           <EntitySet Name="sn_smart_point" EntityType="smartcheckModel.sn_smart_point" />
           <EntitySet Name="users" EntityType="smartcheckModel.user" />
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
-          <EntitySet Name="companies" EntityType="smartcheckModel.company" />
           <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
-          <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
           <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
           <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
+          <EntitySet Name="companies" EntityType="smartcheckModel.company" />
+          <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
         </EntityContainer>
         <EntityType Name="config_app">
           <Key>
@@ -234,19 +238,6 @@
           <Property Name="date_time" Type="DateTime" Precision="3" />
           <Property Name="is_admin" Type="Int32" />
         </EntityType>
-        <EntityType Name="company">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="code" Type="Int32" />
-          <Property Name="email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="pass" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="is_admin" Type="Int32" />
-        </EntityType>
         <EntityType Name="qrcode">
           <Key>
             <PropertyRef Name="id" />
@@ -265,25 +256,6 @@
           <Property Name="id_partner" Type="Int32" />
           <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="checkall">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="lon" Type="Double" />
-          <Property Name="lat" Type="Double" />
-          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="user_id" Type="Int64" />
-          <Property Name="os" Type="Int32" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="points" Type="Int32" />
-          <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="id_partner" Type="Int32" />
-          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="code_company" Type="Int32" />
-        </EntityType>
         <EntityType Name="partner">
           <Key>
             <PropertyRef Name="id" />
@@ -300,6 +272,42 @@
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="company">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code" Type="Int32" />
+          <Property Name="email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="pass" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="is_admin" Type="Int32" />
+        </EntityType>
+        <EntityType Name="checkall">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="stt" Type="Int64" />
+          <Property Name="lon" Type="Double" />
+          <Property Name="lat" Type="Double" />
+          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="os" Type="Int32" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="points" Type="Int32" />
+          <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -379,20 +387,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="companies">
-            <EntityTypeMapping TypeName="smartcheckModel.company">
-              <MappingFragment StoreEntitySet="company">
-                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="pass" ColumnName="pass" />
-                <ScalarProperty Name="phone" ColumnName="phone" />
-                <ScalarProperty Name="email" ColumnName="email" />
-                <ScalarProperty Name="code" ColumnName="code" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="qrcodes">
             <EntityTypeMapping TypeName="smartcheckModel.qrcode">
               <MappingFragment StoreEntitySet="qrcode">
@@ -412,26 +406,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="checkalls">
-            <EntityTypeMapping TypeName="smartcheckModel.checkall">
-              <MappingFragment StoreEntitySet="checkall">
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="partner" ColumnName="partner" />
-                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
-                <ScalarProperty Name="province" ColumnName="province" />
-                <ScalarProperty Name="points" ColumnName="points" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="os" ColumnName="os" />
-                <ScalarProperty Name="user_id" ColumnName="user_id" />
-                <ScalarProperty Name="address" ColumnName="address" />
-                <ScalarProperty Name="lat" ColumnName="lat" />
-                <ScalarProperty Name="lon" ColumnName="lon" />
-                <ScalarProperty Name="guid" ColumnName="guid" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="partners">
             <EntityTypeMapping TypeName="smartcheckModel.partner">
               <MappingFragment StoreEntitySet="partner">
@@ -447,6 +421,44 @@
             <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
               <MappingFragment StoreEntitySet="qrcode_log">
                 <ScalarProperty Name="actions" ColumnName="actions" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="companies">
+            <EntityTypeMapping TypeName="smartcheckModel.company">
+              <MappingFragment StoreEntitySet="company">
+                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="pass" ColumnName="pass" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="checkalls">
+            <EntityTypeMapping TypeName="smartcheckModel.checkall">
+              <MappingFragment StoreEntitySet="checkall">
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="province" ColumnName="province" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="os" ColumnName="os" />
+                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="lat" ColumnName="lat" />
+                <ScalarProperty Name="lon" ColumnName="lon" />
+                <ScalarProperty Name="stt" ColumnName="stt" />
+                <ScalarProperty Name="guid" ColumnName="guid" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -16,10 +16,14 @@ namespace API.Models
     {
         public long id { get; set; }
         public string guid { get; set; }
+        public Nullable<long> stt { get; set; }
         public Nullable<double> lon { get; set; }
         public Nullable<double> lat { get; set; }
         public string address { get; set; }
         public Nullable<long> user_id { get; set; }
+        public string user_name { get; set; }
+        public string user_email { get; set; }
+        public string user_phone { get; set; }
         public Nullable<int> os { get; set; }
         public Nullable<System.DateTime> date_time { get; set; }
         public Nullable<int> points { get; set; }
