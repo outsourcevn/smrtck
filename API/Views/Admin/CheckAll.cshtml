@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Thống kê báo cáo sản phẩm được quét bằng App SmartCheck";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    int stt = 0;
 }
 <style>
     textarea {
@@ -57,15 +58,16 @@
     </div>
 </div>
 <table class="table marginBottom0" id="listmain">
-    <tr><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th>Số thứ tự</th><th>Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
+    <tr><th>Stt</th><th>Tên Doanh Nghiệp</th><th>Nhà phân phối</th><th>Mã sản phẩm</th><th style="cursor:pointer;" onclick="submitsort(1);"><span class="fa fa-sort"></span> Số thứ tự</th><th style="cursor:pointer;" onclick="submitsort(2);"><span class="fa fa-sort" onclick="submitsort(2);"></span> Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa điểm</th><th>Tỉnh thành</th></tr>
     @foreach (var item in (PagedList<checkall>)ViewBag.OnePage)
     {
-
+        stt++;
         <tr>
+            <td>@stt</td>
             <td>@item.company</td>
             <td>@item.partner</td>
             <td>@item.guid</td>
-            <td>@item.stt</td>
+            <td><span style="color:blue;">@item.stt</span></td>
             <td>@item.date_time</td>
             <td>@item.user_email</td>
             <td>@item.user_phone</td>
@@ -110,6 +112,15 @@
             minLength: 1
         });
     }
+    function submitsort(type) {
+        if (type == 1) {
+            if (order == 1) order = 2; else order = 1;
+        }
+        if (type == 2) {
+            if (order == 3) order = 4; else order = 3;
+        }
+        searchCheckAll();
+    }
     function exportCheckAll() {
         var type = $("#typerp:checked").val();
         if ($("#cp_code_company").val() == "") {
@@ -130,7 +141,7 @@
         }
         
         $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG TẠO FILE EXCEL, XIN CHỜ.......</h1>");
-        var url = "/Admin/exportCheckAll?type=" + type + "&code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val();
+        var url = "/Admin/exportCheckAll?type=" + type + "&code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
         window.open(url, "_blank");
     }
     function searchCheckAll() {
@@ -178,9 +189,9 @@
                             var json = $.parseJSON(data);
                             //now json variable contains data in json format
                             //let's display a few items
-                            $("#listmain").html("<tr><th>Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th></tr>");
+                            $("#listmain").html("<tr><th>Stt</th><th>Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th></tr>");
                             for (var i = 0; i < json.length; ++i) {
-                                $("#listmain").append("<tr><td>" + json[i].company + "</td><td>" + json[i].partner + "</td><td>" + json[i].province + "</td><td>" + json[i].count + "</td></tr>");
+                                $("#listmain").append("<tr><td>" + (i+1) + "</td><td>" + json[i].company + "</td><td>" + json[i].partner + "</td><td>" + json[i].province + "</td><td>" + json[i].count + "</td></tr>");
                                 //alert(json[i].company);
                             }
                         }

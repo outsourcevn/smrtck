@@ -1,0 +1,98 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Nhật Ký In Qr Code cho doanh nghiệp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<style>
+    textarea {
+        height: 67px;
+    }
+</style>
+<h2>@ViewBag.Title</h2>
+<!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
+<div id="CompanyQrCodeDialog" style="display:block;" class="col-md-12">
+    <div class="dDialogContent" style="min-height: 200px;">
+        <p>Từ ngày</p>
+        <input id="cp_from" value="@ViewBag.fdate" type="text" class="form-control" placeholder="Nhập từ ngày">
+        <p>Đến ngày</i></p>
+        <input id="cp_to" value="@ViewBag.tdate" type="text" class="form-control" placeholder="Đến ngày">
+        <p>Từ khóa</i></p>
+        <input id="cp_k" value="@ViewBag.k" type="text" class="form-control" placeholder="Nhập từ khóa tìm kiếm...">
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="searchCompanyQrCode()">Tìm kiếm</button>
+        </div>
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="form-inline" id="load">
+        <h1>Danh Sách Qr Code Đã In</h1>
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Hành Động</th><th style="cursor:pointer;" onclick="submitsort(1);"><span class="fa fa-sort"></span>Thời Gian</th><th>Người dùng</th></tr>
+    @foreach (var item in (PagedList<qrcode_log>)ViewBag.onePage)
+    {
+
+        <tr>
+            <td>@item.actions</td>
+            <td>@item.date_time</td>
+            <td>@item.user_name</td>
+        </tr>
+    }
+</table>
+@*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrCode", new { page }))*@
+<ul class="pagination pagination-lg">
+    <li><a href="#">Trang:</a></li>
+    @{ int maxPage = ViewBag.PageCount > 5 ? 5 : ViewBag.PageCount;}
+    @for (int i = 1; i <= maxPage; i++)
+    {
+        if (i != ViewBag.page)
+        {
+            <text>
+                <li><a href="/Admin/LogCompanyQrCode?fdate=@ViewBag.fdate&tdate=@ViewBag.tdate&k=@ViewBag.k&page=@i">@i</a></li></text>
+        }
+        else
+        {
+            <text>
+                <li><a href="/Admin/LogCompanyQrCode?fdate=@ViewBag.fdate&tdate=@ViewBag.tdate&k=@ViewBag.k&page=@i" class="active" style="background-color: #c52d2f;border-color: #c52d2f;color:#fff;">@i</a></li></text>
+        }
+    }
+    @{
+        int page = ViewBag.page;
+        int nextpage = page + 1;
+        <text>
+            <li><a href="/Admin/LogCompanyQrCode?fdate=@ViewBag.fdate&tdate=@ViewBag.tdate&k=@ViewBag.k&page=@nextpage">Trang tiếp</a></li>
+            <li>...</li>
+            <li><a href="/Admin/LogCompanyQrCode?fdate=@ViewBag.fdate&tdate=@ViewBag.tdate&k=@ViewBag.k&page=@ViewBag.PageCount">Trang cuối</a></li>
+        </text>
+    }
+</ul><!--/.pagination-->
+<script>
+    var order = "@ViewBag.order";
+    function submitsort(type) {
+        if (type == 1) {
+            if (order == 1) order = 2; else order = 1;
+        }
+       
+        searchCheckAll();
+    }
+    function searchCompanyQrCode() {
+        if ($("#cp_k").val() == "") {
+            alert("Nhập từ khóa!");
+            return;
+        }
+        //if ($("#cp_from").val() == "") {
+        //    alert("Nhập từ số thứ tự!");
+        //    return;
+        //}
+        //if ($("#cp_to").val() == "") {
+        //    alert("Nhập đến số thứ tự!");
+        //    return;
+        //}
+        var url = "/Admin/LogCompanyQrCode?&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;;
+        window.location.href = url;
+    }
+
+</script>

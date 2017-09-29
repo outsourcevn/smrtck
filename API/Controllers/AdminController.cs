@@ -233,6 +233,49 @@ namespace API.Controllers
             ViewBag.notice = nt!=null?nt.actions:"";
             return View();
         }
+        public ActionResult LogCompanyQrCode(DateTime? fdate, DateTime? tdate,string k,int? order, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.qrcode_log;
+            var pageNumber = page ?? 1;
+            var onePage = db.qrcode_log.Select(p => p); //ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            //if (fdate == null) fdate = DateTime.Now.AddDays(-90);
+            //if (tdate == null) tdate = DateTime.Now;
+            if (fdate != null)
+            {
+                onePage = onePage.Where(o => o.date_time >= fdate);
+            }
+            if (tdate != null)
+            {
+                onePage = onePage.Where(o => o.date_time <= tdate);
+            }
+            if (k != "")
+            {
+                onePage = onePage.Where(o => o.actions.Contains(k));
+            }
+            if (order == null)
+            {
+                ViewBag.onePage = onePage.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            }
+            if (order == 1)//date desc 
+            {
+                ViewBag.onePage = onePage.OrderByDescending(f => f.date_time).ToPagedList(pageNumber, 20);
+            }
+            if (order == 2)//date asc 
+            {
+                ViewBag.onePage = onePage.OrderBy(f => f.date_time).ToPagedList(pageNumber, 20);
+            }
+            //ViewBag.onePage = onePage;
+            ViewBag.countall = ViewBag.onePage.Count;
+            ViewBag.PageCount = ViewBag.onePage.PageCount;
+            ViewBag.k = k;
+            ViewBag.order = order;
+            ViewBag.fdate = fdate;
+            ViewBag.tdate = tdate;
+            ViewBag.page = page == null ? 1 : page;
+            return View();
+        }
         public ActionResult CheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string k,int? order, int? page)
         {
             if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
@@ -424,6 +467,8 @@ namespace API.Controllers
                 int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
                 string notice = "Đã in qr code cho công ty " + company + ", nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
                 ql.actions = notice;
+                ql.user_name = Config.getCookie("user_name");
+                ql.date_time = DateTime.Now;
                 db.qrcode_log.Add(ql);
                 db.SaveChanges();
                 return notice;
@@ -765,11 +810,11 @@ namespace API.Controllers
                     var rss = rs.ToList();
                     StringBuilder sb = new StringBuilder();
                     //sb.Append("sn,qrcode\r\n");
-                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Guid</th><th>Số thứ tự</th><th>Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa Chỉ</th><th>Tỉnh Thành</th><tr>");
+                    sb.Append("<tr><th>Stt</th><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Guid</th><th>Số thứ tự</th><th>Kích hoạt ngày</th><th>Email</th><th>Phone</th><th>Địa Chỉ</th><th>Tỉnh Thành</th><tr>");
                     for (int i = 0; i < rss.Count; i++)
                     {
                         //sb.Append("\"" + rs[i].company + "\",\"" + rs[i].partner + "\",\"" + rs[i].guid + "\",\"" + rs[i].date_time + "\",\"" + rs[i].address + "\",\"" + rs[i].province + "\"\r\n");
-                        sb.Append("<tr><td>" + rss[i].company + "</td><td>" + rss[i].partner + "</td><td>" + rss[i].guid + "</td><td>" + rss[i].stt + "</td><td>" + rss[i].date_time + "</td><td>" + rss[i].user_email + "</td><td>" + rss[i].user_phone + "</td><td>" + rss[i].address + "</td><td>" + rss[i].province + "</td></tr>");
+                        sb.Append("<tr><td>" + (i+1) + "</td><td>" + rss[i].company + "</td><td>" + rss[i].partner + "</td><td>" + rss[i].guid + "</td><td>" + rss[i].stt + "</td><td>" + rss[i].date_time + "</td><td>" + rss[i].user_email + "</td><td>" + rss[i].user_phone + "</td><td>" + rss[i].address + "</td><td>" + rss[i].province + "</td></tr>");
                     }
                     //Encoding csvEncoding = Encoding.Unicode;
                     Response.Clear();
@@ -822,11 +867,11 @@ namespace API.Controllers
                     var rs = db.Database.SqlQuery<itemCheckAll>(query).ToList();
                     StringBuilder sb = new StringBuilder();
                     //sb.Append("sn,qrcode\r\n");
-                    sb.Append("<tr><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th><tr>");
+                    sb.Append("<tr><th>Stt</th><th>Tên Công Ty</th><th>Nhà Phân Phối</th><th>Tỉnh Thành</th><th>Số Lượng</th><tr>");
                     for (int i = 0; i < rs.Count; i++)
                     {
                         //sb.Append("\"" + rs[i].company + "\",\"" + rs[i].partner + "\",\"" + rs[i].guid + "\",\"" + rs[i].date_time + "\",\"" + rs[i].address + "\",\"" + rs[i].province + "\"\r\n");
-                        sb.Append("<tr><td>" + rs[i].company + "</td><td>" + rs[i].partner + "</td><td>" + rs[i].province + "</td><td>" + rs[i].count + "</td></tr>");
+                        sb.Append("<tr><td>" +(i+1)+ "</td><td>" + rs[i].company + "</td><td>" + rs[i].partner + "</td><td>" + rs[i].province + "</td><td>" + rs[i].count + "</td></tr>");
                     }
                     //Encoding csvEncoding = Encoding.Unicode;
                     Response.Clear();

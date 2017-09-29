@@ -99,6 +99,8 @@
           </Key>
           <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="actions" Type="nvarchar" MaxLength="3501" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="date_time" Type="datetime" />
         </EntityType>
         <EntityType Name="sn_active">
           <Key>
@@ -168,9 +170,9 @@
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
           <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
           <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
-          <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
           <EntitySet Name="companies" EntityType="smartcheckModel.company" />
           <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
+          <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
         </EntityContainer>
         <EntityType Name="config_app">
           <Key>
@@ -266,13 +268,6 @@
           <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="qrcode_log">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="company">
           <Key>
             <PropertyRef Name="id" />
@@ -308,6 +303,15 @@
           <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="code_company" Type="Int32" />
+        </EntityType>
+        <EntityType Name="qrcode_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -417,14 +421,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="qrcode_log">
-            <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
-              <MappingFragment StoreEntitySet="qrcode_log">
-                <ScalarProperty Name="actions" ColumnName="actions" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="companies">
             <EntityTypeMapping TypeName="smartcheckModel.company">
               <MappingFragment StoreEntitySet="company">
@@ -459,6 +455,16 @@
                 <ScalarProperty Name="lon" ColumnName="lon" />
                 <ScalarProperty Name="stt" ColumnName="stt" />
                 <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="qrcode_log">
+            <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
+              <MappingFragment StoreEntitySet="qrcode_log">
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="actions" ColumnName="actions" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

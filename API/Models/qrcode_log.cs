@@ -16,5 +16,7 @@ namespace API.Models
     {
         public long id { get; set; }
         public string actions { get; set; }
+        public string user_name { get; set; }
+        public Nullable<System.DateTime> date_time { get; set; }
     }
 }
