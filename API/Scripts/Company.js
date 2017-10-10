@@ -81,6 +81,7 @@ function deleteCompany() {
     });
 }
 function checkDuplicateCode() {
+    if ($("#cp_ID").val() != "0") return;
     $.ajax({
         url: "/Admin/checkDuplicateCode", type: 'post',
         data: { code: $("#cp_code").val() },
