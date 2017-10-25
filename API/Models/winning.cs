@@ -12,21 +12,19 @@ namespace API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class qrcode
+    public partial class winning
     {
         public long id { get; set; }
-        public string sn { get; set; }
-        public string qrcode1 { get; set; }
-        public string qrcode2 { get; set; }
         public Nullable<int> code_company { get; set; }
-        public string company { get; set; }
-        public string guid { get; set; }
-        public Nullable<System.DateTime> date_time { get; set; }
-        public Nullable<int> date_id { get; set; }
-        public Nullable<int> status { get; set; }
-        public Nullable<long> stt { get; set; }
         public Nullable<int> id_partner { get; set; }
-        public string partner { get; set; }
-        public Nullable<long> winning_id { get; set; }
+        public string name { get; set; }
+        public Nullable<long> money { get; set; }
+        public Nullable<int> quantity { get; set; }
+        public Nullable<System.DateTime> from_date { get; set; }
+        public Nullable<System.DateTime> to_date { get; set; }
+        public Nullable<int> from_date_id { get; set; }
+        public Nullable<int> to_date_id { get; set; }
+        public string image { get; set; }
+        public string des { get; set; }
     }
 }

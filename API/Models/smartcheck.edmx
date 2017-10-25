@@ -53,6 +53,29 @@
           <Property Name="code_company" Type="int" />
           <Property Name="company" Type="nvarchar" MaxLength="501" />
         </EntityType>
+        <EntityType Name="config_bonus_point">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="check_point" Type="int" />
+          <Property Name="share_point" Type="int" />
+          <Property Name="ref_point" Type="int" />
+          <Property Name="time_point" Type="int" />
+        </EntityType>
+        <EntityType Name="customer_bonus_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="bigint" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="user_email" Type="nvarchar" MaxLength="50" />
+          <Property Name="user_phone" Type="nvarchar" MaxLength="50" />
+          <Property Name="points" Type="int" />
+          <Property Name="date_time" Type="datetime" />
+          <Property Name="actions" Type="nvarchar" MaxLength="501" />
+        </EntityType>
         <EntityType Name="customers">
           <Key>
             <PropertyRef Name="id" />
@@ -64,6 +87,9 @@
           <Property Name="pass" Type="nvarchar" MaxLength="50" />
           <Property Name="date_time" Type="datetime" />
           <Property Name="is_admin" Type="int" />
+          <Property Name="points" Type="int" />
+          <Property Name="identify" Type="nvarchar" MaxLength="50" />
+          <Property Name="address" Type="nvarchar" MaxLength="501" />
         </EntityType>
         <EntityType Name="partner">
           <Key>
@@ -92,6 +118,7 @@
           <Property Name="stt" Type="bigint" />
           <Property Name="id_partner" Type="int" />
           <Property Name="partner" Type="nvarchar" MaxLength="501" />
+          <Property Name="winning_id" Type="bigint" />
         </EntityType>
         <EntityType Name="qrcode_log">
           <Key>
@@ -144,10 +171,85 @@
           <Property Name="pass" Type="nvarchar" MaxLength="50" />
           <Property Name="pagecode" Type="nvarchar" MaxLength="501" />
         </EntityType>
+        <EntityType Name="voucher_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="bigint" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="user_email" Type="nvarchar" MaxLength="50" />
+          <Property Name="user_phone" Type="nvarchar" MaxLength="50" />
+          <Property Name="voucher_id" Type="bigint" />
+          <Property Name="voucher_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="points" Type="int" />
+          <Property Name="date_time" Type="datetime" />
+          <Property Name="lon" Type="float" />
+          <Property Name="lat" Type="float" />
+          <Property Name="address" Type="nvarchar" MaxLength="501" />
+          <Property Name="code" Type="bigint" />
+        </EntityType>
+        <EntityType Name="voucher_points">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="501" />
+          <Property Name="des" Type="nvarchar" MaxLength="1000" />
+          <Property Name="full_des" Type="ntext" />
+          <Property Name="quantity" Type="int" />
+          <Property Name="from_date" Type="datetime" />
+          <Property Name="to_date" Type="datetime" />
+          <Property Name="from_date_id" Type="int" />
+          <Property Name="to_date_id" Type="int" />
+          <Property Name="image" Type="nvarchar" MaxLength="150" />
+          <Property Name="price" Type="int" />
+          <Property Name="big_image" Type="nvarchar" MaxLength="150" />
+          <Property Name="image1" Type="nvarchar" MaxLength="150" />
+          <Property Name="image2" Type="nvarchar" MaxLength="150" />
+          <Property Name="image3" Type="nvarchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="winning">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="code_company" Type="int" />
+          <Property Name="id_partner" Type="int" />
+          <Property Name="name" Type="nvarchar" MaxLength="150" />
+          <Property Name="money" Type="bigint" />
+          <Property Name="quantity" Type="int" />
+          <Property Name="from_date" Type="datetime" />
+          <Property Name="to_date" Type="datetime" />
+          <Property Name="from_date_id" Type="int" />
+          <Property Name="to_date_id" Type="int" />
+          <Property Name="image" Type="nvarchar" MaxLength="150" />
+          <Property Name="des" Type="ntext" />
+        </EntityType>
+        <EntityType Name="winning_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="winning_id" Type="bigint" />
+          <Property Name="winning_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="money" Type="bigint" />
+          <Property Name="user_id" Type="bigint" />
+          <Property Name="user_name" Type="nvarchar" MaxLength="501" />
+          <Property Name="user_email" Type="nvarchar" MaxLength="50" />
+          <Property Name="user_phone" Type="nvarchar" MaxLength="50" />
+          <Property Name="date_time" Type="datetime" />
+          <Property Name="lon" Type="float" />
+          <Property Name="lat" Type="float" />
+          <Property Name="address" Type="nvarchar" MaxLength="150" />
+          <Property Name="qrcode" Type="nvarchar" MaxLength="501" />
+        </EntityType>
         <EntityContainer Name="smartcheckModelStoreContainer">
           <EntitySet Name="checkall" EntityType="Self.checkall" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="company" EntityType="Self.company" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="config_app" EntityType="Self.config_app" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="config_bonus_point" EntityType="Self.config_bonus_point" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="customer_bonus_log" EntityType="Self.customer_bonus_log" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="customers" EntityType="Self.customers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="partner" EntityType="Self.partner" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="qrcode" EntityType="Self.qrcode" Schema="dbo" store:Type="Tables" />
@@ -156,24 +258,70 @@
           <EntitySet Name="sn_locations" EntityType="Self.sn_locations" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sn_smart_point" EntityType="Self.sn_smart_point" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="users" EntityType="Self.users" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="voucher_log" EntityType="Self.voucher_log" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="voucher_points" EntityType="Self.voucher_points" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="winning" EntityType="Self.winning" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="winning_log" EntityType="Self.winning_log" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="smartcheckModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="smartcheckEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
+          <EntitySet Name="companies" EntityType="smartcheckModel.company" />
           <EntitySet Name="config_app" EntityType="smartcheckModel.config_app" />
+          <EntitySet Name="customer_bonus_log" EntityType="smartcheckModel.customer_bonus_log" />
+          <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
+          <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
+          <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
+          <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
           <EntitySet Name="sn_active" EntityType="smartcheckModel.sn_active" />
           <EntitySet Name="sn_locations" EntityType="smartcheckModel.sn_locations" />
           <EntitySet Name="sn_smart_point" EntityType="smartcheckModel.sn_smart_point" />
           <EntitySet Name="users" EntityType="smartcheckModel.user" />
-          <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
-          <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
-          <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
-          <EntitySet Name="companies" EntityType="smartcheckModel.company" />
-          <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
-          <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
+          <EntitySet Name="voucher_log" EntityType="smartcheckModel.voucher_log" />
+          <EntitySet Name="voucher_points" EntityType="smartcheckModel.voucher_points" />
+          <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
+          <EntitySet Name="winning_log" EntityType="smartcheckModel.winning_log" />
+          <EntitySet Name="config_bonus_point" EntityType="smartcheckModel.config_bonus_point" />
         </EntityContainer>
+        <EntityType Name="checkall">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="stt" Type="Int64" />
+          <Property Name="lon" Type="Double" />
+          <Property Name="lat" Type="Double" />
+          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="os" Type="Int32" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="points" Type="Int32" />
+          <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+        </EntityType>
+        <EntityType Name="company">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code" Type="Int32" />
+          <Property Name="email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="pass" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="is_admin" Type="Int32" />
+        </EntityType>
         <EntityType Name="config_app">
           <Key>
             <PropertyRef Name="id" />
@@ -185,6 +333,72 @@
           <Property Name="text_in_point" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
           <Property Name="code_company" Type="Int32" />
           <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="customer_bonus_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="points" Type="Int32" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="actions" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="customer">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="email" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="is_admin" Type="Int32" />
+          <Property Name="points" Type="Int32" />
+          <Property Name="identify" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="partner">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="qrcode">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="sn" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="qrcode1" Type="String" MaxLength="1001" FixedLength="false" Unicode="true" />
+          <Property Name="qrcode2" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="date_id" Type="Int32" />
+          <Property Name="status" Type="Int32" />
+          <Property Name="stt" Type="Int64" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="winning_id" Type="Int64" />
+        </EntityType>
+        <EntityType Name="qrcode_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="sn_active">
           <Key>
@@ -228,97 +442,133 @@
           <Property Name="pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="pagecode" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="customer">
+        <EntityType Name="voucher_log">
           <Key>
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="email" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="voucher_id" Type="Int64" />
+          <Property Name="voucher_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="points" Type="Int32" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="is_admin" Type="Int32" />
+          <Property Name="lon" Type="Double" />
+          <Property Name="lat" Type="Double" />
+          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code" Type="Int64" />
         </EntityType>
-        <EntityType Name="qrcode">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="sn" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="qrcode1" Type="String" MaxLength="1001" FixedLength="false" Unicode="true" />
-          <Property Name="qrcode2" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="date_id" Type="Int32" />
-          <Property Name="status" Type="Int32" />
-          <Property Name="stt" Type="Int64" />
-          <Property Name="id_partner" Type="Int32" />
-          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="partner">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="company">
+        <EntityType Name="voucher_points">
           <Key>
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="code" Type="Int32" />
-          <Property Name="email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="pass" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="is_admin" Type="Int32" />
+          <Property Name="des" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="full_des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="quantity" Type="Int32" />
+          <Property Name="from_date" Type="DateTime" Precision="3" />
+          <Property Name="to_date" Type="DateTime" Precision="3" />
+          <Property Name="from_date_id" Type="Int32" />
+          <Property Name="to_date_id" Type="Int32" />
+          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="price" Type="Int32" />
+          <Property Name="big_image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image1" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="checkall">
+        <EntityType Name="winning">
           <Key>
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="stt" Type="Int64" />
-          <Property Name="lon" Type="Double" />
-          <Property Name="lat" Type="Double" />
-          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="money" Type="Int64" />
+          <Property Name="quantity" Type="Int32" />
+          <Property Name="from_date" Type="DateTime" Precision="3" />
+          <Property Name="to_date" Type="DateTime" Precision="3" />
+          <Property Name="from_date_id" Type="Int32" />
+          <Property Name="to_date_id" Type="Int32" />
+          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="winning_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="winning_id" Type="Int64" />
+          <Property Name="winning_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="money" Type="Int64" />
           <Property Name="user_id" Type="Int64" />
           <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="os" Type="Int32" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="points" Type="Int32" />
-          <Property Name="province" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="id_partner" Type="Int32" />
-          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="code_company" Type="Int32" />
+          <Property Name="lon" Type="Double" />
+          <Property Name="lat" Type="Double" />
+          <Property Name="address" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="qrcode" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="qrcode_log">
+        <EntityType Name="config_bonus_point">
           <Key>
             <PropertyRef Name="id" />
           </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="actions" Type="String" MaxLength="3501" FixedLength="false" Unicode="true" />
-          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="check_point" Type="Int32" />
+          <Property Name="share_point" Type="Int32" />
+          <Property Name="ref_point" Type="Int32" />
+          <Property Name="time_point" Type="Int32" />
         </EntityType>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="smartcheckModelStoreContainer" CdmEntityContainer="smartcheckEntities">
+          <EntitySetMapping Name="checkalls">
+            <EntityTypeMapping TypeName="smartcheckModel.checkall">
+              <MappingFragment StoreEntitySet="checkall">
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="province" ColumnName="province" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="os" ColumnName="os" />
+                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="lat" ColumnName="lat" />
+                <ScalarProperty Name="lon" ColumnName="lon" />
+                <ScalarProperty Name="stt" ColumnName="stt" />
+                <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="companies">
+            <EntityTypeMapping TypeName="smartcheckModel.company">
+              <MappingFragment StoreEntitySet="company">
+                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="pass" ColumnName="pass" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="config_app">
             <EntityTypeMapping TypeName="smartcheckModel.config_app">
               <MappingFragment StoreEntitySet="config_app">
@@ -328,6 +578,77 @@
                 <ScalarProperty Name="text_in_location" ColumnName="text_in_location" />
                 <ScalarProperty Name="text_in_active" ColumnName="text_in_active" />
                 <ScalarProperty Name="text_in_qr_code" ColumnName="text_in_qr_code" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="customer_bonus_log">
+            <EntityTypeMapping TypeName="smartcheckModel.customer_bonus_log">
+              <MappingFragment StoreEntitySet="customer_bonus_log">
+                <ScalarProperty Name="actions" ColumnName="actions" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="customers">
+            <EntityTypeMapping TypeName="smartcheckModel.customer">
+              <MappingFragment StoreEntitySet="customers">
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="identify" ColumnName="identify" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="pass" ColumnName="pass" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="partners">
+            <EntityTypeMapping TypeName="smartcheckModel.partner">
+              <MappingFragment StoreEntitySet="partner">
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="qrcodes">
+            <EntityTypeMapping TypeName="smartcheckModel.qrcode">
+              <MappingFragment StoreEntitySet="qrcode">
+                <ScalarProperty Name="winning_id" ColumnName="winning_id" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="stt" ColumnName="stt" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="date_id" ColumnName="date_id" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="qrcode2" ColumnName="qrcode2" />
+                <ScalarProperty Name="qrcode1" ColumnName="qrcode1" />
+                <ScalarProperty Name="sn" ColumnName="sn" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="qrcode_log">
+            <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
+              <MappingFragment StoreEntitySet="qrcode_log">
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="actions" ColumnName="actions" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -378,93 +699,90 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="customers">
-            <EntityTypeMapping TypeName="smartcheckModel.customer">
-              <MappingFragment StoreEntitySet="customers">
-                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="pass" ColumnName="pass" />
-                <ScalarProperty Name="phone" ColumnName="phone" />
-                <ScalarProperty Name="email" ColumnName="email" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="qrcodes">
-            <EntityTypeMapping TypeName="smartcheckModel.qrcode">
-              <MappingFragment StoreEntitySet="qrcode">
-                <ScalarProperty Name="partner" ColumnName="partner" />
-                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
-                <ScalarProperty Name="stt" ColumnName="stt" />
-                <ScalarProperty Name="status" ColumnName="status" />
-                <ScalarProperty Name="date_id" ColumnName="date_id" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="guid" ColumnName="guid" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="qrcode2" ColumnName="qrcode2" />
-                <ScalarProperty Name="qrcode1" ColumnName="qrcode1" />
-                <ScalarProperty Name="sn" ColumnName="sn" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="partners">
-            <EntityTypeMapping TypeName="smartcheckModel.partner">
-              <MappingFragment StoreEntitySet="partner">
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="companies">
-            <EntityTypeMapping TypeName="smartcheckModel.company">
-              <MappingFragment StoreEntitySet="company">
-                <ScalarProperty Name="is_admin" ColumnName="is_admin" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="pass" ColumnName="pass" />
-                <ScalarProperty Name="phone" ColumnName="phone" />
-                <ScalarProperty Name="email" ColumnName="email" />
+          <EntitySetMapping Name="voucher_log">
+            <EntityTypeMapping TypeName="smartcheckModel.voucher_log">
+              <MappingFragment StoreEntitySet="voucher_log">
                 <ScalarProperty Name="code" ColumnName="code" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="checkalls">
-            <EntityTypeMapping TypeName="smartcheckModel.checkall">
-              <MappingFragment StoreEntitySet="checkall">
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="partner" ColumnName="partner" />
-                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
-                <ScalarProperty Name="province" ColumnName="province" />
-                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="lat" ColumnName="lat" />
+                <ScalarProperty Name="lon" ColumnName="lon" />
                 <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="os" ColumnName="os" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="voucher_name" ColumnName="voucher_name" />
+                <ScalarProperty Name="voucher_id" ColumnName="voucher_id" />
                 <ScalarProperty Name="user_phone" ColumnName="user_phone" />
                 <ScalarProperty Name="user_email" ColumnName="user_email" />
                 <ScalarProperty Name="user_name" ColumnName="user_name" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
-                <ScalarProperty Name="address" ColumnName="address" />
-                <ScalarProperty Name="lat" ColumnName="lat" />
-                <ScalarProperty Name="lon" ColumnName="lon" />
-                <ScalarProperty Name="stt" ColumnName="stt" />
-                <ScalarProperty Name="guid" ColumnName="guid" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="qrcode_log">
-            <EntityTypeMapping TypeName="smartcheckModel.qrcode_log">
-              <MappingFragment StoreEntitySet="qrcode_log">
+          <EntitySetMapping Name="voucher_points">
+            <EntityTypeMapping TypeName="smartcheckModel.voucher_points">
+              <MappingFragment StoreEntitySet="voucher_points">
+                <ScalarProperty Name="image3" ColumnName="image3" />
+                <ScalarProperty Name="image2" ColumnName="image2" />
+                <ScalarProperty Name="image1" ColumnName="image1" />
+                <ScalarProperty Name="big_image" ColumnName="big_image" />
+                <ScalarProperty Name="price" ColumnName="price" />
+                <ScalarProperty Name="image" ColumnName="image" />
+                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
+                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
+                <ScalarProperty Name="to_date" ColumnName="to_date" />
+                <ScalarProperty Name="from_date" ColumnName="from_date" />
+                <ScalarProperty Name="quantity" ColumnName="quantity" />
+                <ScalarProperty Name="full_des" ColumnName="full_des" />
+                <ScalarProperty Name="des" ColumnName="des" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="winnings">
+            <EntityTypeMapping TypeName="smartcheckModel.winning">
+              <MappingFragment StoreEntitySet="winning">
+                <ScalarProperty Name="des" ColumnName="des" />
+                <ScalarProperty Name="image" ColumnName="image" />
+                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
+                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
+                <ScalarProperty Name="to_date" ColumnName="to_date" />
+                <ScalarProperty Name="from_date" ColumnName="from_date" />
+                <ScalarProperty Name="quantity" ColumnName="quantity" />
+                <ScalarProperty Name="money" ColumnName="money" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="winning_log">
+            <EntityTypeMapping TypeName="smartcheckModel.winning_log">
+              <MappingFragment StoreEntitySet="winning_log">
+                <ScalarProperty Name="qrcode" ColumnName="qrcode" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="lat" ColumnName="lat" />
+                <ScalarProperty Name="lon" ColumnName="lon" />
                 <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
                 <ScalarProperty Name="user_name" ColumnName="user_name" />
-                <ScalarProperty Name="actions" ColumnName="actions" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="money" ColumnName="money" />
+                <ScalarProperty Name="winning_name" ColumnName="winning_name" />
+                <ScalarProperty Name="winning_id" ColumnName="winning_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="config_bonus_point">
+            <EntityTypeMapping TypeName="smartcheckModel.config_bonus_point">
+              <MappingFragment StoreEntitySet="config_bonus_point">
+                <ScalarProperty Name="time_point" ColumnName="time_point" />
+                <ScalarProperty Name="ref_point" ColumnName="ref_point" />
+                <ScalarProperty Name="share_point" ColumnName="share_point" />
+                <ScalarProperty Name="check_point" ColumnName="check_point" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -86,7 +86,7 @@ namespace API.Controllers
         //3. Trường message là các thông báo cụ thể: Ví dụ đăng ký thành công nếu status là success, thông báo đã tồn tại email và số điện thoại này nếu status là failed, báo lỗi chi tiết sql nếu status là error
         //Lưu ý hàm này có thể dùng để cập nhật thông tin user, nếu user_id gửi lên là null hoặc =0 thì là thêm mới, còn nếu user_id gửi lên là số thì hàm này sẽ cập nhật thông tin user có id là user_id tương ứng với các đối số mới. Dùng khi màn hình đổi thông tin user nếu lúc đăng ký nhập sai.
         [HttpPost]
-        public string register(string name, string email, string phone, string pass, long? user_id, double? key)
+        public string register(string name, string email, string phone, string pass, long? user_id,string identify,string address,string ref_phone,double? key)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -118,8 +118,19 @@ namespace API.Controllers
                     ct.pass = hash;
                     ct.phone = phone;
                     ct.date_time = DateTime.Now;
+                    ct.points = 100;
                     db.customers.Add(ct);
                     db.SaveChanges();
+                    //Cộng điểm cho người giới thiệu
+                    if (ref_phone != null && ref_phone != "")
+                    {
+                        if (db.customers.Any(o => o.phone == ref_phone))
+                        {
+                            var bnu = db.customers.Where(o => o.phone == ref_phone).OrderBy(o => o.id).FirstOrDefault();
+                            int? bnp = db.config_bonus_point.Find(1).ref_point;
+                            db.Database.ExecuteSqlCommand("update customers set points=points+" + bnp + " where id=" + bnu.id);
+                        }
+                    }
                     field.Add("user_id", ct.id.ToString());
                     return Api("success", field, "Đăng ký thành công!");
                 }
@@ -133,6 +144,8 @@ namespace API.Controllers
                     ct.name = name;
                     ct.pass = hash;
                     ct.phone = phone;
+                    ct.identify = identify;
+                    ct.address = address;
                     ct.date_time = DateTime.Now;
                     db.SaveChanges();
                     field.Add("user_id", user_id.ToString());
@@ -171,13 +184,72 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        
+        [HttpPost]
+        //Hàm này trả về định nghĩa các điểm thưởng
+        public string getConfigPoints()
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.config_bonus_point.Find(1);
+                field.Add("check_point", p.check_point.ToString());
+                field.Add("share_point", p.share_point.ToString());
+                field.Add("ref_point", p.ref_point.ToString());
+                field.Add("time_point", p.time_point.ToString());
+                return Api("success", field, "Định nghĩa các điểm thưởng!");
+            }
+            catch (Exception ex)
+            {
+                field.Add("check_point", "");
+                field.Add("share_point", "");
+                field.Add("ref_point", "");
+                field.Add("time_point", "");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        [HttpPost]
+        //Hàm này trả về định nghĩa các điểm thưởng
+        public string bonusPoints(long user_id, int type, int points)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                customer_bonus_log cbl = new customer_bonus_log();
+                db.Database.ExecuteSqlCommand("update customers set points=points+" + points + " where id=" + user_id);
+                var user = db.customers.Find(user_id);
+                if (type == 1)
+                {
+                    cbl.actions = "Share ứng dụng lên facebook";
+                }
+                else
+                {
+                    cbl.actions = "Được thưởng điểm theo tháng";
+                }
+                cbl.date_time = DateTime.Now;
+                cbl.points = points;
+                cbl.user_email = user.email;
+                cbl.user_id = user_id;
+                cbl.user_name = user.name;
+                cbl.user_phone = user.phone;
+                db.customer_bonus_log.Add(cbl);
+                db.SaveChanges();
+                field.Add("total", user.points.ToString());               
+                return Api("success", field, "Cập nhật hành động thành công, điểm hiện tại là!");
+            }
+            catch (Exception ex)
+            {
+                field.Add("total", "");    
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         //Hàm này làm 3 việc và trả về 3 trường tương ứng là active,location và point (gửi kèm cả trường total nữa)
         //1. Kích hoạt sản phẩm với mã sản phẩm là guid, nếu sản phẩm này đã kích hoạt 1 lần rồi cũng báo đã kích hoạt
         //2. Báo địa điểm với mã sản phẩm là guid, nếu đã báo địa điểm rồi cũng báo là đã báo
         //3. Báo tích điểm với mã sản phẩm là guid, nếu đã tích điểm rồi cũng báo, hiện số điểm sau khi tích điểm, gửi kèm cả trường total là số điểm hiện thời sau khi tích điểm
         //Nếu lỗi sql trả về rỗng các trường và lỗi chi tiết
         [HttpPost]
-        public string check(string guid,long? user_id,double lon, double lat,string address, double? key,int? os)
+        public string check(string guid,long? user_id,double lon, double lat,string address, double? key,int? points,int? os)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -246,22 +318,30 @@ namespace API.Controllers
                     field.Add("info", label);
                     field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
                     field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
-                    int count = db.checkalls.Count(o => o.user_id == user_id);
+                    int? count = db.customers.Find(user_id).points;
                     field.Add("point", "Sản phẩm này đã được tích điểm vào lúc " + dtfm + ", bạn không thể tích thêm điểm");
                     field.Add("total", count.ToString());
                 }
                 else
                 {
+                    if (points==null) {
+                        try{
+                            points=db.config_bonus_point.Find(1).check_point;
+                        }catch{
+                            points=1;
+                        }
+                    }
+                    //Quét thành công
+                    db.Database.ExecuteSqlCommand("update customers set points=points+" + points + " where id=" + user_id);
                     customer ctm = db.customers.Find(user_id);
-
                     checkall cka = new checkall();
                     cka.address = address;
                     cka.date_time = dtn;
                     cka.guid = guid;
                     cka.lat = lat;
                     cka.lon = lon;
-                    cka.os = os;
-                    cka.points = 1;
+                    cka.os = os;                    
+                    cka.points = points;
                     cka.user_id = user_id;
                     cka.user_email = ctm.email;
                     cka.user_name = ctm.name;
@@ -274,7 +354,19 @@ namespace API.Controllers
                     cka.stt = stt;
                     db.checkalls.Add(cka);
                     db.SaveChanges();
-                    int count = db.checkalls.Count(o => o.user_id == user_id);
+                    //Ghi nhật ký                                 
+                    customer_bonus_log cbl = new customer_bonus_log();   
+                    cbl.actions = "Được thưởng điểm khi quét qr code "+guid;                   
+                    cbl.date_time = DateTime.Now;
+                    cbl.points = points;
+                    cbl.user_id = user_id;
+                    cbl.user_email = ctm.email;
+                    cbl.user_name = ctm.name;
+                    cbl.user_phone = ctm.phone;
+                    db.customer_bonus_log.Add(cbl);
+                    db.SaveChanges();
+
+                    int? count = ctm.points;
                     field.Add("info", label);
                     field.Add("active", active);
                     if (address == null || address == "")

@@ -1,0 +1,80 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Danh Sách Voucher Đổi Điểm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
+<link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
+<script src="~/Scripts/dropzone/dropzone.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<button type="button" class="btn btn-primary" onclick="openVoucher(0)">Thêm Mới</button><br /><br />
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập từ khóa" value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchVoucher();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+        @*<div class="form-group">
+                <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
+            </div>*@
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên Voucher</th><th>Ảnh</th><th>Số điểm</th><th>Từ ngày</th><th>Đến ngày</th><th>Số lượng</th><th></th></tr>
+    @foreach (var item in (PagedList<voucher_points>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.name</td>
+            <td>@item.image</td>
+            <td>@item.price</td>
+            <td>@item.from_date</td>
+            <td>@item.to_date</td>
+            <td>@item.quantity</td>
+            <td><a href="#" onclick="openVoucher(@item.id, '@item.name', '@item.image',@item.price,'@item.from_date','@item.to_date',@item.quantity)">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelVoucher(@item.id,'@item.name');">Xóa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Voucher", new { page }))
+
+<div id="VoucherDialog" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Thêm/Sửa</div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID" />
+        <p>Tên Voucher</p>
+        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên voucher">
+        <p>Ảnh</p>
+        <input id="cp_image" type="text" class="form-control" placeholder="Nhập ảnh" >
+        <p>Số Điểm</p>
+        <input id="cp_price" type="text" class="form-control" placeholder="Nhập số điểm">
+        <p>Từ ngày</p>
+        <input id="cp_from_date" type="text" class="form-control" placeholder="Nhập từ ngày">
+        <p>Đến ngày</p>
+        <input id="cp_to_date" type="password" class="form-control" placeholder="Nhập đến ngày">
+        <p>Nội Dung Chi Tiết</p>
+        <textarea id="cp_full_des" name="cp_full_des" class="form-control"></textarea>
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveVoucher()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#VoucherDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var url_addUpdateVoucher = '@Url.Action("addUpdateVoucher","Admin")', url_deleteVoucher = '@Url.Action("deleteVoucher", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/Voucher.js"></script>
+<script>
+    $(function () {
+        CKEDITOR.replace('cp_full_des',
+        {
+            uiColor: '#337ab7',
+            height: '300px',
+        });
+    });
+
+</script>

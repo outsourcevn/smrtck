@@ -5,17 +5,23 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="45dfed1281414936a22e9c5ef4cf2d3f" Name="Diagram1">
-        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="2.75" PointY="0.75" />
-        <EntityTypeShape EntityType="smartcheckModel.sn_active" Width="1.5" PointX="2.75" PointY="4.75" />
-        <EntityTypeShape EntityType="smartcheckModel.sn_locations" Width="1.5" PointX="4.75" PointY="3.75" />
-        <EntityTypeShape EntityType="smartcheckModel.sn_smart_point" Width="1.5" PointX="6.75" PointY="0.75" />
-        <EntityTypeShape EntityType="smartcheckModel.user" Width="1.5" PointX="6.75" PointY="3.75" />
-        <EntityTypeShape EntityType="smartcheckModel.customer" Width="1.5" PointX="5.375" PointY="7.75" />
-        <EntityTypeShape EntityType="smartcheckModel.qrcode" Width="1.5" PointX="9.75" PointY="0.75" />
-        <EntityTypeShape EntityType="smartcheckModel.partner" Width="1.5" PointX="9.375" PointY="5.75" />
-        <EntityTypeShape EntityType="smartcheckModel.company" Width="1.5" PointX="0.75" PointY="7.75" />
-        <EntityTypeShape EntityType="smartcheckModel.checkall" Width="1.5" PointX="0.75" PointY="11.75" />
-        <EntityTypeShape EntityType="smartcheckModel.qrcode_log" Width="1.5" PointX="7.375" PointY="8.75" />
+        <EntityTypeShape EntityType="smartcheckModel.checkall" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.company" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="4.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.customer_bonus_log" Width="1.5" PointX="4.75" PointY="4.75" />
+        <EntityTypeShape EntityType="smartcheckModel.customer" Width="1.5" PointX="6.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.partner" Width="1.5" PointX="6.75" PointY="4.75" />
+        <EntityTypeShape EntityType="smartcheckModel.qrcode" Width="1.5" PointX="0.75" PointY="7.75" />
+        <EntityTypeShape EntityType="smartcheckModel.qrcode_log" Width="1.5" PointX="6.75" PointY="7.75" />
+        <EntityTypeShape EntityType="smartcheckModel.sn_active" Width="1.5" PointX="8.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.sn_locations" Width="1.5" PointX="2.75" PointY="8.75" />
+        <EntityTypeShape EntityType="smartcheckModel.sn_smart_point" Width="1.5" PointX="8.75" PointY="3.75" />
+        <EntityTypeShape EntityType="smartcheckModel.user" Width="1.5" PointX="8.75" PointY="6.75" />
+        <EntityTypeShape EntityType="smartcheckModel.voucher_log" Width="1.5" PointX="8.75" PointY="9.75" />
+        <EntityTypeShape EntityType="smartcheckModel.voucher_points" Width="1.5" PointX="10.75" PointY="0.75" />
+        <EntityTypeShape EntityType="smartcheckModel.winning" Width="1.5" PointX="4.75" PointY="10.75" />
+        <EntityTypeShape EntityType="smartcheckModel.winning_log" Width="1.5" PointX="10.75" PointY="5.75" />
+        <EntityTypeShape EntityType="smartcheckModel.config_bonus_point" Width="1.5" PointX="11.375" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

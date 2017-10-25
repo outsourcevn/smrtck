@@ -114,7 +114,30 @@ namespace API.Models
                 return "Thất bại: " + ex.Message;
             }
         }
-
+        //Config Bonus
+        public static string addUpdateConfig(config_bonus_point cp)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    if (cp.id == 0)
+                    {
+                        db.config_bonus_point.Add(cp);
+                    }
+                    else
+                    {
+                        db.Entry(cp).State = EntityState.Modified;
+                    }
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
         public static string deletecompany(int cpId)
         {
             try

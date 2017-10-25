@@ -12,17 +12,12 @@ namespace API.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class customer
+    public partial class config_bonus_point
     {
-        public long id { get; set; }
-        public string name { get; set; }
-        public string email { get; set; }
-        public string phone { get; set; }
-        public string pass { get; set; }
-        public Nullable<System.DateTime> date_time { get; set; }
-        public Nullable<int> is_admin { get; set; }
-        public Nullable<int> points { get; set; }
-        public string identify { get; set; }
-        public string address { get; set; }
+        public int id { get; set; }
+        public Nullable<int> check_point { get; set; }
+        public Nullable<int> share_point { get; set; }
+        public Nullable<int> ref_point { get; set; }
+        public Nullable<int> time_point { get; set; }
     }
 }

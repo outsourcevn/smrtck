@@ -1,0 +1,48 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Điểm Cấu Hình";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<button type="button" class="btn btn-primary" onclick="openConfig(0)">Thêm Mới</button><br /><br />
+<table class="table marginBottom0">
+    <tr><th>Điểm Thưởng Quét</th><th>Điểm Thưởng Share</th><th>Điểm Thưởng Giới Thiệu</th><th>Điểm Thưởng Thời Gian</th></tr>
+    @foreach (var item in (PagedList<config_bonus_point>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>@item.check_point</td>
+            <td>@item.share_point</td>
+            <td>@item.ref_point</td>
+            <td>@item.time_point</td>
+            <td><a href="#" onclick="openConfig(@item.id, @item.check_point, @item.share_point,@item.ref_point,@item.time_point)">Sửa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("ConfigPoint", new { page }))
+
+<div id="ConfigDialog" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Thêm/Sửa</div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID"/>
+        <p>Điểm Thưởng Quét</p>
+        <input id="cp_check_point" type="text" class="form-control" placeholder="Nhập điểm thưởng quét">
+        <p>Điểm Thưởng Share</p>
+        <input id="cp_share_point" type="text" class="form-control" placeholder="Nhập điểm thưởng share" >
+        <p>Điểm Thưởng Giới Thiệu</p>
+        <input id="cp_ref_point" type="text" class="form-control" placeholder="Nhập điểm thưởng giới thiệu">
+        <p>Điểm Thưởng Thời Gian(Giữ app càng lâu càng nhiều điểm)</p>
+        <input id="cp_time_point" type="text" class="form-control" placeholder="Nhập điểm thưởng thời gian">        
+        <div class="divBtn">
+            <button type="button" class="btn btn-primary" onclick="saveConfig()">Đồng Ý</button>
+            <button type="button" class="btn btn-primary" onclick="closeDDialog('#ConfigDialog')">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var url_addUpdateConfig = '@Url.Action("addUpdateConfig","Admin")', url_deleteConfig = '@Url.Action("deleteConfig", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/ConfigPoint.js"></script>

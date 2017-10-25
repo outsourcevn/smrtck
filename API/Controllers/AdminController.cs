@@ -181,6 +181,26 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
+        public ActionResult VoucherPoint(string k, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.voucher_points;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.name.Contains(k) || o.des.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
+        }
+        public ActionResult ConfigPoint(int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });           
+            var ctm = db.config_bonus_point;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            return View();
+        }
         public ActionResult Partner(string k,int? code_company, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
@@ -948,6 +968,11 @@ namespace API.Controllers
             ViewBag.Message = message;
 
             return View();
+        }
+        [HttpPost]
+        public string addUpdateConfig(config_bonus_point cp)
+        {
+            return DBContext.addUpdateConfig(cp);
         }
     }
 }

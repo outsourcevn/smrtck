@@ -25,16 +25,22 @@ namespace API.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<checkall> checkalls { get; set; }
+        public virtual DbSet<company> companies { get; set; }
         public virtual DbSet<config_app> config_app { get; set; }
+        public virtual DbSet<customer_bonus_log> customer_bonus_log { get; set; }
+        public virtual DbSet<customer> customers { get; set; }
+        public virtual DbSet<partner> partners { get; set; }
+        public virtual DbSet<qrcode> qrcodes { get; set; }
+        public virtual DbSet<qrcode_log> qrcode_log { get; set; }
         public virtual DbSet<sn_active> sn_active { get; set; }
         public virtual DbSet<sn_locations> sn_locations { get; set; }
         public virtual DbSet<sn_smart_point> sn_smart_point { get; set; }
         public virtual DbSet<user> users { get; set; }
-        public virtual DbSet<customer> customers { get; set; }
-        public virtual DbSet<qrcode> qrcodes { get; set; }
-        public virtual DbSet<partner> partners { get; set; }
-        public virtual DbSet<company> companies { get; set; }
-        public virtual DbSet<checkall> checkalls { get; set; }
-        public virtual DbSet<qrcode_log> qrcode_log { get; set; }
+        public virtual DbSet<voucher_log> voucher_log { get; set; }
+        public virtual DbSet<voucher_points> voucher_points { get; set; }
+        public virtual DbSet<winning> winnings { get; set; }
+        public virtual DbSet<winning_log> winning_log { get; set; }
+        public virtual DbSet<config_bonus_point> config_bonus_point { get; set; }
     }
 }
