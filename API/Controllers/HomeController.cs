@@ -185,6 +185,49 @@ namespace API.Controllers
             }
         }
         
+        //Hàm này trả về danh sách các voucher sắp xếp giảm dần theo id, mới nhất lên đầu
+        public string getListVoucher()
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                DateTime dtn=DateTime.Now;
+                var p = (from q in db.voucher_points where q.from_date <= dtn && q.to_date >= dtn && q.quantity>0 select new { id = q.id, name = q.name, image = q.image, point = q.price }).OrderByDescending(o => o.id).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách các voucher");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này trả về danh sách các voucher sắp xếp giảm dần theo id, mới nhất lên đầu
+        public string getListVoucherDetail(int id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.voucher_points.Find(id);
+                field.Add("name", p.name);
+                field.Add("image", p.image);
+                field.Add("point", p.price.ToString());
+                field.Add("quantity", p.quantity.ToString());
+                field.Add("from_date", p.from_date.ToString());
+                field.Add("to_date", p.to_date.ToString());
+                field.Add("big_image", p.big_image);
+                field.Add("image1", p.image1);
+                field.Add("image2", p.image2);
+                field.Add("image3", p.image3);
+                field.Add("full_des",HttpUtility.HtmlEncode(p.full_des));
+                return Api("success", field, "Danh sách chi tiết voucher");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         [HttpPost]
         //Hàm này trả về định nghĩa các điểm thưởng
         public string getConfigPoints()

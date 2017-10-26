@@ -64,6 +64,8 @@ function saveVoucher() {
         alert("Nhập ảnh cover!");
         return;
     }
+    
+    document.getElementById("btnSAVE").disabled = true;
     $.ajax({
         url: url_addUpdateVoucher, type: 'post',
         contentType: 'application/json',
@@ -75,6 +77,7 @@ function saveVoucher() {
                 location.reload();
             } else {
                 alert(rs);
+                document.getElementById("btnSAVE").disabled = false;
             }
         }
     })

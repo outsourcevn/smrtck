@@ -698,6 +698,11 @@ namespace API.Controllers
             return DBContext.addUpdateVoucher(cp);
         }
         [HttpPost]
+        public string deleteVoucher(int cpId)
+        {
+            return DBContext.deletevoucher(cpId);
+        }
+        [HttpPost]
         public string deleteCompanyConfig(int cpId)
         {
             return DBContext.deletecompanyConfig(cpId);
