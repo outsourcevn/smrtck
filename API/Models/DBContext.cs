@@ -155,6 +155,23 @@ namespace API.Models
                 return "Thất bại: " + ex.Message;
             }
         }
+        public static string deletevoucher(int cpId)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    var cp = new voucher_points() { id = cpId };
+                    db.Entry(cp).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
         //Config
         //Company
         public static string addUpdatecompanyConfig(config_app cp)

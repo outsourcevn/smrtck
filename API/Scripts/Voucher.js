@@ -79,3 +79,21 @@ function saveVoucher() {
         }
     })
 }
+function confirmDelVoucher(cpId, Voucher) {
+    $("#cp_ID").val(cpId);
+    openNotification("Bạn có chắc chắn xóa " + Voucher + " ?", "deleteVoucher");
+}
+
+function deleteVoucher() {
+    $.ajax({
+        url: url_deleteVoucher, type: 'post',
+        data: { cpId: $("#cp_ID").val() },
+        success: function (rs) {
+            if (rs == '') {
+                location.reload();
+            } else {
+                alert(rs);
+            }
+        }
+    });
+}

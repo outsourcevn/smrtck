@@ -21,6 +21,8 @@ function notifyOK() {
         deleteCustomer();
     } else if (action == "deleteCompany") {
         deleteCompany();
+    } else if (action == "deleteVoucher") {
+        deleteVoucher();
     } else if (action == "delUser") {
         deleteUser();
     } else if (action == "delDriver") {
