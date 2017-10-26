@@ -180,7 +180,31 @@ namespace API.Models
                 return "Thất bại: " + ex.Message;
             }
         }
-
+        //Config
+        //Voucher
+        public static string addUpdateVoucher(voucher_points cp)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    if (cp.id == 0)
+                    {
+                        db.voucher_points.Add(cp);
+                    }
+                    else
+                    {
+                        db.Entry(cp).State = EntityState.Modified;
+                    }
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
         public static string deletecompanyConfig(int cpId)
         {
             try
