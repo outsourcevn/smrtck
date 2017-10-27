@@ -228,6 +228,73 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        //Hàm này trả về chi tiết code của voucher có id là id và của user có id là user_id
+        public string getVoucherCode(long user_id, long voucher_id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.voucher_log.Where(o => o.voucher_id == voucher_id && o.user_id==user_id).OrderByDescending(o => o.id).FirstOrDefault();
+                field.Add("code", p.code.ToString());
+                return Api("success", field, "code của user_id với voucher_id vừa mua");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này ghi lại nhật ký đổi điểm và trả về total điểm hiện tại của user sau khi đổi điểm, mã code voucher này để khi đến chỗ sử dụng voucher như rạp chiếu phim, nhà hàng...
+        //Thì đưa code này ra , sẽ có 1 hàm là lấy mã code voucher này khi đến nhà hàng đưa cho thu ngân, họ sẽ giảm giá dựa vào code khách cung cấp
+        //Code này do client app lưu ở đâu đó hoặc khi đến nơi bật 3g gọi đến 1 hàm api khác để lấy dựa trên voucher_id này
+        //Hàm này cũng trừ điểm của user đi số điểm tương ứng là points
+        [HttpPost]
+        public string transferVoucher(long user_id, long voucher_id, int points, double lon, double lat, string address, double? key)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                if (key == null || !getKeyApi(key))
+                {
+                    field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
+                    return Api("failed", field, "Ngày giờ ở máy bị sai số quá 10 phút nên ứng dụng không chạy được, Bạn cần chỉnh lại thời gian ở điện thoại!");
+                }
+
+                if (db.customers.Find(user_id).points < points)
+                {
+                    field.Add("total", "");
+                    return Api("failed", field, "Không đủ điểm để đổi voucher này");
+                }
+                long? codeVc = user_id * 1000000 + voucher_id + Config.datetimeid();
+                db.Database.ExecuteSqlCommand("update customers set points=points-" + points + " where id=" + user_id);
+                var us = db.customers.Find(user_id);
+                voucher_log vl=new voucher_log();
+                vl.address = address;
+                vl.code = codeVc;
+                vl.date_time = DateTime.Now;
+                vl.lat = lat;
+                vl.lon = lon;
+                vl.points = points;
+                vl.user_email = us.email;
+                vl.user_id = user_id;
+                vl.user_name = us.name;
+                vl.user_phone = us.phone;
+                vl.voucher_id = voucher_id;
+                vl.voucher_name = db.voucher_points.Find(voucher_id).name;
+                db.voucher_log.Add(vl);
+                db.SaveChanges();
+                db.Database.ExecuteSqlCommand("update voucher_points set quantity=quantity-1 where id=" + voucher_id);
+                field.Add("total", us.points.ToString());
+                field.Add("code", codeVc.ToString());
+                return Api("success", field, "User đã mua voucher này thành công và trả về code sử dụng!");
+            }
+            catch (Exception ex)
+            {
+                field.Add("total", "");   
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+
         [HttpPost]
         //Hàm này trả về định nghĩa các điểm thưởng
         public string getConfigPoints()

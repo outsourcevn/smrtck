@@ -2,11 +2,11 @@
 @using PagedList;
 @using API.Models;
 @{
-    ViewBag.Title = "Quản Lý Điểm Cấu Hình";
+    ViewBag.Title = "Quản Lý Cấu Hình Điểm Thưởng";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 <h2>@ViewBag.Title</h2>
-<button type="button" class="btn btn-primary" onclick="openConfig(0)">Thêm Mới</button><br /><br />
+@*<button type="button" class="btn btn-primary" onclick="openConfig(0)">Thêm Mới</button><br /><br />*@
 <table class="table marginBottom0">
     <tr><th>Điểm Thưởng Quét</th><th>Điểm Thưởng Share</th><th>Điểm Thưởng Giới Thiệu</th><th>Điểm Thưởng Thời Gian</th></tr>
     @foreach (var item in (PagedList<config_bonus_point>)ViewBag.OnePage)
