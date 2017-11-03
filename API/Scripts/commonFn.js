@@ -23,6 +23,8 @@ function notifyOK() {
         deleteCompany();
     } else if (action == "deleteVoucher") {
         deleteVoucher();
+    } else if (action == "deleteWinning") {
+        deleteWinning();
     } else if (action == "delUser") {
         deleteUser();
     } else if (action == "delDriver") {

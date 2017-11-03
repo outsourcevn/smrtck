@@ -2,7 +2,7 @@
 @using PagedList;
 @using API.Models;
 @{
-    ViewBag.Title = "Quản Lý Danh Sách Voucher Đổi Điểm";
+    ViewBag.Title = "Quản Lý Trúng Thưởng";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 <h2>@ViewBag.Title</h2>
@@ -10,28 +10,32 @@
 <link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
 <script src="~/Scripts/dropzone/dropzone.js"></script>
 @*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
-<button type="button" class="btn btn-primary" onclick="openVoucher(0)">Thêm Mới</button><br /><br />
-<div id="VoucherDialog" style="display:none;width:100%;float:left;position:relative;background:#adf5f2;" class="col-md-12">
+<button type="button" class="btn btn-primary" onclick="openwinning(0)">Thêm Mới</button><br /><br />
+<div id="WinningDialog" style="display:none;width:100%;float:left;position:relative;background:#adf5f2;" class="col-md-12">
     <div class="dTitle"><b>Thêm/Sửa</b></div>
     <div class="dDialogContent">
         <input type="hidden" id="cp_ID" />
-        <p>Tên Voucher</p>
-        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên voucher">        
-        <p>Số Điểm</p>
-        <input id="cp_price" type="text" class="form-control" placeholder="Nhập số điểm">
+        <p>Chọn Doanh Nghiệp</p>
+        <input id="cp_company" value="@ViewBag.company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code_company" value="@ViewBag.code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <p>Trúng thưởng giá trị gì(ô tô, xe máy, quà...)?</p>
+        <input id="cp_name" type="text" class="form-control" placeholder="Nhập kiểu trúng thưởng">
+        <p>Trị giá bao tiền?</p>
+        <input id="cp_money" type="text" class="form-control" placeholder="Nhập số tiền">
         <p>Từ ngày</p>
         <input id="cp_from_date" type="text" class="form-control" placeholder="Nhập từ ngày">
         <p>Đến ngày</p>
         <input id="cp_to_date" type="text" class="form-control" placeholder="Nhập đến ngày">
-        <p>Số lượng Voucher</p>
-        <input id="cp_quantity" type="text" class="form-control" placeholder="Nhập số lượng voucher">
+        <p>Số lượng</p>
+        <input id="cp_quantity" type="text" class="form-control" placeholder="Nhập số lượng">
         <p>Nội Dung Chi Tiết</p>
-        <textarea id="cp_full_des" name="cp_full_des" class="form-control"></textarea>
-        <input type="hidden" id="image" />
-        <input type="hidden" id="big_image" />
-        <input type="hidden" id="image1" />
-        <input type="hidden" id="image2" />
-        <input type="hidden" id="image3" />
+        <textarea id="cp_des" name="cp_des" class="form-control"></textarea>
+        <input type="hidden" id="image" value="">
+        <input type="hidden" id="big_image" value="">
+        <input type="hidden" id="image1" value="">
+        <input type="hidden" id="image2" value="">
+        <input type="hidden" id="image3" value="">
         <div class="col-md-3">
             <div id="img_div_image">
                 <img style="width: 100px; height: 100px" /><a href="#" id="remove_img_image">Xóa ảnh</a>
@@ -41,7 +45,7 @@
                     <span><i class="fa fa-plus fa-2x"></i>Tải ảnh đại diện lên* (200 x 200)</span>
                 </div>
             </div>
-         </div>
+        </div>
         <div class="col-md-3">
             <div id="img_div_big_image">
                 <img style="width: 100px; height: 100px" /><a href="#" id="remove_img_big_image">Xóa ảnh</a>
@@ -84,8 +88,8 @@
         </div>
         <div class="col-md-12" style="align-items: center;justify-content: center;position:relative;float:left;display:block;">
             <div class="col-md-6" style="left:25%;">
-                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="saveVoucher()" id="btnSAVE">SAVE</button>
-                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="closeDDialog('#VoucherDialog')">Exit</button>
+                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="savewinning()" id="btnSAVE">SAVE</button>
+                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="closeDDialog('#WinningDialog')">Exit</button>
             </div>
         </div>
     </div>
@@ -94,7 +98,7 @@
     <div class="form-inline">
         <div class="form-group">
             <input type="text" id="keyword" class="form-control" placeholder="Nhập từ khóa" value="@ViewBag.k" style="width:360px;" />
-            <button onclick="searchVoucher();" class="btn-default btn-info">Tìm Kiếm</button>
+            <button onclick="searchWinning();" class="btn-default btn-info">Tìm Kiếm</button>
         </div>
         @*<div class="form-group">
                 <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
@@ -102,21 +106,23 @@
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Tên Voucher</th><th>Ảnh</th><th>Số điểm</th><th>Từ ngày</th><th>Đến ngày</th><th>Số lượng</th><th></th></tr>
-    @foreach (var item in (PagedList<voucher_points>)ViewBag.OnePage)
+    <tr><th>Công ty</th><th>Tên Giải thưởng</th><th>Ảnh</th><th>Số tiền</th><th>Từ ngày</th><th>Đến ngày</th><th>Số lượng</th><th></th></tr>
+    @foreach (var item in (PagedList<winning>)ViewBag.OnePage)
     {
-
+        int? code_company = item.code_company != null ? item.code_company : 0;
+        long? money = item.money != null ? item.money : 0;
         <tr style="border-bottom:1 solid #808080;">
+            <td>@item.company</td>           
             <td>@item.name</td>
             <td>
                 ảnh đại diện<br />
-                <img src="@item.image" style="width:50px;height:50px;"/><br />
+                <img src="@item.image" style="width:50px;height:50px;" /><br />
                 ảnh to cover <br />
                 <img src="@item.big_image" style="width:150px;height:80px;" /><br />
                 @if (item.image1 != null)
                 {
                     <text>
-                         ảnh chi tiết 1 <br />
+                        ảnh chi tiết 1 <br />
                         <img src="@item.image1" style="width:50px;height:50px;" /><br />
                     </text>
                 }
@@ -135,33 +141,45 @@
                     </text>
                 }
             </td>
-            <td>@string.Format("{0:n0}", @item.price) điểm</td>
+            <td>@string.Format("{0:n0}", @item.money) đ</td>
             <td>@item.from_date</td>
             <td>@item.to_date</td>
             <td>@item.quantity</td>
-            <td><a href="#" onclick="openVoucher(@item.id, '@item.name', '@item.image','@item.big_image','@item.image1','@item.image2','@item.image3',@item.price,'@item.from_date','@item.to_date',@item.quantity)">Sửa</a></td>
-            <td><a href="#" onclick="confirmDelVoucher(@item.id,'@item.name');">Xóa</a></td>
+            <td><a href="#" onclick="openwinning(@item.id,'@item.company',@code_company, '@item.name', '@item.image','@item.big_image','@item.image1','@item.image2','@item.image3',@money,'@item.from_date','@item.to_date',@item.quantity)">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelWinning(@item.id,'@item.name');">Xóa</a></td>
         </tr>
     }
 </table>
-@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Voucher", new { page }))
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("Winning", new { page }))
 
 
 <script type="text/javascript">
-    var url_addUpdateVoucher = '@Url.Action("addUpdateVoucher","Admin")', url_deleteVoucher = '@Url.Action("deleteVoucher", "Admin")';
+    var url_addUpdateWinning = '@Url.Action("addUpdateWinning","Admin")', url_deleteWinning = '@Url.Action("deleteWinning", "Admin")';
 </script>
-<script type="text/javascript" src="~/Scripts/Voucher.js"></script>
+<script type="text/javascript" src="~/Scripts/winning.js"></script>
 <script>
     $(function () {
         $('#cp_from_date').datepicker();
         $('#cp_to_date').datepicker();
-        CKEDITOR.replace('cp_full_des',
+        CKEDITOR.replace('cp_des',
         {
             uiColor: '#337ab7',
             height: '300px',
-        });       
+        });
     });
-    
+    function searchCompanyName() {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }    
     Dropzone.autoDiscover = false;
     var upanhbaiviet = new Dropzone("div#hinhanh_image", {
         url: "/admin/uploadimg",

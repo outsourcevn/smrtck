@@ -39,8 +39,8 @@ namespace API.Models
         public virtual DbSet<user> users { get; set; }
         public virtual DbSet<voucher_log> voucher_log { get; set; }
         public virtual DbSet<voucher_points> voucher_points { get; set; }
-        public virtual DbSet<winning> winnings { get; set; }
         public virtual DbSet<winning_log> winning_log { get; set; }
         public virtual DbSet<config_bonus_point> config_bonus_point { get; set; }
+        public virtual DbSet<winning> winnings { get; set; }
     }
 }

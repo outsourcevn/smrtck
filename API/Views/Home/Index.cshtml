@@ -1,4 +1,31 @@
 ﻿@{
     ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h1>Trang web này chỉ để xử lý dữ liệu, không phải dành cho người tò mò! :)</h1>
+<h1>TRA CỨU MÃ VOUCHER</h1>
+<div class="panel-heading" style="margin-top:20px;display:block;width:100%;float:left;position:relative;">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="code" class="form-control" placeholder="Nhập Mã Hóa Đơn Voucher" value="@ViewBag.code" style="width:360px;" />
+            <button onclick="searchVoucher();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+        <div class="col-md-12 panel-heading" id="info">
+
+        </div>
+    </div>
+</div>
+<script>
+    function searchVoucher() {
+        $.ajax({
+            url: "/Home/getInfoUserCode", type: 'get',
+            data: { code: $("#code").val() },
+            success: function (rs) {
+                if (rs != "") {
+                    document.getElementById("info").innerHTML = "<h1>"+rs+"</h1>";
+                } else {
+
+                }
+            }
+        });
+    }
+</script>

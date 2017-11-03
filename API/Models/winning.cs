@@ -16,6 +16,8 @@ namespace API.Models
     {
         public long id { get; set; }
         public Nullable<int> code_company { get; set; }
+        public string company { get; set; }
+        public string partner { get; set; }
         public Nullable<int> id_partner { get; set; }
         public string name { get; set; }
         public Nullable<long> money { get; set; }
@@ -25,6 +27,10 @@ namespace API.Models
         public Nullable<int> from_date_id { get; set; }
         public Nullable<int> to_date_id { get; set; }
         public string image { get; set; }
+        public string big_image { get; set; }
+        public string image1 { get; set; }
+        public string image2 { get; set; }
+        public string image3 { get; set; }
         public string des { get; set; }
     }
 }

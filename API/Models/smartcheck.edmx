@@ -215,6 +215,8 @@
           </Key>
           <Property Name="id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="code_company" Type="int" />
+          <Property Name="company" Type="nvarchar" MaxLength="501" />
+          <Property Name="partner" Type="nvarchar" MaxLength="501" />
           <Property Name="id_partner" Type="int" />
           <Property Name="name" Type="nvarchar" MaxLength="150" />
           <Property Name="money" Type="bigint" />
@@ -224,6 +226,10 @@
           <Property Name="from_date_id" Type="int" />
           <Property Name="to_date_id" Type="int" />
           <Property Name="image" Type="nvarchar" MaxLength="150" />
+          <Property Name="big_image" Type="nvarchar" MaxLength="150" />
+          <Property Name="image1" Type="nvarchar" MaxLength="150" />
+          <Property Name="image2" Type="nvarchar" MaxLength="150" />
+          <Property Name="image3" Type="nvarchar" MaxLength="150" />
           <Property Name="des" Type="ntext" />
         </EntityType>
         <EntityType Name="winning_log">
@@ -282,9 +288,9 @@
           <EntitySet Name="users" EntityType="smartcheckModel.user" />
           <EntitySet Name="voucher_log" EntityType="smartcheckModel.voucher_log" />
           <EntitySet Name="voucher_points" EntityType="smartcheckModel.voucher_points" />
-          <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
           <EntitySet Name="winning_log" EntityType="smartcheckModel.winning_log" />
           <EntitySet Name="config_bonus_point" EntityType="smartcheckModel.config_bonus_point" />
+          <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
         </EntityContainer>
         <EntityType Name="checkall">
           <Key>
@@ -480,23 +486,6 @@
           <Property Name="image2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="winning">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="id_partner" Type="Int32" />
-          <Property Name="name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="money" Type="Int64" />
-          <Property Name="quantity" Type="Int32" />
-          <Property Name="from_date" Type="DateTime" Precision="3" />
-          <Property Name="to_date" Type="DateTime" Precision="3" />
-          <Property Name="from_date_id" Type="Int32" />
-          <Property Name="to_date_id" Type="Int32" />
-          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="winning_log">
           <Key>
             <PropertyRef Name="id" />
@@ -524,6 +513,29 @@
           <Property Name="share_point" Type="Int32" />
           <Property Name="ref_point" Type="Int32" />
           <Property Name="time_point" Type="Int32" />
+        </EntityType>
+        <EntityType Name="winning">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="money" Type="Int64" />
+          <Property Name="quantity" Type="Int32" />
+          <Property Name="from_date" Type="DateTime" Precision="3" />
+          <Property Name="to_date" Type="DateTime" Precision="3" />
+          <Property Name="from_date_id" Type="Int32" />
+          <Property Name="to_date_id" Type="Int32" />
+          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="big_image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image1" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -739,24 +751,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="winnings">
-            <EntityTypeMapping TypeName="smartcheckModel.winning">
-              <MappingFragment StoreEntitySet="winning">
-                <ScalarProperty Name="des" ColumnName="des" />
-                <ScalarProperty Name="image" ColumnName="image" />
-                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
-                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
-                <ScalarProperty Name="to_date" ColumnName="to_date" />
-                <ScalarProperty Name="from_date" ColumnName="from_date" />
-                <ScalarProperty Name="quantity" ColumnName="quantity" />
-                <ScalarProperty Name="money" ColumnName="money" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="winning_log">
             <EntityTypeMapping TypeName="smartcheckModel.winning_log">
               <MappingFragment StoreEntitySet="winning_log">
@@ -783,6 +777,30 @@
                 <ScalarProperty Name="ref_point" ColumnName="ref_point" />
                 <ScalarProperty Name="share_point" ColumnName="share_point" />
                 <ScalarProperty Name="check_point" ColumnName="check_point" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="winnings">
+            <EntityTypeMapping TypeName="smartcheckModel.winning">
+              <MappingFragment StoreEntitySet="winning">
+                <ScalarProperty Name="des" ColumnName="des" />
+                <ScalarProperty Name="image3" ColumnName="image3" />
+                <ScalarProperty Name="image2" ColumnName="image2" />
+                <ScalarProperty Name="image1" ColumnName="image1" />
+                <ScalarProperty Name="big_image" ColumnName="big_image" />
+                <ScalarProperty Name="image" ColumnName="image" />
+                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
+                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
+                <ScalarProperty Name="to_date" ColumnName="to_date" />
+                <ScalarProperty Name="from_date" ColumnName="from_date" />
+                <ScalarProperty Name="quantity" ColumnName="quantity" />
+                <ScalarProperty Name="money" ColumnName="money" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

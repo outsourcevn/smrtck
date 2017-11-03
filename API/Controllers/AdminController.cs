@@ -192,6 +192,47 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
+        public class ReportTotalItem1
+        {
+            
+            public int code_company { get; set; }
+            public string company { get; set; }
+            public int schecked { get; set; }
+
+        }
+        public class ReportTotalItem2
+        {
+            
+            public long user_id { get; set; }
+            public string user_name { get; set; }
+            public string user_email { get; set; }
+            public string user_phone { get; set; }
+            public int? schecked { get; set; }
+
+        }
+        public ActionResult ReportTotal(string k, int? page)
+        {
+            int code_company=0;
+            string company = "";
+            if (Config.getCookie("is_admin") == "") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            //if (Config.getCookie("is_admin") != "1")
+            //{
+                code_company = int.Parse(Config.getCookie("company_code"));
+                company = Config.getCookie("company_name");
+            //}
+            string query = "select user_id,user_name,user_email,user_phone,count(*) as schecked from checkall where user_email is not null and code_company=" + code_company + "  group by user_id,user_name,user_email,user_phone order by schecked desc";
+            var p = db.Database.SqlQuery<ReportTotalItem2>(query);
+            int pageSize = 10;
+            int pageNumber = (page ?? 1);
+            return View(p.ToPagedList(pageNumber, pageSize));
+        }
+        public string getReportTotal()
+        {
+            int? code_company = int.Parse(Config.getCookie("company_code"));
+            string query = "select code_company,company,count(*) as schecked from checkall where code_company=" + code_company + "  group by code_company,company union select 0 as code_company,'A' as company, count(*) as schecked from qrcode where code_company=" + code_company + "  group by code_company,company ";
+            var p = db.Database.SqlQuery<ReportTotalItem1>(query).ToList();
+            return "Công ty của bạn đã có số lượt khách quét là " + p[0].schecked + " trên tổng số " + p[1].schecked+" mã qr code";
+        }
         public ActionResult ConfigPoint(int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });           
@@ -199,6 +240,17 @@ namespace API.Controllers
             var pageNumber = page ?? 1;
             var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             ViewBag.onePage = onePage;
+            return View();
+        }
+        public ActionResult Winning(string k, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.winnings;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
             return View();
         }
         public ActionResult Partner(string k,int? code_company, int? page)
@@ -697,10 +749,20 @@ namespace API.Controllers
         {
             return DBContext.addUpdateVoucher(cp);
         }
+        [HttpPost, ValidateInput(false)]
+        public string addUpdateWinning(winning cp)
+        {
+            return DBContext.addUpdateWinning(cp);
+        }
         [HttpPost]
         public string deleteVoucher(int cpId)
         {
             return DBContext.deletevoucher(cpId);
+        }
+        [HttpPost]
+        public string deleteWinning(int cpId)
+        {
+            return DBContext.deletewinning(cpId);
         }
         [HttpPost]
         public string deleteCompanyConfig(int cpId)
@@ -1034,6 +1096,10 @@ namespace API.Controllers
         public string getFullDes(int id)
         {
             return db.voucher_points.Find(id).full_des;
+        }
+        public string getFullDesWinning(int id)
+        {
+            return db.winnings.Find(id).des;
         }
     }
 }

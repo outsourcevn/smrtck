@@ -185,6 +185,40 @@ namespace API.Controllers
             }
         }
         
+        public string getInfoUser(long user_id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var us = db.customers.Find(user_id);
+                if (us!=null)
+                {
+                    field.Add("user_id", user_id.ToString());
+                    field.Add("user_name", us.name);
+                    field.Add("user_email", us.email);
+                    field.Add("user_phone", us.phone);
+                    field.Add("identify", us.identify);
+                    field.Add("address", us.address);
+                    field.Add("points", us.points.ToString());
+                    return Api("success", field, "Thông tin khách hàng!");
+                }
+                else
+                {
+                    field.Add("user_id", "");
+                    field.Add("user_name", "");
+                    field.Add("user_email", "");
+                    field.Add("user_phone", "");
+                    field.Add("identify", "");
+                    field.Add("address", "");
+                    return Api("failed", field, "Không tìm thấy user này!");
+                }
+            }
+            catch (Exception ex)
+            {
+                field.Add("user_id", "");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         //Hàm này trả về danh sách các voucher sắp xếp giảm dần theo id, mới nhất lên đầu
         public string getListVoucher()
         {
@@ -202,7 +236,7 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
-        //Hàm này trả về danh sách các voucher sắp xếp giảm dần theo id, mới nhất lên đầu
+        //Hàm này trả về chi tiết voucher
         public string getListVoucherDetail(int id)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
@@ -228,6 +262,32 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        //Hàm này trả về chi tiết trúng thưởng
+        public string getWinningDetail(int id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.winnings.Find(id);
+                field.Add("name", p.name);
+                field.Add("image", p.image);
+                field.Add("money", p.money.ToString());
+                field.Add("quantity", p.quantity.ToString());
+                field.Add("from_date", p.from_date.ToString());
+                field.Add("to_date", p.to_date.ToString());
+                field.Add("big_image", p.big_image);
+                field.Add("image1", p.image1);
+                field.Add("image2", p.image2);
+                field.Add("image3", p.image3);
+                field.Add("des", HttpUtility.HtmlEncode(p.des));
+                return Api("success", field, "Danh sách chi tiết trúng thưởng");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         //Hàm này trả về chi tiết code của voucher có id là id và của user có id là user_id
         public string getVoucherCode(long user_id, long voucher_id)
         {
@@ -237,6 +297,38 @@ namespace API.Controllers
                 var p = db.voucher_log.Where(o => o.voucher_id == voucher_id && o.user_id==user_id).OrderByDescending(o => o.id).FirstOrDefault();
                 field.Add("code", p.code.ToString());
                 return Api("success", field, "code của user_id với voucher_id vừa mua");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này trả về danh sách các voucher mà user này đã đổi thành công để xem lại
+        public string getVoucherOfUser(long user_id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.voucher_log.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách lịch sử đổi điểm voucher của user này");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này trả về danh sách lịch sử quét của user
+        public string getHistoryCheckOfUser(long user_id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.checkalls.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách lịch sử quét của user này");
             }
             catch (Exception ex)
             {
@@ -377,6 +469,7 @@ namespace API.Controllers
                 string company = "";
                 string partner = "";
                 int? id_partner = 0;
+                long? winning_id = 0;
                 long? stt = 0;
                 //Kiểm tra xem guid này có config cho cty nào không?
                 if (db.qrcodes.Any(o=>o.guid==guid && o.status==0)){
@@ -386,6 +479,7 @@ namespace API.Controllers
                     partner = rs.partner;
                     id_partner = rs.id_partner;
                     stt = rs.stt;
+                    //winning_id = rs.winning_id!=null?rs.winning_id:0;
                     if (db.config_app.Any(o => o.code_company == code_company))
                     {
                         var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
@@ -475,8 +569,41 @@ namespace API.Controllers
                     cbl.user_phone = ctm.phone;
                     db.customer_bonus_log.Add(cbl);
                     db.SaveChanges();
-
+                    //Quyết định có trúng thưởng hay không
+                    try
+                    {
+                        DateTime wdt=DateTime.Now;
+                        if (db.winnings.Any(o => o.code_company == code_company && o.from_date <= wdt && o.to_date>=wdt && o.quantity>0))
+                        {
+                            var wnbn = db.winnings.Where(o => o.code_company == code_company && o.from_date <= wdt && o.to_date >= wdt && o.quantity > 0).OrderBy(o=>o.money).FirstOrDefault();
+                            if (wnbn != null)
+                            {
+                                winning_id = wnbn.id;
+                                winning_log wl = new winning_log();
+                                wl.address = address;
+                                wl.date_time = DateTime.Now;
+                                wl.lat = lat;
+                                wl.lon = lon;
+                                wl.money = wnbn.money;
+                                wl.qrcode = guid;
+                                wl.user_id = user_id;
+                                wl.user_email = ctm.email;
+                                wl.user_name = ctm.name;
+                                wl.user_phone = ctm.phone;
+                                wl.winning_id = winning_id;
+                                wl.winning_name = wnbn.name;
+                                db.winning_log.Add(wl);
+                                db.SaveChanges();
+                                db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        winning_id = 0;
+                    }
                     int? count = ctm.points;
+                    label = label + ". Nhà phân phối " + partner;
                     field.Add("info", label);
                     field.Add("active", active);
                     if (address == null || address == "")
@@ -490,85 +617,19 @@ namespace API.Controllers
                     point = point.Replace("{DIEM}", count.ToString());
                     field.Add("point", point);
                     field.Add("total", count.ToString());
+                    field.Add("winning_id", winning_id.ToString());
                 }
-                
-                //Kích hoạt
-                //if (db.sn_active.Any(o => o.guid == guid))
-                //{
-                //    DateTime? atvd = db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time;
-                //    field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + atvd.ToString());// + db.sn_active.Where(o => o.guid == guid).FirstOrDefault().date_time.ToString()
-                //}
-                //else
-                //{
-                //    field.Add("active", active);
-                //    sn_active sa = new sn_active();
-                //    sa.date_time = DateTime.Now;
-                //    sa.guid = guid;
-                //    sa.os = os;
-                //    db.sn_active.Add(sa);
-                //    db.SaveChanges();
-                //}
-                //location = location.Replace("{DIADIEM}", address);
-                ////Báo địa điểm 
-                //if (db.sn_locations.Any(o => o.guid == guid))
-                //{
-                //    var locs = db.sn_locations.Where(o => o.guid == guid).FirstOrDefault();
-                //    field.Add("location", "Sản phẩm này đã báo địa điểm " + locs.address + " trước đó tại thời điểm " + locs.date_time.ToString());
-                //}
-                //else
-                //{
-                                 
-                //    if (address == null || address == "")
-                //    {
-                //        address = RetrieveFormatedAddress(lat, lon);
-                //        if (address != null && address != "")
-                //            field.Add("location", location);
-                //        else
-                //            field.Add("location", location+" - (Địa chỉ chưa lấy được)");
-                //    }
-                //    sn_locations sl = new sn_locations();
-                //    sl.address = address;
-                //    sl.guid = guid;
-                //    sl.lat = lat;
-                //    sl.lon = lon;
-                //    sl.user_id = user_id;
-                //    sl.date_time = DateTime.Now;
-                //    sl.os = os;
-                //    db.sn_locations.Add(sl);
-                //    db.SaveChanges();
-                //}
-                ////Tích điểm
-                //if (db.sn_smart_point.Any(o => o.guid == guid))
-                //{
-                //    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
-                //    var pt = db.sn_smart_point.Where(o => o.guid == guid).FirstOrDefault();
-                //    field.Add("point", "Sản phẩm này đã được tích điểm vào lúc "+pt.date_time.ToString()+", bạn không thể tích thêm điểm");
-                //    field.Add("total", count.ToString());
-                //}
-                //else
-                //{
-                //    sn_smart_point ssp = new sn_smart_point();
-                //    ssp.date_time = DateTime.Now;
-                //    ssp.guid = guid;
-                //    ssp.points = 1;
-                //    ssp.user_id = user_id;
-                //    ssp.os = os;
-                //    db.sn_smart_point.Add(ssp);
-                //    db.SaveChanges();
-                //    int count = db.sn_smart_point.Count(o => o.user_id == user_id);
-                //    point = point.Replace("{DIEM}", count.ToString());
-                //    field.Add("point", point);
-                //    field.Add("total", count.ToString());
-                //}
                 return Api("success", field, "Gửi thông tin về server thành công!");
             }
             catch (Exception ex)
             {
                 field.Clear();
+                field.Add("info", "");
                 field.Add("active","");
                 field.Add("location", "");
                 field.Add("point","");
                 field.Add("total","");
+                field.Add("winning_id", "0");
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
         }
@@ -599,11 +660,25 @@ namespace API.Controllers
             //}
             //return "";
         }
-        public ActionResult Index()
+        public ActionResult Index(string code)
         {
+            
             return View();
         }
-
+        public string getInfoUserCode(long? code)
+        {
+            try {
+                if (db.voucher_log.Any(o => o.code == code)) { 
+                    var iff=db.voucher_log.Where(o=>o.code==code).FirstOrDefault();
+                    return "Xác nhận khách hàng có số điện thoại " + iff.user_phone + ", quét code này tại thời gian " + String.Format("{0:dd/MM/yyyy hh:mm tt}", iff.date_time.Value) + ", tại địa chỉ " + iff.address;
+                }
+                else return "Không tìm thấy khách hàng này!";
+            }
+            catch
+            {
+                return "";
+            }
+        }
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";

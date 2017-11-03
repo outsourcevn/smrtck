@@ -1,0 +1,37 @@
+﻿@model PagedList.IPagedList<API.Controllers.AdminController.ReportTotalItem2>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Báo Cáo Khách Hàng Và Sản Phẩm Doanh Nghiệp";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="panel-heading">
+    <div class="form-inline" id="load">
+        <h2 id="info" style="color:red;"></h2>
+        <h1>Danh Sách Khách Hàng Quét Nhiều Nhất</h1>        
+    </div>
+</div>
+<script>
+    $.ajax({
+        url: "/Admin/getReportTotal", type: 'post',        
+        success: function (rs) {            
+            if (rs != "") {
+                document.getElementById("info").innerHTML = rs;
+            } else {
+
+            }
+        }
+    });
+</script>
+<table class="table marginBottom0">
+    <tr><th>Họ Tên</th><th>Email</th><th>Phone</th><th>Số lượt quét</th></tr>
+    @foreach (var item in Model)
+    {
+
+        <tr>             
+            <td>@item.user_name</td>        
+            <td>@item.user_email</td>           
+            <td>@item.user_phone</td>
+            <td>@item.schecked</td>
+        </tr>
+    }
+</table>
