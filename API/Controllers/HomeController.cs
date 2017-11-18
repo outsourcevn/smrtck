@@ -103,7 +103,7 @@ namespace API.Controllers
                     field.Add("user_id", "");
                     return Api("failed", field, "Số điện thoại hoặc pass phải khác rỗng!");
                 }
-                if (db.customers.Any(o => o.email == email || o.phone == phone))
+                if ((user_id == 0 || user_id == null) && db.customers.Any(o => o.email == email || o.phone == phone))
                 {
                     field.Add("user_id", "");
                     return Api("failed", field, "Đã tồn tại email hoặc số điện thoại này");
@@ -237,24 +237,43 @@ namespace API.Controllers
             }
         }
         //Hàm này trả về chi tiết voucher
-        public string getListVoucherDetail(int id)
+        public string getListVoucherDetail(int id,int? os)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
             {
+
                 var p = db.voucher_points.Find(id);
-                field.Add("name", p.name);
-                field.Add("image", p.image);
-                field.Add("point", p.price.ToString());
-                field.Add("quantity", p.quantity.ToString());
-                field.Add("from_date", p.from_date.ToString());
-                field.Add("to_date", p.to_date.ToString());
-                field.Add("big_image", p.big_image);
-                field.Add("image1", p.image1);
-                field.Add("image2", p.image2);
-                field.Add("image3", p.image3);
-                field.Add("full_des",HttpUtility.HtmlEncode(p.full_des));
-                return Api("success", field, "Danh sách chi tiết voucher");
+                if (os == null || os == 1)
+                {
+                    field.Add("name", p.name);
+                    field.Add("image", p.image);
+                    field.Add("point", p.price.ToString());
+                    field.Add("quantity", p.quantity.ToString());
+                    field.Add("from_date", String.Format("{0:yyyy/MM/dd hh:mm tt}", p.from_date.Value));
+                    field.Add("to_date", String.Format("{0:yyyy/MM/dd hh:mm tt}", p.to_date.Value));
+                    field.Add("big_image", p.big_image);
+                    field.Add("image1", p.image1);
+                    field.Add("image2", p.image2);
+                    field.Add("image3", p.image3);
+                    field.Add("full_des", p.full_des.Replace("\"", "\\\""));//HttpUtility.HtmlEncode(System.Security.SecurityElement.Escape(p.full_des))
+                    return Api("success", field, "Danh sách chi tiết voucher");
+                }
+                else
+                {
+                    field.Add("name", p.name);
+                    field.Add("image", p.image);
+                    field.Add("point", p.price.ToString());
+                    field.Add("quantity", p.quantity.ToString());
+                    field.Add("from_date", String.Format("{0:yyyy/MM/dd hh:mm tt}", p.from_date.Value));
+                    field.Add("to_date", String.Format("{0:yyyy/MM/dd hh:mm tt}", p.to_date.Value));
+                    field.Add("big_image", p.big_image);
+                    field.Add("image1", p.image1);
+                    field.Add("image2", p.image2);
+                    field.Add("image3", p.image3);
+                    field.Add("full_des", "");
+                    return Api("success", field, "Danh sách chi tiết voucher");
+                }
             }
             catch (Exception ex)
             {
@@ -262,31 +281,58 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        public ActionResult ViewListVoucherDetail(int id)
+        {
+            var p = db.voucher_points.Find(id);
+            return View(p);
+        }
         //Hàm này trả về chi tiết trúng thưởng
-        public string getWinningDetail(int id)
+        public string getWinningDetail(int id,int? os)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
             {
                 var p = db.winnings.Find(id);
-                field.Add("name", p.name);
-                field.Add("image", p.image);
-                field.Add("money", p.money.ToString());
-                field.Add("quantity", p.quantity.ToString());
-                field.Add("from_date", p.from_date.ToString());
-                field.Add("to_date", p.to_date.ToString());
-                field.Add("big_image", p.big_image);
-                field.Add("image1", p.image1);
-                field.Add("image2", p.image2);
-                field.Add("image3", p.image3);
-                field.Add("des", HttpUtility.HtmlEncode(p.des));
-                return Api("success", field, "Danh sách chi tiết trúng thưởng");
+                if (os == null || os == 1)
+                {
+                    field.Add("name", p.name);
+                    field.Add("image", p.image);
+                    field.Add("money", p.money.ToString());
+                    field.Add("quantity", p.quantity.ToString());
+                    field.Add("from_date", p.from_date.ToString());
+                    field.Add("to_date", p.to_date.ToString());
+                    field.Add("big_image", p.big_image);
+                    field.Add("image1", p.image1);
+                    field.Add("image2", p.image2);
+                    field.Add("image3", p.image3);
+                    field.Add("des", p.des.Replace("\"", "\\\""));//HttpUtility.HtmlEncode(p.des)
+                    return Api("success", field, "Danh sách chi tiết trúng thưởng");
+                }
+                else {
+                    field.Add("name", p.name);
+                    field.Add("image", p.image);
+                    field.Add("money", p.money.ToString());
+                    field.Add("quantity", p.quantity.ToString());
+                    field.Add("from_date", p.from_date.ToString());
+                    field.Add("to_date", p.to_date.ToString());
+                    field.Add("big_image", p.big_image);
+                    field.Add("image1", p.image1);
+                    field.Add("image2", p.image2);
+                    field.Add("image3", p.image3);
+                    field.Add("des", "");//HttpUtility.HtmlEncode(p.des)
+                    return Api("success", field, "Danh sách chi tiết trúng thưởng");
+                }
             }
             catch (Exception ex)
             {
                 field.Add("list", "[]");
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
+        }
+        public ActionResult ViewWinningDetail(int id)
+        {
+            var p = db.winnings.Find(id);
+            return View(p);
         }
         //Hàm này trả về chi tiết code của voucher có id là id và của user có id là user_id
         public string getVoucherCode(long user_id, long voucher_id)
@@ -310,7 +356,25 @@ namespace API.Controllers
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
             {
-                var p = db.voucher_log.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                //var p = db.voucher_log.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                var p=(from q in db.voucher_log where q.user_id==user_id join q2 in db.voucher_points on q.voucher_id equals q2.id into ps
+                            from q2 in ps.DefaultIfEmpty()
+                           select new {
+                               id=q.id,
+                               user_id=q.user_id,
+                               user_name=q.user_name,
+                               user_email=q.user_email,
+                               user_phone=q.user_phone,
+                               voucher_id=q.voucher_id,
+                               voucher_name=q.voucher_name,
+                               voucher_image=q2.image,
+                               points=q.points,
+                               date_time=q.date_time,
+                               lon=q.lon,
+                               lat=q.lat,
+                               address=q.address,
+                               code=q.code
+                           }).OrderByDescending(o => o.id).ToList();
                 field.Add("list", JsonConvert.SerializeObject(p));
                 return ApiArray("success", field, "Danh sách lịch sử đổi điểm voucher của user này");
             }
@@ -329,6 +393,22 @@ namespace API.Controllers
                 var p = db.checkalls.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
                 field.Add("list", JsonConvert.SerializeObject(p));
                 return ApiArray("success", field, "Danh sách lịch sử quét của user này");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này trả về danh sách trúng của user
+        public string getListWinningOfUser(long user_id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.winning_log.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách trúng thưởng của user này");
             }
             catch (Exception ex)
             {
