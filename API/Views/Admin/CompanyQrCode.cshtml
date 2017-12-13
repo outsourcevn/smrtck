@@ -295,6 +295,11 @@
         });
     }
     function Generate(guid) {
+        var stt = prompt("Nhập số thứ tự", "");
+        if (stt != null && stt != "") { 
+            stt=stt*13+27;
+            guid = guid + "-" + stt; 
+        }
         $("#DialogImage").show();
         $("#qrcodeload").attr("src","/Images/loader.gif");
         $.ajax({

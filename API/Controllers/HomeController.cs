@@ -437,7 +437,7 @@ namespace API.Controllers
                     field.Add("total", "");
                     return Api("failed", field, "Không đủ điểm để đổi voucher này");
                 }
-                long? codeVc = user_id * 1000000 + voucher_id + Config.datetimeid();
+                long? codeVc = user_id * 1000 + voucher_id + Config.datetimeid();
                 db.Database.ExecuteSqlCommand("update customers set points=points-" + points + " where id=" + user_id);
                 var us = db.customers.Find(user_id);
                 voucher_log vl=new voucher_log();
@@ -525,6 +525,22 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        public bool isNumber(string val)
+        {
+            try
+            {
+                int num;
+                if (int.TryParse(val, out num))
+                {
+                    return true;
+                }
+                else return false;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+        }
         //Hàm này làm 3 việc và trả về 3 trường tương ứng là active,location và point (gửi kèm cả trường total nữa)
         //1. Kích hoạt sản phẩm với mã sản phẩm là guid, nếu sản phẩm này đã kích hoạt 1 lần rồi cũng báo đã kích hoạt
         //2. Báo địa điểm với mã sản phẩm là guid, nếu đã báo địa điểm rồi cũng báo là đã báo
@@ -551,12 +567,27 @@ namespace API.Controllers
                 int? id_partner = 0;
                 long? winning_id = 0;
                 long? stt = 0;
+                long NUMBER = 27;
+                //Kiểm tra QR code mới hay cũ
+                if (guid!=null && guid.Contains("-"))
+                {
+                    //Tách ra làm 2 guid
+                    string[] tempGuid = guid.Split('-');
+                    string guid1 = guid.Substring(0, guid.LastIndexOf("-"));
+                    string guid2 = tempGuid[tempGuid.Length-1];
+                    if (isNumber(guid2))
+                    {
+                        guid = guid1;
+                        long.TryParse(guid2, out NUMBER);
+                    }
+                }
+           
                 //Kiểm tra xem guid này có config cho cty nào không?
-                if (db.qrcodes.Any(o=>o.guid==guid && o.status==0)){
+                if (db.qrcodes.Any(o=>o.guid==guid && o.status==0) && ((NUMBER-27)%13==0)){
                     var rs = db.qrcodes.Where(o => o.guid == guid && o.status == 0).FirstOrDefault();
                     code_company = rs.code_company;
                     company = rs.company;
-                    partner = rs.partner;
+                    partner = db.partners.Find((int)rs.id_partner).name;//rs.partner;
                     id_partner = rs.id_partner;
                     stt = rs.stt;
                     //winning_id = rs.winning_id!=null?rs.winning_id:0;
@@ -594,8 +625,9 @@ namespace API.Controllers
                 DateTime dtn = DateTime.Now;
                 active = active.Replace("{NGAYTHANG}", Config.formatDateTime(dtn));
                 location = location.Replace("{DIADIEM}", address);
+                NUMBER = (NUMBER - 27) / 13;
                 // Kết hợp duy nhất trong 1 bảng
-                if (db.checkalls.Any(o => o.guid == guid))
+                if (db.checkalls.Any(o => o.guid == guid && o.stt==NUMBER))
                 {
                     var cka = db.checkalls.Where(o => o.guid == guid).FirstOrDefault();
                     string dtfm = Config.formatDateTime(cka.date_time);
@@ -616,7 +648,7 @@ namespace API.Controllers
                         }
                     }
                     //Quét thành công
-                    db.Database.ExecuteSqlCommand("update customers set points=points+" + points + " where id=" + user_id);
+                    db.Database.ExecuteSqlCommand("update customers set points=points+" + points + " where id=" + user_id);                    
                     customer ctm = db.customers.Find(user_id);
                     checkall cka = new checkall();
                     cka.address = address;
@@ -635,7 +667,7 @@ namespace API.Controllers
                     cka.code_company = code_company;
                     cka.id_partner = id_partner;
                     cka.partner = partner;
-                    cka.stt = stt;
+                    cka.stt = NUMBER;//stt;
                     db.checkalls.Add(cka);
                     db.SaveChanges();
                     //Ghi nhật ký                                 

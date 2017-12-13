@@ -31,7 +31,6 @@ namespace API.Models
         public virtual DbSet<customer_bonus_log> customer_bonus_log { get; set; }
         public virtual DbSet<customer> customers { get; set; }
         public virtual DbSet<partner> partners { get; set; }
-        public virtual DbSet<qrcode> qrcodes { get; set; }
         public virtual DbSet<qrcode_log> qrcode_log { get; set; }
         public virtual DbSet<sn_active> sn_active { get; set; }
         public virtual DbSet<sn_locations> sn_locations { get; set; }
@@ -42,5 +41,6 @@ namespace API.Models
         public virtual DbSet<winning_log> winning_log { get; set; }
         public virtual DbSet<config_bonus_point> config_bonus_point { get; set; }
         public virtual DbSet<winning> winnings { get; set; }
+        public virtual DbSet<qrcode> qrcodes { get; set; }
     }
 }

@@ -28,5 +28,7 @@ namespace API.Models
         public Nullable<int> id_partner { get; set; }
         public string partner { get; set; }
         public Nullable<long> winning_id { get; set; }
+        public Nullable<int> from_stt { get; set; }
+        public Nullable<int> to_stt { get; set; }
     }
 }

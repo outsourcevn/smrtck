@@ -119,6 +119,8 @@
           <Property Name="id_partner" Type="int" />
           <Property Name="partner" Type="nvarchar" MaxLength="501" />
           <Property Name="winning_id" Type="bigint" />
+          <Property Name="from_stt" Type="int" />
+          <Property Name="to_stt" Type="int" />
         </EntityType>
         <EntityType Name="qrcode_log">
           <Key>
@@ -280,7 +282,6 @@
           <EntitySet Name="customer_bonus_log" EntityType="smartcheckModel.customer_bonus_log" />
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
           <EntitySet Name="partners" EntityType="smartcheckModel.partner" />
-          <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
           <EntitySet Name="qrcode_log" EntityType="smartcheckModel.qrcode_log" />
           <EntitySet Name="sn_active" EntityType="smartcheckModel.sn_active" />
           <EntitySet Name="sn_locations" EntityType="smartcheckModel.sn_locations" />
@@ -291,6 +292,7 @@
           <EntitySet Name="winning_log" EntityType="smartcheckModel.winning_log" />
           <EntitySet Name="config_bonus_point" EntityType="smartcheckModel.config_bonus_point" />
           <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
+          <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
         </EntityContainer>
         <EntityType Name="checkall">
           <Key>
@@ -377,25 +379,6 @@
           <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="date_time" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="qrcode">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="sn" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="qrcode1" Type="String" MaxLength="1001" FixedLength="false" Unicode="true" />
-          <Property Name="qrcode2" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="date_id" Type="Int32" />
-          <Property Name="status" Type="Int32" />
-          <Property Name="stt" Type="Int64" />
-          <Property Name="id_partner" Type="Int32" />
-          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="winning_id" Type="Int64" />
         </EntityType>
         <EntityType Name="qrcode_log">
           <Key>
@@ -537,6 +520,27 @@
           <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityType Name="qrcode">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="sn" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="qrcode1" Type="String" MaxLength="1001" FixedLength="false" Unicode="true" />
+          <Property Name="qrcode2" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="guid" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="date_id" Type="Int32" />
+          <Property Name="status" Type="Int32" />
+          <Property Name="stt" Type="Int64" />
+          <Property Name="id_partner" Type="Int32" />
+          <Property Name="partner" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="winning_id" Type="Int64" />
+          <Property Name="from_stt" Type="Int32" />
+          <Property Name="to_stt" Type="Int32" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -631,26 +635,6 @@
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="company" ColumnName="company" />
                 <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="qrcodes">
-            <EntityTypeMapping TypeName="smartcheckModel.qrcode">
-              <MappingFragment StoreEntitySet="qrcode">
-                <ScalarProperty Name="winning_id" ColumnName="winning_id" />
-                <ScalarProperty Name="partner" ColumnName="partner" />
-                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
-                <ScalarProperty Name="stt" ColumnName="stt" />
-                <ScalarProperty Name="status" ColumnName="status" />
-                <ScalarProperty Name="date_id" ColumnName="date_id" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="guid" ColumnName="guid" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="qrcode2" ColumnName="qrcode2" />
-                <ScalarProperty Name="qrcode1" ColumnName="qrcode1" />
-                <ScalarProperty Name="sn" ColumnName="sn" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -801,6 +785,28 @@
                 <ScalarProperty Name="partner" ColumnName="partner" />
                 <ScalarProperty Name="company" ColumnName="company" />
                 <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="qrcodes">
+            <EntityTypeMapping TypeName="smartcheckModel.qrcode">
+              <MappingFragment StoreEntitySet="qrcode">
+                <ScalarProperty Name="to_stt" ColumnName="to_stt" />
+                <ScalarProperty Name="from_stt" ColumnName="from_stt" />
+                <ScalarProperty Name="winning_id" ColumnName="winning_id" />
+                <ScalarProperty Name="partner" ColumnName="partner" />
+                <ScalarProperty Name="id_partner" ColumnName="id_partner" />
+                <ScalarProperty Name="stt" ColumnName="stt" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="date_id" ColumnName="date_id" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="qrcode2" ColumnName="qrcode2" />
+                <ScalarProperty Name="qrcode1" ColumnName="qrcode1" />
+                <ScalarProperty Name="sn" ColumnName="sn" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
