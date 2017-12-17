@@ -5,13 +5,30 @@
     ViewBag.Title = "Quản Lý Nhà Phân Phối Của Doanh Nghiệp";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
+<script>
+    function getTotalPartnerQrCode(id,code_comp) {
+        $.ajax({
+            url: "/Admin/getTotalPartnerQrCode", type: 'get',
+            data: { partner_id: id, code_company: code_comp },           
+            success: function (rs) {
+                //alert(rs);
+                if (rs != "-1") {
+                    //alert(rs);
+                    $("#all_code_"+id).html("("+rs+" tem)");
+                } else {
+                    
+                }
+            }
+        })
+    }
+</script>
 <h2>@ViewBag.Title</h2>
 @if (ViewBag.isadmin == "1") { 
 <button type="button" class="btn btn-primary" onclick="openPartner(0)">Thêm Mới</button><br /><br />
 <div class="panel-heading">
     <div class="form-inline">
         <div class="form-group">
-            <input type="text" id="keyword" class="form-control" placeholder="Nhập tên hoặc mã doanh nghiệp" value="@ViewBag.k" style="width:360px;" />
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập tên hoặc mã doanh nghiệp" value="@ViewBag.k" style="width:360px;" onkeyup="searchCompanyName2();"/>
             <button onclick="searchPartner();" class="btn-default btn-info">Tìm Kiếm</button>
         </div>
         @*<div class="form-group">
@@ -21,12 +38,12 @@
 </div>
 }
 <table class="table marginBottom0">
-    <tr><th>Tên</th><th>Doanh Nghiệp</th><th>Mã Doanh Nghiệp</th></tr>
+    <tr><th>Nhà Phân Phối</th><th>Doanh Nghiệp</th><th>Mã Doanh Nghiệp</th></tr>
     @foreach (var item in (PagedList<partner>)ViewBag.OnePage)
     {
         <tr>
             <td>
-                @item.name
+                @item.name <br />
                 @*@if (item.is_admin != null)
                     {
                         <span style="color:red;"><b>@item.name</b></span>
@@ -35,6 +52,8 @@
                     {
                         @item.name
                     }*@
+                <p id="all_code_@item.id" style="color:red;"></p>
+                <script>getTotalPartnerQrCode(@item.id,@item.code_company);</script>
             </td>
             <td>@item.company</td>
             <td>@item.code_company</td>           
@@ -73,6 +92,23 @@ else
 </script>
 <script type="text/javascript" src="~/Scripts/Partner.js"></script>
 <script>
+    function searchPartner() {
+
+        window.location.href = "/Admin/Partner?k=" + $("#keyword").val();
+
+    }
+    function searchCompanyName2(type) {
+        var keyword = document.getElementById("keyword").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#keyword').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                return false;
+            },
+            minLength: 1
+        });
+    }
     function searchCompanyName(type) {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
@@ -119,4 +155,5 @@ else
             }
         })
     }
+    
 </script>

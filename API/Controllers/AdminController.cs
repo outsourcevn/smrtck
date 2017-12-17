@@ -1115,5 +1115,31 @@ namespace API.Controllers
         {
             return db.winnings.Find(id).des;
         }
+        public int? getTotalPartnerQrCode(int? partner_id,int? code_company)
+        {
+            try
+            {
+                int? count = db.qrcodes.Count(o => o.code_company == code_company && o.id_partner == partner_id);
+                if (count==0)
+                {
+                    return 0;
+                }else
+                {
+                    if (count == 1)
+                    {
+                        var c2= db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == partner_id).FirstOrDefault();
+                        return c2.to_stt - c2.from_stt + 1;
+                    }
+                    else
+                    {
+                        return count;
+                    }
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
     }
 }
