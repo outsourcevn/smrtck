@@ -121,6 +121,7 @@
           <Property Name="winning_id" Type="bigint" />
           <Property Name="from_stt" Type="int" />
           <Property Name="to_stt" Type="int" />
+          <Property Name="id_config_app" Type="int" />
         </EntityType>
         <EntityType Name="qrcode_log">
           <Key>
@@ -540,6 +541,7 @@
           <Property Name="winning_id" Type="Int64" />
           <Property Name="from_stt" Type="Int32" />
           <Property Name="to_stt" Type="Int32" />
+          <Property Name="id_config_app" Type="Int32" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -792,6 +794,7 @@
           <EntitySetMapping Name="qrcodes">
             <EntityTypeMapping TypeName="smartcheckModel.qrcode">
               <MappingFragment StoreEntitySet="qrcode">
+                <ScalarProperty Name="id_config_app" ColumnName="id_config_app" />
                 <ScalarProperty Name="to_stt" ColumnName="to_stt" />
                 <ScalarProperty Name="from_stt" ColumnName="from_stt" />
                 <ScalarProperty Name="winning_id" ColumnName="winning_id" />

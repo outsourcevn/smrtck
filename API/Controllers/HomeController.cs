@@ -416,6 +416,48 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        // Hàm này trả về các khách hàng quét mới nhất từ thời gian fromdate đến thời gian todate
+        public string getListCustomer(int company_code,DateTime fromdate, DateTime todate,string key)
+        {
+            MD5 md5Hash = MD5.Create();
+            int newPass = company_code * 2 + 1;
+            string hash = Config.GetMd5Hash(md5Hash, newPass.ToString());            
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            if (hash != key)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Bạn gửi sai khóa");
+            }
+            try
+            {
+                var p = (from q in db.checkalls where q.code_company == company_code && q.date_time >= fromdate && q.date_time <= todate
+                         select new
+                         {
+                             id=q.id,
+                             TenDoanhNghiep=q.company,
+                             TenNhaPhanPhoi=q.partner,
+                             MaSanPham=q.guid,
+                             SoThuTu=q.stt,
+                             KichHoatNgay=q.date_time,
+                             Email=q.user_email,
+                             Phone=q.user_phone,
+                             DiaDiem=q.address,
+                             TinhThanh=q.province,
+                             AnhQrCode1=q.guid,
+                             AnhQrCode2=q.stt*13+27
+
+                         }
+                         ).OrderByDescending(o => o.id).ToList();
+                //field.Add("list", JsonConvert.SerializeObject(p));
+                return JsonConvert.SerializeObject(p);// ApiArray("success", field, "Danh sách khách hàng quét qr code");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+
         //Hàm này ghi lại nhật ký đổi điểm và trả về total điểm hiện tại của user sau khi đổi điểm, mã code voucher này để khi đến chỗ sử dụng voucher như rạp chiếu phim, nhà hàng...
         //Thì đưa code này ra , sẽ có 1 hàm là lấy mã code voucher này khi đến nhà hàng đưa cho thu ngân, họ sẽ giảm giá dựa vào code khách cung cấp
         //Code này do client app lưu ở đâu đó hoặc khi đến nơi bật 3g gọi đến 1 hàm api khác để lấy dựa trên voucher_id này
@@ -547,7 +589,7 @@ namespace API.Controllers
         //3. Báo tích điểm với mã sản phẩm là guid, nếu đã tích điểm rồi cũng báo, hiện số điểm sau khi tích điểm, gửi kèm cả trường total là số điểm hiện thời sau khi tích điểm
         //Nếu lỗi sql trả về rỗng các trường và lỗi chi tiết
         [HttpPost]
-        public string check(string guid,long? user_id,double lon, double lat,string address, double? key,int? points,int? os)
+        public string check(string guid, long? user_id, double lon, double lat, string address, double? key, int? points, int? os)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -567,33 +609,40 @@ namespace API.Controllers
                 int? id_partner = 0;
                 long? winning_id = 0;
                 long? stt = 0;
-                long NUMBER = 27;
+                long NUMBER = 27;//Mặc định qr code cũ thì stt là 0 vì chỉ có GUID
                 //Kiểm tra QR code mới hay cũ
-                if (guid!=null && guid.Contains("-"))
+                if (guid != null && guid.Contains("-"))
                 {
                     //Tách ra làm 2 guid
                     string[] tempGuid = guid.Split('-');
                     string guid1 = guid.Substring(0, guid.LastIndexOf("-"));
-                    string guid2 = tempGuid[tempGuid.Length-1];
+                    string guid2 = tempGuid[tempGuid.Length - 1];
                     if (isNumber(guid2))
                     {
                         guid = guid1;
                         long.TryParse(guid2, out NUMBER);
                     }
                 }
-           
+
                 //Kiểm tra xem guid này có config cho cty nào không?
-                if (db.qrcodes.Any(o=>o.guid==guid && o.status==0) && ((NUMBER-27)%13==0)){
+                if (db.qrcodes.Any(o => o.guid == guid && o.status == 0) && ((NUMBER - 27) % 13 == 0))
+                {
                     var rs = db.qrcodes.Where(o => o.guid == guid && o.status == 0).FirstOrDefault();
                     code_company = rs.code_company;
                     company = rs.company;
                     partner = db.partners.Find((int)rs.id_partner).name;//rs.partner;
                     id_partner = rs.id_partner;
                     stt = rs.stt;
+                    int? id_config_app = rs.id_config_app;
+                    if ((NUMBER - 27) / 13 != 0) stt = (NUMBER - 27) / 13;
                     //winning_id = rs.winning_id!=null?rs.winning_id:0;
                     if (db.config_app.Any(o => o.code_company == code_company))
                     {
                         var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
+                        if (id_config_app != null)                       
+                        {
+                            info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
+                        }
                         label = info.text_in_qr_code;
                         active = info.text_in_active;
                         location = info.text_in_location;
@@ -612,7 +661,7 @@ namespace API.Controllers
                 {
                     field.Add("info", "Sản phẩm này không được cấp mã tem của An Hà");
                     field.Add("active", "Sản phẩm này không được kích hoạt");
-                    field.Add("location", "Tại địa điểm " + address);                   
+                    field.Add("location", "Tại địa điểm " + address);
                     field.Add("point", "Sản phẩm này không được tính tích điểm");
                     field.Add("total", "...");
                     return Api("success", field, "Gửi thông tin về server thành công!");
@@ -627,7 +676,7 @@ namespace API.Controllers
                 location = location.Replace("{DIADIEM}", address);
                 NUMBER = (NUMBER - 27) / 13;
                 // Kết hợp duy nhất trong 1 bảng
-                if (db.checkalls.Any(o => o.guid == guid && o.stt==NUMBER))
+                if (db.checkalls.Any(o => o.guid == guid && (o.stt == NUMBER || o.stt == stt)))// || o.stt== stt
                 {
                     var cka = db.checkalls.Where(o => o.guid == guid).FirstOrDefault();
                     string dtfm = Config.formatDateTime(cka.date_time);
@@ -667,7 +716,13 @@ namespace API.Controllers
                     cka.code_company = code_company;
                     cka.id_partner = id_partner;
                     cka.partner = partner;
-                    cka.stt = NUMBER;//stt;
+                    if (NUMBER != 0)
+                    {
+                        cka.stt = NUMBER;//stt;
+                    }else
+                    {
+                        cka.stt = stt;//stt;
+                    }
                     db.checkalls.Add(cka);
                     db.SaveChanges();
                     //Ghi nhật ký                                 
@@ -712,7 +767,7 @@ namespace API.Controllers
                     }
                     catch
                     {
-                        winning_id = 0;
+                        winning_id = null;
                     }
                     int? count = ctm.points;
                     label = label + ". Nhà phân phối " + partner;

@@ -317,6 +317,18 @@ namespace API.Controllers
             ViewBag.notice = nt!=null?nt.actions:"";
             return View();
         }
+        public int? getmaxsttfromcompany(int code_company)
+        {
+            try
+            {
+                var p = db.qrcodes.Where(o => o.code_company == code_company).OrderByDescending(o=>o.from_stt).FirstOrDefault();
+                return p.to_stt+1;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
         public ActionResult LogCompanyQrCode(DateTime? fdate, DateTime? tdate,string k,int? order, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
@@ -500,12 +512,34 @@ namespace API.Controllers
             }
         }
         [HttpPost]
-        public string UndoQrCode(string guid)
+        public string UndoQrCode(string guid,int stt,string sguid)
         {
             try
             {
-                db.Database.ExecuteSqlCommand("delete from checkall where guid=N'"+guid+"'");
-                return "1";
+                if (stt == 0)
+                {
+                    if (db.checkalls.Any(o => o.guid == guid))
+                    {
+                        db.Database.ExecuteSqlCommand("delete from checkall where guid=N'" + guid + "'");
+                        return "1";
+                    }
+                    else
+                    {
+                        return "0";
+                    }
+                }else
+                {
+                    if (db.checkalls.Any(o => o.guid == sguid))
+                    {
+                        db.Database.ExecuteSqlCommand("delete from checkall where guid=N'" + sguid + "' and stt="+ stt);
+                        return "1";
+                    }
+                    else
+                    {
+                        return "0";
+                    }
+                }
+                
             }
             catch
             {
@@ -617,18 +651,58 @@ namespace API.Controllers
             }
         }
         [HttpPost]
-        public string updateCompanyQrCode(int code_company, string company, string partner, int id_partner, long ffrom, long tto)
+        public string updateCompanyQrCode(int code_company, string company, string partner, int? id_partner, int? ffrom, int? tto)
         {
             try
             {
-                if (db.checkalls.Any(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto))
+                //Tìm id cũ, do các stt nối tiếp nhau nên chỉ cập nhật ông nào cũ
+                int? old_id_partner = db.qrcodes.Where(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto).FirstOrDefault().id_partner;
+                if (db.checkalls.Any(o => o.code_company == code_company && o.id_partner== old_id_partner && o.stt >= ffrom && o.stt <= tto))
                 {
                     //long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
                     return "Không cập nhật được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + ffrom + "->" + tto + "), đề nghị chọn khoảng số thứ tự khác để hủy";
                 }
 
                 DateTime fromtime = DateTime.Now;
-                db.Database.ExecuteSqlCommand("update qrcode set id_partner=" + id_partner + ",partner=N'" + partner + "' where code_company=" + code_company + " and from_stt>=" + ffrom + " and to_stt<=" + tto);
+                int? cat = db.qrcodes.Count(o => o.code_company == code_company && o.id_partner == old_id_partner && o.from_stt==o.to_stt && o.stt >= ffrom && o.stt <= tto);
+                if (cat > 1)
+                {
+                    db.Database.ExecuteSqlCommand("update qrcode set id_partner=" + id_partner + ",partner=N'" + partner + "' where code_company=" + code_company + " and id_partner="+ old_id_partner+" and from_stt=to_stt and stt >= "+ffrom +" and stt <="+ tto);
+                }
+                else
+                {
+                    cat = db.qrcodes.Count(o => o.code_company == code_company && o.id_partner == old_id_partner && o.from_stt != o.to_stt && o.from_stt<= tto && o.to_stt>= tto);
+                    if (cat > 0)
+                    {
+                        //Chèn thêm 1 dòng mới
+                        var tempcat = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == old_id_partner && o.from_stt < o.to_stt).FirstOrDefault();
+                        string qrcodestr = tempcat.guid;
+                        qrcode qr = new qrcode();
+                        qr.code_company = code_company;
+                        qr.company = company;
+                        qr.date_id = tempcat.date_id;
+                        qr.date_time = tempcat.date_time;
+                        qr.from_stt = ffrom;
+                        qr.guid = qrcodestr;
+                        qr.id_partner = id_partner;
+                        qr.partner = partner;
+                        qr.qrcode1 = tempcat.qrcode1;
+                        qr.qrcode2 = tempcat.qrcode2;
+                        qr.sn = tempcat.sn;
+                        qr.status = tempcat.status;
+                        qr.stt = ffrom;
+                        qr.to_stt = tto;
+                        qr.winning_id = tempcat.winning_id;
+                        db.qrcodes.Add(qr);
+                        db.SaveChanges();
+                        //Cắt dòng cũ đi
+                        long ID = tempcat.id;
+                        int? nextid = tto + 1;
+                        db.Database.ExecuteSqlCommand("update qrcode set from_stt="+ nextid+ ",stt=" + nextid + " where id=" + ID);
+
+
+                    }
+                }
                 qrcode_log ql = new qrcode_log();
                 int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
                 string notice = "Đã cập nhật các mã qr code cho công ty " + company + ", thành nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
@@ -803,6 +877,24 @@ namespace API.Controllers
         {
             return JsonConvert.SerializeObject(db.config_app.Where(o=>o.id==id).ToList());
         }
+        [HttpGet]
+        public string getTextInQrCode(int id_config_app, int code_company)
+        {
+            try
+            {
+                if (db.config_app.Any(o=>o.id== id_config_app))
+                {
+                    return db.config_app.Find(id_config_app).text_in_qr_code;
+                }else
+                {
+                    return db.config_app.Where(o => o.code_company == code_company).FirstOrDefault().text_in_qr_code;
+                }
+            }
+            catch
+            {
+                return "Chưa cấu hình sản phẩm";
+            }
+        }
         public string getCompanyList(string k)
         {
             if (k == null) k = "";
@@ -817,6 +909,37 @@ namespace API.Controllers
             var p = (from q in db.partners where q.name.Contains(k) && q.code_company==code_company select new { value = q.name, id = q.id }).Distinct().ToList();
             return JsonConvert.SerializeObject(p);
         }
+        public string getjsonproductcompany(int code_company)
+        {
+            var p = (from q in db.config_app where q.code_company == code_company select new { value = q.text_in_qr_code, id = q.id }).Distinct().ToList();
+            return JsonConvert.SerializeObject(p);
+        }
+        public string confirmUpdateProduct(int code_company, int ffrom, int tto,int id_config_app)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand("update qrcode set id_config_app=" + id_config_app + " where code_company=" + code_company + " and from_stt=" + ffrom + " and to_stt=" + tto);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+        public string getfromandto(int? type, int code_company)
+        {
+
+            if (type == 0)
+            {
+                var p = (from q in db.qrcodes where q.code_company == code_company && q.to_stt>q.from_stt select new { value = q.from_stt, id = q.id }).Distinct().ToList();
+                return JsonConvert.SerializeObject(p);
+            }else
+            {
+                var p = (from q in db.qrcodes where q.code_company == code_company && q.to_stt > q.from_stt select new { value = q.to_stt, id = q.id }).Distinct().ToList();
+                return JsonConvert.SerializeObject(p);
+            }
+            
+        }
         public void exportCompanyQrCode(int code_company,string company,string partner,int id_partner,long ffrom,long tto)
         {
             
@@ -828,7 +951,12 @@ namespace API.Controllers
                 //sb.Append("sn,qrcode\r\n");
                 for (int i = 0; i < rs.Count;i++)
                 {
-                    sb.Append("\""+rs[i].guid+"\",\""+rs[i].stt+"\"\r\n");
+                    if (rs[i].from_stt== rs[i].to_stt) { 
+                        sb.Append("\""+rs[i].guid+"\",\""+rs[i].stt+"\"\r\n");
+                    }
+                    else{
+                        sb.Append("\"" + rs[i].guid + "\",\"" + rs[i].from_stt + "\",\"" + rs[i].to_stt + "\"\r\n");
+                    }
                 }
                 Response.ClearContent();
                 Response.ClearHeaders();
@@ -1115,30 +1243,37 @@ namespace API.Controllers
         {
             return db.winnings.Find(id).des;
         }
-        public int? getTotalPartnerQrCode(int? partner_id,int? code_company)
+        public string getTotalPartnerQrCode(int? partner_id,int? code_company)
         {
             try
             {
                 int? count = db.qrcodes.Count(o => o.code_company == code_company && o.id_partner == partner_id);
-                if (count==0)
+                if (count<=0)
                 {
-                    return 0;
+                    return "0";
                 }else
                 {
-                    if (count == 1)
+                    if (count <= 1)
                     {
-                        var c2= db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == partner_id).FirstOrDefault();
-                        return c2.to_stt - c2.from_stt + 1;
+                        var c2= db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == partner_id).FirstOrDefault();                        
+                        return c2.from_stt + " đến "+ c2.to_stt;
                     }
                     else
                     {
-                        return count;
+                        int? c1 = db.qrcodes.Count(o => o.code_company == code_company && o.id_partner == partner_id && o.from_stt == o.to_stt);
+                        var c2 = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == partner_id && o.from_stt < o.to_stt).OrderBy(o=>o.from_stt).ToList();
+                        string kq = "Có "+c1.ToString() + " tem guid lẻ<br>";
+                        for(int i = 0; i < c2.Count; i++)
+                        {
+                            kq += "- Tem guid khối từ " +c2[i].from_stt.ToString() + " đến "+ c2[i].to_stt.ToString()+ "<br>";
+                        }
+                        return kq;
                     }
                 }
             }
             catch
             {
-                return 0;
+                return "0";
             }
         }
     }

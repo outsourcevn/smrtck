@@ -30,5 +30,6 @@ namespace API.Models
         public Nullable<long> winning_id { get; set; }
         public Nullable<int> from_stt { get; set; }
         public Nullable<int> to_stt { get; set; }
+        public Nullable<int> id_config_app { get; set; }
     }
 }

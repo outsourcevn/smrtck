@@ -23,9 +23,9 @@
         <p>Mã nhà phân phối</p>
         <input id="cp_id_partner" value="@ViewBag.id_partner"  type="text" class="form-control" placeholder="Nhập mã" disabled>
         <p>In từ số thứ tự</p>
-        <input id="cp_from" value="@ViewBag.ffrom"  type="text" class="form-control" placeholder="Nhập số thứ tự">
+        <input id="cp_from" value="@ViewBag.ffrom"  type="text" class="form-control" placeholder="Nhập số thứ tự" onkeyup="autofillnumberfrom();">
         <p>Đến số thứ tự</i></p>
-        <input id="cp_to" value="@ViewBag.tto"  type="text" class="form-control" placeholder="Đến số thứ tự">
+        <input id="cp_to" value="@ViewBag.tto"  type="text" class="form-control" placeholder="Đến số thứ tự" onkeyup="autofillnumberto();">
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyQrCode()">In Mã Qr Code</button>            
             <button type="button" class="btn btn-danger" onclick="exportCompanyQrCode()">Xuất ra file Excel</button>
@@ -33,6 +33,7 @@
             <button type="button" class="btn btn-danger" onclick="cancelCompanyQrCode()">Hủy in Mã Qr Code</button>
             <button type="button" class="btn btn-primary" onclick="delCompanyQrCode()">Xóa in Mã Qr Code</button>
             <button type="button" class="btn btn-danger" onclick="updateCompanyQrCode()">Cập nhật lại nhà phân phối</button>
+            <button type="button" class="btn btn-danger" onclick="updateProduct()">Cập nhật lại sản phẩm</button>
         </div>
         @if (ViewBag.notice != null && ViewBag.notice != "")
         {
@@ -43,29 +44,55 @@
 <div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
     <div class="dTitle">Ảnh để quét</div>
     <div class="dDialogContent">
-        <img src="" id="qrcodeload"/>
+        <img src="" id="qrcodeload"/><br />
+        <span id="qrcodeloadtext"></span>
     </div>
     <div class="divBtn">       
         <button type="button" class="btn btn-primary" onclick="$('#DialogImage').hide();">Thoát</button>
     </div>
 </div>
-
+<div id="DialogProduct" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Chọn sản phẩm</div>
+    <div class="dDialogContent">
+        <select id="sl_product"></select>
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="confirmUpdateProduct();">Cập nhật sản phẩm cho công ty này</button>
+        <button type="button" class="btn btn-primary" onclick="$('#DialogProduct').hide();">Thoát</button>
+    </div>
+</div>
+<div id="DialogTextQrCode" style="display:none;top:20%;position:fixed;" class="col-sm-4 dDialog">
+    <div class="dTitle">Cấu hình app thông báo</div>
+    <div class="dDialogContent">
+        <span id="TextQrCode"></span>
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="$('#DialogTextQrCode').hide();">Thoát</button>
+    </div>
+</div>
 <div class="panel-heading">
     <div class="form-inline" id="load">
         <h1>Danh Sách Qr Code Đã In</h1>
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Qr Code 2 (phủ cào)</th><th>Guid</th><th>Số thứ tự</th><th>Nhà phân phối</th><th>Trạng thái</th><th></th><th></th></tr>
+    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Sản phẩm</th><th>Guid</th><th>Số thứ tự</th><th>Nhà phân phối</th><th>Trạng thái</th><th></th><th></th></tr>
     @foreach (var item in (PagedList<qrcode>)ViewBag.OnePage)
     {
-
+        int? id_app_config = item.id_config_app != null ? item.id_config_app : 0;
         <tr>
             <td>@item.company</td>
             <td>@item.code_company</td>
-            <td>@item.qrcode2</td>
+            <td><span onclick="getTextInQrCode(@id_app_config,@item.code_company);" style="cursor:pointer;">Xem cấu hình</span></td>
             <td>@item.guid</td>
-            <td>@item.stt</td>
+            <td>
+                @if (item.from_stt==item.to_stt)
+                {
+                <text>@item.stt</text>
+                }else{
+                <text>@item.from_stt đến @item.to_stt</text>
+                }
+            </td>
             <td>@item.partner</td>
             <td>
                 @if (item.status==0)
@@ -77,8 +104,26 @@
                     <text><span style="color:red;">Đã hủy</span></text>
                 }
             </td>
-            <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>
-            <td><a href="#" onclick="Undo('@item.guid')">Phục hồi quét thử</a></td>             
+            <td>
+                @if (item.from_stt == item.to_stt)
+                {
+                    <a href="#" onclick="Generate('@item.guid',0)">Xem ảnh QR Code (quét thử)</a>
+                }
+                else
+                {
+                    <a href="#" onclick="Generate('@item.guid',1)">Chọn 1 ảnh QR Code (quét thử)</a>
+                }
+            </td>
+            <td>
+                @if (item.from_stt == item.to_stt)
+                {
+                    <a href="#" onclick="Undo('@item.guid',0)">Phục hồi quét thử</a>
+                }
+                else
+                {
+                    <a href="#" onclick="Undo('@item.guid',1)">Chọn mã để phục hồi quét thử</a>
+                }
+            </td>
         </tr>
     }
 </table>
@@ -110,6 +155,39 @@
     }
 </ul><!--/.pagination-->
 <script>
+    function updateProduct() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }        
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+
+        $('#DialogProduct').show();
+        $('#sl_product').html('');
+        $.ajax({
+            url: "/Admin/getjsonproductcompany", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val()
+            },
+            success: function (rs) {
+                //alert(rs);
+                var jsonData = JSON.parse(rs);
+                for (var i = 0; i < jsonData.length; i++) {
+                    //var counter = jsonData[i];
+                    $('#sl_product').append('<option value=' + jsonData[i].id + '>' + jsonData[i].value+ '</option>');
+                    //console.log(counter.counter_name);
+                }
+            }
+        });
+        
+    }
     function searchCompanyName() {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
@@ -118,6 +196,7 @@
             select: function (event, ui) {
                 $(event.target).val(ui.item.value);
                 $('#cp_code_company').val(ui.item.id);
+                autofillnumber();
                 return false;
             },
             minLength: 1
@@ -131,10 +210,47 @@
             source: urlSearch + keyword + "&code_company=" + code,
             select: function (event, ui) {
                 $(event.target).val(ui.item.value);
-                $('#cp_id_partner').val(ui.item.id);
+                $('#cp_id_partner').val(ui.item.id);                
                 return false;
             },
             minLength: 1
+        });
+    }
+    function autofillnumberfrom() {
+        //var keyword = document.getElementById("cp_from").value;
+        var code = document.getElementById("cp_code_company").value;
+        var urlSearch = '/Admin/getfromandto?type=0';
+        $('#cp_from').autocomplete({
+            source: urlSearch + "&code_company=" + code,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function autofillnumberto() {
+        var code = document.getElementById("cp_code_company").value;
+        var urlSearch = '/Admin/getfromandto?type=1';
+        $('#cp_to').autocomplete({
+            source: urlSearch + "&code_company=" + code,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function autofillnumber() {
+        $.ajax({
+            url: "/Admin/getmaxsttfromcompany", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val()
+            },
+            success: function (rs) {
+                //alert(rs);
+                $('#cp_from').val(rs);
+            }
         });
     }
     function saveCompanyQrCode() {
@@ -165,6 +281,31 @@
                 location.reload();
             }
          });
+    }
+    function confirmUpdateProduct() {
+        $.ajax({
+            url: "/Admin/confirmUpdateProduct", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val(), id_config_app: $("#sl_product").val()
+            },
+            success: function (rs) {
+                if (rs=="1")
+                alert("Cập nhật thành công");
+                location.reload();
+            }
+        });
+    }
+    function getTextInQrCode(id_config_app, code_company) {
+        $('#DialogTextQrCode').show();
+        $.ajax({
+            url: "/Admin/getTextInQrCode", type: 'get',
+            data: {
+                code_company: code_company, id_config_app: id_config_app
+            },
+            success: function (rs) {
+                $('#TextQrCode').html(rs);
+            }
+        });
     }
     function exportCompanyQrCode() {
         if ($("#cp_code_company").val() == "") {
@@ -294,14 +435,17 @@
             }
         });
     }
-    function Generate(guid) {
-        var stt = prompt("Nhập số thứ tự", "");
-        if (stt != null && stt != "") { 
-            stt=stt*13+27;
-            guid = guid + "-" + stt; 
+    function Generate(guid, type) {
+        if (type == 1) {
+            var stt = prompt("Nhập số thứ tự", "");
+            if (stt != null && stt != "") {
+                stt = stt * 13 + 27;
+                guid = guid + "-" + stt;
+            }
         }
         $("#DialogImage").show();
-        $("#qrcodeload").attr("src","/Images/loader.gif");
+        $("#qrcodeload").attr("src", "/Images/loader.gif");
+        $("#qrcodeloadtext").html("Mã guid là "+guid);
         $.ajax({
             url: "/Admin/generateCode", type: 'post',
             data: {
@@ -313,17 +457,27 @@
             }
         });
     }
-    function Undo(guid) {       
+    function Undo(guid, stype) {
+        var num = 0;
+        var sguid = guid;
+        if (stype == 1) {
+            var stt = prompt("Nhập số thứ tự", "");
+            if (stt != null && stt != "") {
+                num=stt;
+                stt = stt * 13 + 27;
+                guid = guid + "-" + stt;                
+            }
+        }
         $.ajax({
             url: "/Admin/UndoQrCode", type: 'post',
             data: {
-                guid: guid
+                guid: guid, stt: num,sguid:sguid
             },
             success: function (rs) {
                 if (rs == "1") {
                     alert("Phục hồi thành công!");
                 } else {
-                    alert("Lỗi server");
+                    alert("Không tồn tại mã guid là: " + guid);
                 }
             }
         });

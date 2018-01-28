@@ -89,14 +89,14 @@ function savewinning() {
         }
     })
 }
-function confirmDelwinning(cpId, winning) {
+function confirmDelWinning(cpId, winning) {
     $("#cp_ID").val(cpId);
-    openNotification("Bạn có chắc chắn xóa " + winning + " ?", "deletewinning");
+    openNotification("Bạn có chắc chắn xóa " + winning + " ?", "deleteWinning");
 }
 
-function deletewinning() {
+function deleteWinning() {
     $.ajax({
-        url: url_deletewinning, type: 'post',
+        url: url_deleteWinning, type: 'post',
         data: { cpId: $("#cp_ID").val() },
         success: function (rs) {
             if (rs == '') {
