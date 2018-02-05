@@ -1,0 +1,133 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Quản Lý Màn hình chào đón";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
+<link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
+<script src="~/Scripts/dropzone/dropzone.js"></script>
+@*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+<button type="button" class="btn btn-primary" onclick="opensplash(0)">Thêm Mới</button><br /><br />
+<div id="SplashDialog" style="display:none;width:100%;float:left;position:relative;background:#adf5f2;" class="col-md-12">
+    <div class="dTitle"><b>Thêm/Sửa</b></div>
+    <div class="dDialogContent">
+        <input type="hidden" id="cp_ID" />
+        <p>Lời giới thiệu chào mừng</p>
+        <textarea id="cp_welcome_text" name="cp_welcome_text" class="form-control"></textarea>
+        <input type="hidden" id="image" value="">
+        <div class="col-md-3">
+            <div id="img_div_image">
+                <img style="width: 100px; height: 100px" /><a href="#" id="remove_img_image">Xóa ảnh</a>
+            </div>
+            <div id="hinhanh_image" class="dropzone" style="width: 200px;">
+                <div class="dz-default dz-message" data-dz-message>
+                    <span><i class="fa fa-plus fa-2x"></i>Tải ảnh đại diện lên* (414 x 736)</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" style="align-items: center;justify-content: center;position:relative;float:left;display:block;">
+            <div class="col-md-6" style="left:25%;">
+                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="savesplash()" id="btnSAVE">SAVE</button>
+                <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="closeDDialog('#SplashDialog')">Exit</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="panel-heading" style="margin-top:20px;display:block;width:100%;float:left;position:relative;">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập từ khóa" value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchsplash();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+    </div>
+</div>*@
+<table class="table marginBottom0">
+    <tr><th>Công ty</th><th>Ảnh</th><th></th></tr>
+    @foreach (var item in (PagedList<splash>)ViewBag.OnePage)
+    {
+     
+        <tr style="border-bottom:1 solid #808080;">
+            <td>@item.welcome_text</td>            
+            <td>              
+                <img src="@item.image" style="width:414px;height:736px;border:1px solid #808080;" />
+            </td>
+            <td><a href="#" onclick="opensplash(@item.id,'@item.welcome_text','@item.image')">Sửa</a></td>
+            <td><a href="#" onclick="confirmDelsplash(@item.id,'@item.welcome_text');">Xóa</a></td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("splash", new { page }))
+
+
+<script type="text/javascript">
+    var url_addUpdatesplash = '@Url.Action("addUpdateSplash", "Admin")', url_deletesplash = '@Url.Action("deleteSplash", "Admin")';
+</script>
+<script type="text/javascript" src="~/Scripts/splash.js"></script>
+<script>
+    //$(function () {   
+    //    CKEDITOR.replace('cp_welcome_text',
+    //    {
+    //        uiColor: '#337ab7',
+    //        height: '300px',
+    //    });
+    //});
+    function searchCompanyName() {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    Dropzone.autoDiscover = false;
+    var upanhbaiviet = new Dropzone("div#hinhanh_image", {
+        url: "/admin/uploadimg",
+        addRemoveLinks: true,
+        maxFiles: 1,
+        maxFilesize: 5,
+        uploadMultiple: true,
+        acceptedFiles: "image/*",
+        dictFallbackMessage: "Trình duyệt của bạn không hỗ trợ kéo thả tệp để tải lên.",
+        dictFallbackText: "Please use the fallback form below to upload your files like in the olden days.",
+        dictFileTooBig: "Tệp có dung lượng quá lớn ({{filesize}}MiB). Dung lượng cho phép: {{maxFilesize}}MiB.",
+        dictInvalidFileType: "Tệp bạn chọn không được phép tải lên.",
+        dictResponseError: "Đã xảy ra lỗi {{statusCode}}.",
+        dictCancelUpload: "Hủy tải lên",
+        dictCancelUploadConfirmation: "Bạn chắc chắn muốn hủy tải lên?",
+        dictRemoveFile: "Loại bỏ tệp tin",
+        dictMaxFilesExceeded: "Bạn không thể tải lên quá 1 hình.",
+        success: function (file, response) {
+            var imgPath = response.Message;
+            if (imgPath !== "") {
+                $("#image").val(imgPath);
+                $('#img_div_image').show();
+                file.previewElement.classList.add("dz-success");
+                if ($('#img_div_image').length) {
+                    $('#img_div_image').find('img').attr('src', imgPath);
+                }
+            }
+        },
+        error: function (file, response) {
+            file.previewElement.classList.add("dz-error");
+            $(file.previewElement).find('.dz-error-message').text(response);
+            //alert(response);
+        },
+        HiddenFilesPath: 'body'
+    });
+    if ($('#remove_img_image').length) {
+        $('#remove_img_image').on('click', function (e) {
+            $('#image').val('');
+            $('#img_div_image').hide();
+            e.preventDefault();
+        })
+    }
+    
+</script>

@@ -10,6 +10,9 @@ using System.Data.Entity;
 using System.Web.Script.Serialization;
 using System.Net;
 using System.Xml.Linq;
+using System.Drawing;
+using System.IO;
+
 namespace API.Controllers
 {
     public class HomeController : Controller
@@ -236,6 +239,23 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        //Hàm này trả về danh sách các màn chào hỏi Splash lúc mới vào app
+        public string getListSplash()
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                DateTime dtn = DateTime.Now;
+                var p = (from q in db.splashes select q).OrderByDescending(o => o.id).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách các màn hình chào splash");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         //Hàm này trả về chi tiết voucher
         public string getListVoucherDetail(int id,int? os)
         {
@@ -385,12 +405,13 @@ namespace API.Controllers
             }
         }
         //Hàm này trả về danh sách lịch sử quét của user
-        public string getHistoryCheckOfUser(long user_id)
+        public string getHistoryCheckOfUser(long? user_id,string keyword)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
             {
-                var p = db.checkalls.Where(o => o.user_id == user_id).OrderByDescending(o => o.id).ToList();
+                if (keyword == null) keyword = "";
+                var p = db.checkalls.Where(o => o.user_id == user_id).Where(o=>o.waranty_text.Contains(keyword) || o.waranty_phone.Contains(keyword) || o.address.Contains(keyword) || o.partner.Contains(keyword)).OrderByDescending(o => o.id).Take(100).ToList();
                 field.Add("list", JsonConvert.SerializeObject(p));
                 return ApiArray("success", field, "Danh sách lịch sử quét của user này");
             }
@@ -399,6 +420,54 @@ namespace API.Controllers
                 field.Add("list", "[]");
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
+        }
+        //Hàm này cập nhật trạng thái là đã xóa lịch sử quét của id trên list danh sách Bảo Hành(Lịch sử quét)
+        [HttpPost]
+        public string delHistoryCheckOfUser(int id, double? key)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            if (key == null || !getKeyApi(key))
+            {
+                field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
+                return Api("failed", field, "Ngày giờ ở máy bị sai số quá 10 phút nên ứng dụng không chạy được, Bạn cần chỉnh lại thời gian ở điện thoại!");
+            }
+            try
+            {
+                customer_bonus_log cbl = new customer_bonus_log();
+                db.Database.ExecuteSqlCommand("update checkall set status=1 where id=" + id);
+                field.Add("status", "1");
+                return Api("success", field, "Xóa thành công!");
+            }
+            catch (Exception ex)
+            {
+                field.Add("status", "");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+
+        }
+        //Cập nhật lại thông tin của người cần bảo hành
+        [HttpPost]
+        public string updateHistoryCheckOfUser(int id, string waranty_name,string waranty_phone,string waranty_address, double? key)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            if (key == null || !getKeyApi(key))
+            {
+                field.Add("TotalMilliseconds", (DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString());
+                return Api("failed", field, "Ngày giờ ở máy bị sai số quá 10 phút nên ứng dụng không chạy được, Bạn cần chỉnh lại thời gian ở điện thoại!");
+            }
+            try
+            {
+                customer_bonus_log cbl = new customer_bonus_log();
+                db.Database.ExecuteSqlCommand("update checkall set waranty_name=N'"+ waranty_name + "',waranty_phone=N'" + waranty_phone + "', waranty_address=N'" + waranty_address + "' where id=" + id);
+                field.Add("waranty_phone", waranty_phone);
+                return Api("success", field, "Cập nhật thông tin bảo hành thành công!");
+            }
+            catch (Exception ex)
+            {
+                field.Add("status", "");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+
         }
         //Hàm này trả về danh sách trúng của user
         public string getListWinningOfUser(long user_id)
@@ -610,6 +679,10 @@ namespace API.Controllers
                 long? winning_id = 0;
                 long? stt = 0;
                 long NUMBER = 27;//Mặc định qr code cũ thì stt là 0 vì chỉ có GUID
+                int? waranty_year = 1;
+                string waranty_text = "";
+                string waranty_link_web = "";
+
                 //Kiểm tra QR code mới hay cũ
                 if (guid != null && guid.Contains("-"))
                 {
@@ -638,7 +711,7 @@ namespace API.Controllers
                     //winning_id = rs.winning_id!=null?rs.winning_id:0;
                     if (db.config_app.Any(o => o.code_company == code_company))
                     {
-                        var info = db.config_app.Where(o => o.code_company == code_company).FirstOrDefault();
+                        var info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o=>o.id).FirstOrDefault();
                         if (id_config_app != null)                       
                         {
                             info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
@@ -647,6 +720,9 @@ namespace API.Controllers
                         active = info.text_in_active;
                         location = info.text_in_location;
                         point = info.text_in_point;
+                        waranty_year = info.waranty_year;
+                        waranty_text = info.waranty_text;
+                        waranty_link_web = info.waranty_link_web;
                     }
                     else
                     {
@@ -655,6 +731,9 @@ namespace API.Controllers
                         active = info.text_in_active;
                         location = info.text_in_location;
                         point = info.text_in_point;
+                        waranty_year = info.waranty_year;
+                        waranty_text = info.waranty_text;
+                        waranty_link_web = info.waranty_link_web;
                     }
                 }
                 else
@@ -716,6 +795,9 @@ namespace API.Controllers
                     cka.code_company = code_company;
                     cka.id_partner = id_partner;
                     cka.partner = partner;
+                    cka.waranty_link_web = waranty_link_web;
+                    cka.waranty_text = waranty_text;
+                    cka.waranty_year = waranty_year;
                     if (NUMBER != 0)
                     {
                         cka.stt = NUMBER;//stt;
@@ -733,7 +815,7 @@ namespace API.Controllers
                     cbl.user_id = user_id;
                     cbl.user_email = ctm.email;
                     cbl.user_name = ctm.name;
-                    cbl.user_phone = ctm.phone;
+                    cbl.user_phone = ctm.phone;                   
                     db.customer_bonus_log.Add(cbl);
                     db.SaveChanges();
                     //Quyết định có trúng thưởng hay không
@@ -897,6 +979,41 @@ namespace API.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
+        }
+        //Upload avatar cho user có id là user_id cập nhật ảnh, gửi lên ảnh dạng base64, server tự decode lại
+        //trả về đường dẫn ảnh trong trường image nếu thành công, trả về rỗng nếu lỗi
+        [HttpPost]
+        public string updateImageUser(int user_id,string base64)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                String path = Server.MapPath("~//images//customer"); //Path
+
+                //Check if directory exist
+                if (!System.IO.Directory.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(path); //Create directory if it doesn't exist
+                }
+
+                string imageName = Guid.NewGuid().ToString() + ".jpg";
+
+                //set the image path
+                string imgPath = Path.Combine(path, imageName);
+
+                byte[] imageBytes = Convert.FromBase64String(base64);
+                System.IO.File.WriteAllBytes(imgPath, imageBytes);
+                db.Database.ExecuteSqlCommand("update customers set avatar=N'/Images/customer/" + imageName + "' where id=" + user_id);
+                field.Add("image", "/Images/customer/" + imageName);
+                return Api("success", field, "Tải ảnh avatar lên thành công!");
+                //return "/Images/customer/"+ imageName;
+            }
+            catch
+            {
+                field.Add("image", "");
+                return Api("error", field, "Không tải được ảnh lên");
+            }
+            
         }
 
     }

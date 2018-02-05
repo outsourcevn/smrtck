@@ -41,9 +41,9 @@
 </table>
 @Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyConfig", new { page }))
 <!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
-<div id="CompanyConfigDialog" style="display:none;min-height:600px;" class="col-sm-4 dDialog" >
+<div id="CompanyConfigDialog" style="display:none;min-height:800px;" class="col-sm-4 dDialog" >
     <div class="dTitle">Thêm/Sửa</div>
-    <div class="dDialogContent" style="min-height: 600px;">
+    <div class="dDialogContent" style="min-height: 800px;">
         <input type="hidden" id="cp_ID" />
         <p>Chọn Doanh Nghiệp</p>        
         <input id="cp_company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
@@ -57,6 +57,12 @@
         <textarea id="cp_text_in_location"  class="form-control" placeholder="Thông báo Địa Điểm" style="height:67px;"></textarea>        
         <p>Thông báo Tích Điểm</p>
         <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;"></textarea>
+        <p>Tên sản phẩm(mã sản phẩm) và thông tin bảo hành</p>
+        <textarea id="cp_waranty_text" class="form-control" placeholder="Thông tin bảo hành" style="height:67px;"></textarea>
+        <p>Số năm bảo hành</p>        
+        <select id="cp_waranty_year"><option selected value="1">1 năm</option><option selected value="2">2 năm</option><option selected value="3">3 năm</option><option selected value="4">4 năm</option><option selected value="5">5 năm</option></select>
+        <p>Link website (khi hết hàng click vào mua hàng)</p>
+        <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>
             <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyConfigDialog')">Hủy</button>

@@ -842,6 +842,16 @@ namespace API.Controllers
         {
             return DBContext.addUpdateWinning(cp);
         }
+        [HttpPost, ValidateInput(false)]
+        public string addUpdateSplash(splash cp)
+        {
+            return DBContext.addUpdateSplash(cp);
+        }
+        [HttpPost]
+        public string deleteSplash(int cpId)
+        {
+            return DBContext.deletesplash(cpId);
+        }
         [HttpPost]
         public string deleteVoucher(int cpId)
         {
@@ -1243,6 +1253,10 @@ namespace API.Controllers
         {
             return db.winnings.Find(id).des;
         }
+        public string getFullDesSplash(int id)
+        {
+            return db.splashes.Find(id).welcome_text;
+        }
         public string getTotalPartnerQrCode(int? partner_id,int? code_company)
         {
             try
@@ -1275,6 +1289,17 @@ namespace API.Controllers
             {
                 return "0";
             }
+        }
+        public ActionResult Splash(string k, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.splashes;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.welcome_text.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
         }
     }
 }

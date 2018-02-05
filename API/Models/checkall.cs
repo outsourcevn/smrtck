@@ -32,5 +32,14 @@ namespace API.Models
         public string partner { get; set; }
         public string company { get; set; }
         public Nullable<int> code_company { get; set; }
+        public string product_text { get; set; }
+        public Nullable<int> status { get; set; }
+        public Nullable<int> id_config_app { get; set; }
+        public Nullable<int> waranty_year { get; set; }
+        public string waranty_text { get; set; }
+        public string waranty_link_web { get; set; }
+        public string waranty_name { get; set; }
+        public string waranty_phone { get; set; }
+        public string waranty_address { get; set; }
     }
 }

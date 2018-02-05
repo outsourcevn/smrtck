@@ -172,6 +172,23 @@ namespace API.Models
                 return "Thất bại: " + ex.Message;
             }
         }
+        public static string deletesplash(int cpId)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    var cp = new splash() { id = cpId };
+                    db.Entry(cp).State = EntityState.Deleted;
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
         public static string deletewinning(int cpId)
         {
             try
@@ -250,6 +267,31 @@ namespace API.Models
                     if (cp.id == 0)
                     {
                         db.winnings.Add(cp);
+                    }
+                    else
+                    {
+                        db.Entry(cp).State = EntityState.Modified;
+                    }
+                    db.SaveChanges();
+                }
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return "Thất bại: " + ex.Message;
+            }
+        }
+        //Config
+        //Splash
+        public static string addUpdateSplash(splash cp)
+        {
+            try
+            {
+                using (var db = new smartcheckEntities())
+                {
+                    if (cp.id == 0)
+                    {
+                        db.splashes.Add(cp);
                     }
                     else
                     {
