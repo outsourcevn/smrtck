@@ -229,7 +229,7 @@ namespace API.Controllers
         public string getReportTotal()
         {
             int? code_company = int.Parse(Config.getCookie("company_code"));
-            string query = "select code_company,company,count(*) as schecked from checkall where code_company=" + code_company + "  group by code_company,company union select 0 as code_company,'A' as company, count(*) as schecked from qrcode where code_company=" + code_company + "  group by code_company,company ";
+            string query = "select code_company,company,count(*) as schecked from checkall where code_company=" + code_company + "  group by code_company,company union select 0 as code_company,'A' as company, max(to_stt) as schecked from qrcode where code_company=" + code_company + "  group by code_company,company ";
             var p = db.Database.SqlQuery<ReportTotalItem1>(query).ToList();
             return "Công ty của bạn đã có số lượt khách quét là " + p[0].schecked + " trên tổng số " + p[1].schecked+" mã qr code";
         }

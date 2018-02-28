@@ -12,6 +12,7 @@ using System.Net;
 using System.Xml.Linq;
 using System.Drawing;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
@@ -202,6 +203,7 @@ namespace API.Controllers
                     field.Add("user_phone", us.phone);
                     field.Add("identify", us.identify);
                     field.Add("address", us.address);
+                    field.Add("avatar",us.avatar);
                     field.Add("points", us.points.ToString());
                     return Api("success", field, "Thông tin khách hàng!");
                 }
@@ -213,6 +215,7 @@ namespace API.Controllers
                     field.Add("user_phone", "");
                     field.Add("identify", "");
                     field.Add("address", "");
+                    field.Add("avatar", "");
                     return Api("failed", field, "Không tìm thấy user này!");
                 }
             }
@@ -982,8 +985,57 @@ namespace API.Controllers
         }
         //Upload avatar cho user có id là user_id cập nhật ảnh, gửi lên ảnh dạng base64, server tự decode lại
         //trả về đường dẫn ảnh trong trường image nếu thành công, trả về rỗng nếu lỗi
+        //[HttpPost]
+        //public string updateImageUser(Dictionary<string, string> sjson)//int user_id, 
+        //{
+        //    Dictionary<string, string> field = new Dictionary<string, string>();
+        //    string s_user_id = "-1";
+        //    string s_base64 = "";
+        //    dynamic stuff1 = JsonConvert.SerializeObject(sjson);
+        //    s_user_id = stuff1[0].user_id;
+        //    s_base64= stuff1[0].base64;
+        //    int user_id = int.Parse(s_user_id);
+        //    try
+        //    {
+        //        String path = Server.MapPath("~//images//customer"); //Path
+
+        //        //Check if directory exist
+        //        if (!System.IO.Directory.Exists(path))
+        //        {
+        //            System.IO.Directory.CreateDirectory(path); //Create directory if it doesn't exist
+        //        }
+
+        //        string imageName = Guid.NewGuid().ToString() + ".jpg";
+
+        //        //set the image path
+        //        string imgPath = Path.Combine(path, imageName);
+
+        //        byte[] imageBytes = Convert.FromBase64String(s_base64);
+        //        System.IO.File.WriteAllBytes(imgPath, imageBytes);
+        //        db.Database.ExecuteSqlCommand("update customers set avatar=N'/Images/customer/" + imageName + "' where id=" + user_id);
+        //        var usi = db.customers.Find(user_id);
+        //        field.Add("image", "/Images/customer/" + imageName);
+        //        field.Add("user_name", usi.name);
+        //        field.Add("user_email", usi.email);
+        //        field.Add("user_phone", usi.phone);
+        //        field.Add("identify", usi.identify);
+        //        field.Add("address", usi.address);
+        //        field.Add("avatar", usi.avatar);
+        //        field.Add("points", usi.points.ToString());
+        //        return Api("success", field, "Tải ảnh avatar lên thành công!");
+        //        //return "/Images/customer/"+ imageName;
+        //    }
+        //    catch
+        //    {
+        //        field.Add("image", "");
+        //        return Api("error", field, "Không tải được ảnh lên");
+        //    }
+            
+        //}
+        //Upload avatar cho user có id là user_id cập nhật ảnh, gửi lên ảnh dạng base64, server tự decode lại
+        //trả về đường dẫn ảnh trong trường image nếu thành công, trả về rỗng nếu lỗi
         [HttpPost]
-        public string updateImageUser(int user_id,string base64)
+        public string updateImageUser(int user_id,string base64)//int user_id, 
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -1004,17 +1056,24 @@ namespace API.Controllers
                 byte[] imageBytes = Convert.FromBase64String(base64);
                 System.IO.File.WriteAllBytes(imgPath, imageBytes);
                 db.Database.ExecuteSqlCommand("update customers set avatar=N'/Images/customer/" + imageName + "' where id=" + user_id);
+                var usi = db.customers.Find(user_id);
                 field.Add("image", "/Images/customer/" + imageName);
+                field.Add("user_name", usi.name);
+                field.Add("user_email", usi.email);
+                field.Add("user_phone", usi.phone);
+                field.Add("identify", usi.identify);
+                field.Add("address", usi.address);
+                field.Add("avatar", usi.avatar);
+                field.Add("points", usi.points.ToString());
                 return Api("success", field, "Tải ảnh avatar lên thành công!");
                 //return "/Images/customer/"+ imageName;
             }
-            catch
+            catch(Exception ex)
             {
                 field.Add("image", "");
-                return Api("error", field, "Không tải được ảnh lên");
+                return Api("error", field, ex.ToString());
             }
-            
-        }
 
+        }
     }
 }
