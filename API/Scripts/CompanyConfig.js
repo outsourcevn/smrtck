@@ -1,4 +1,4 @@
-﻿function openCompanyConfig(id, cp_company, cp_code_company, cp_text_in_qr_code, cp_text_in_active, cp_text_in_location, cp_text_in_point) {
+﻿function openCompanyConfig(id, cp_company, cp_code_company, cp_text_in_qr_code, cp_text_in_active, cp_text_in_location, cp_text_in_point, cp_waranty_text, cp_waranty_year, cp_waranty_link_web) {
     if (id!=0){
         $.ajax({
             url: "/Admin/GetCompanyQrCodeInfo", type: 'get',
@@ -16,6 +16,9 @@
                     $("#cp_text_in_active").val(obj.text_in_active);
                     $("#cp_text_in_location").val(obj.text_in_location);
                     $("#cp_text_in_point").val(obj.text_in_point);
+                    $("#cp_waranty_text").val(obj.waranty_text);
+                    $("#cp_waranty_year").val(obj.waranty_year);
+                    $("#cp_waranty_link_web").val(obj.waranty_link_web);
                     $("#CompanyConfigDialog").show();
                 } else {
                     //alert(rs);
@@ -30,6 +33,9 @@
         $("#cp_text_in_active").val("Kích hoạt thành công..., thời điểm bảo hành được tính từ {NGAYTHANG}...");
         $("#cp_text_in_location").val("...tại địa điểm {DIADIEM}...");
         $("#cp_text_in_point").val("...số điểm {DIEM}...");
+        $("#cp_waranty_text").val("");
+        $("#cp_waranty_year").val("1");
+        $("#cp_waranty_link_web").val("");
         $("#CompanyConfigDialog").show();
     }
     
@@ -57,6 +63,14 @@ function saveCompanyConfig() {
         alert("Nhập Thông báo tích điểm!");
         return;
     }
+    if ($("#cp_waranty_text").val() == "") {
+        alert("Nhập Thông tin bảo hành!");
+        return;
+    }
+    if ($("#cp_waranty_link_web").val() == "") {
+        alert("Nhập link website khi cần mua hàng!");
+        return;
+    }
     //if ($("#cp_text_in_qr_code").val().indexOf("{GUID}")<0) {
     //    alert("Nhập Thông báo ở QR Code(phủ) phải tồn tại ký tự {GUID}!");
     //    return;
@@ -78,6 +92,7 @@ function saveCompanyConfig() {
         contentType: 'application/json',
         data: JSON.stringify({
             ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
+            , waranty_year: $("#cp_waranty_year").val(), waranty_text: $("#cp_waranty_text").val(), waranty_link_web: $("#cp_waranty_link_web").val()
         }),
         success: function (rs) {
             if (rs == '') {

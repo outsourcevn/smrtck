@@ -25,6 +25,8 @@ function notifyOK() {
         deleteVoucher();
     } else if (action == "deleteWinning") {
         deleteWinning();
+    } else if (action == "deleteSplash") {
+        deleteSplash();
     } else if (action == "delUser") {
         deleteUser();
     } else if (action == "delDriver") {
