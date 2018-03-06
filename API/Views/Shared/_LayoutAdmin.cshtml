@@ -86,7 +86,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/admin">SmartCheck.Vn Version 1.0</a>
+                <a class="navbar-brand" href="/admin">SmartCheck.Vn Version 2.0</a>
                 <span style="float:right;display:block;position:fixed;right:0px;">
                     @{
                         <text>
@@ -102,61 +102,69 @@
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        @if (Config.getCookie("is_admin") == "1") { 
+                        <li >
+                            <a href="/Admin/index"><i class="fa fa-fw fa-dashboard"></i>Trang Chủ</a>
+                        </li>
+                        @*@if (Config.getCookie("is_admin") == "1")
+                        {*@
+                            <li>
+                                <a href="#"><i class="fa fa-fw fa-wrench"></i>Hệ Thống<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="/Admin/Splash"><i class="fa fa-bars fa-fw"></i>Cấu hình Màn hình chào mừng</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/CompanyQrcodeConfig"><i class="fa fa-bars fa-fw"></i>Cấu hình APP Qr Code Sản Phẩm</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/ConfigPoint"><i class="fa fa-bars fa-fw"></i>Cấu Hình Điểm Thưởng</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/Winning"><i class="fa fa-bars fa-fw"></i>Cấu Hình Trúng Thưởng</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/VoucherPoint"><i class="fa fa-bars fa-fw"></i>Cấu Hình Đổi Điểm Lấy Quà</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="/Admin/Company"><i class="fa fa-object-group fa-fw"></i>Doanh Nghiệp</a>
+                            </li>
+                            <li><a href="/Admin/Partner"><i class="fa fa-object-group fa-fw"></i>Nhà phân phối</a></li>                 
+                            
+                            <li>
+                                <a href="#"><i class="fa fa-barcode fa-fw"></i>In Mã Qr Code<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    @*<li><a href="/Admin/Partner"><i class="fa fa-bars fa-fw"></i>Quản lý nhà phân phối</a></li>*@
+                                    <li><a href="/Admin/CompanyQrCode"><i class="fa fa-bars fa-fw"></i>In Qr Code</a></li>
+                                    <li><a href="/Admin/LogCompanyQrCode"><i class="fa fa-bars fa-fw"></i>Nhật Ký In</a></li>
+                                </ul>
+                            </li>
+                        @*}*@
                         <li>
-                            <a href="/Admin/Company"><i class="fa fa-product-hunt fa-fw"></i>Quản lý Doanh Nghiệp</a>
+                            <a href="/Admin/Customer"><i class="fa fa-history fa-fw"></i>Lịch Sử Quét QR Code</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-list fa-fw"></i>Cấu hình APP<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-fw fa-area-chart fa-fw"></i>Báo Cáo<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
+                                @*<li><a href="/Admin/Partner"><i class="fa fa-bars fa-fw"></i>Quản lý nhà phân phối</a></li>*@
+                                <li><a href="/Admin/CheckAll"><i class="fa fa-fw fa-area-chart"></i>Báo Cáo Thống Kê</a></li>
+                                <li><a href="/Admin/ReportTotal"><i class="fa fa-fw fa-area-chart"></i>Báo Cáo Khách Hàng</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-user"></i>Người Dùng<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                @*<li><a href="/Admin/Partner"><i class="fa fa-bars fa-fw"></i>Quản lý nhà phân phối</a></li>*@
+                                <li><a href="/Admin/Login"><i class="fa fa-home fa-fw"></i> Đăng Nhập</a></li>
                                 <li>
-                                    <a href="/Admin/Splash"><i class="fa fa-bars fa-fw"></i>Cấu hình Màn hình chào mừng</a>
+                                    <a href="javascript:document.getElementById('logoutForm').submit();"><i class="fa fa-home fa-fw"></i> Đăng Xuất</a>
                                 </li>
                                 <li>
-                                    <a href="/Admin/CompanyQrcodeConfig"><i class="fa fa-bars fa-fw"></i>Cấu hình APP Qr Code cho Doanh nghiệp</a>
-                                </li>
-                                <li>
-                                    <a href="/Admin/ConfigPoint"><i class="fa fa-bars fa-fw"></i>Cấu Hình Điểm Thưởng</a>
-                                </li>
-                                <li>
-                                    <a href="/Admin/Winning"><i class="fa fa-bars fa-fw"></i>Cấu Hình Trúng Thưởng</a>
-                                </li>
-                                <li>
-                                    <a href="/Admin/VoucherPoint"><i class="fa fa-bars fa-fw"></i>Cấu Hình Đổi Điểm Lấy Quà</a>
+                                    <a href="/Admin/Reset"><i class="fa fa-home fa-fw"></i> Đổi mật khẩu</a>
                                 </li>
                             </ul>
                         </li>                        
-                        <li>
-                            <a href="/Admin/Customer"><i class="fa fa-product-hunt fa-fw"></i>Quản lý Khách Hàng</a>
-                        </li>
-                        <li>
-                            <a href="#"><i class="fa fa-list fa-fw"></i>Quản lý in Qr Code Doanh Nghiệp<span class="fa arrow"></span></a>
-                            <ul class="nav nav-second-level">
-                                <li><a href="/Admin/Partner"><i class="fa fa-bars fa-fw"></i>Quản lý nhà phân phối</a></li>
-                                <li><a href="/Admin/CompanyQrCode"><i class="fa fa-bars fa-fw"></i>In Qr Code</a></li>
-                                <li><a href="/Admin/LogCompanyQrCode"><i class="fa fa-bars fa-fw"></i>Nhật Ký In</a></li>
-                            </ul>
-                        </li>
-                        }
-                        <li><a href="/Admin/Partner"><i class="fa fa-bars fa-fw"></i>Quản lý nhà phân phối</a></li>
-                        <li>
-                            <a href="/Admin/CheckAll"><i class="fa fa-product-hunt fa-fw"></i>Báo Cáo Thống Kê</a>
-                        </li>      
-                        <li>
-                            <a href="/Admin/ReportTotal"><i class="fa fa-product-hunt fa-fw"></i>Báo Cáo Khách Hàng</a>
-                        </li>                   
-                        @*<li>
-                            <a href="/home"><i class="fa fa-home fa-fw"></i>Quay lại trang chủ</a>
-                        </li>*@
-                        <li>
-                            <a href="/Admin/Login"><i class="fa fa-home fa-fw"></i> Đăng Nhập</a>
-                        </li>
-                        <li>
-                            <a href="javascript:document.getElementById('logoutForm').submit();"><i class="fa fa-home fa-fw"></i> Đăng Xuất</a>
-                        </li>
-                        <li>
-                            <a href="/Admin/Reset"><i class="fa fa-home fa-fw"></i> Đổi mật khẩu</a>
-                        </li>
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->

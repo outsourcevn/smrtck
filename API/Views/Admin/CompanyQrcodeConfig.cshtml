@@ -2,7 +2,7 @@
 @using PagedList;
 @using API.Models;
 @{
-    ViewBag.Title = "Cấu hình APP Qr Code cho Doanh nghiệp";
+    ViewBag.Title = "Cấu hình APP Qr Code Sản Phẩm";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 <style>
@@ -37,6 +37,14 @@
             <td>Thông tin: @item.waranty_text<br />
                 Số năm: @item.waranty_year<br />
                 web: @item.waranty_link_web<br />
+                @if (item.is_waranty==1)
+                {
+                    <text>Có bảo hành</text>
+                }
+                else
+                {
+                    <text>Không bảo hành</text>
+}
             </td>
             <td><a href="#" onclick="openCompanyConfig(@item.id)">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompanyConfig(@item.id,'@item.company');">Xóa</a></td>
@@ -63,10 +71,12 @@
         <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;"></textarea>
         <p>Tên sản phẩm(mã sản phẩm) và thông tin bảo hành</p>
         <textarea id="cp_waranty_text" class="form-control" placeholder="Thông tin bảo hành" style="height:67px;"></textarea>
-        <p>Số năm bảo hành</p>        
+        <p>Số năm bảo hành: Nếu là sản phẩm có bảo hành thì check vào đây <input type="checkbox" id="cp_is_waranty" class="form-control"/></p>        
         <select id="cp_waranty_year"><option selected value="1">1 năm</option><option  value="2">2 năm</option><option  value="3">3 năm</option><option  value="4">4 năm</option><option value="5">5 năm</option></select>
         <p>Link website (khi hết hàng click vào mua hàng)</p>
         <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
+        <p>Mua hàng thêm(Soạn thảo hotline khi cần mua hàng thêm)</p>
+        <textarea id="cp_buy_more" name="cp_buy_more" class="form-control"></textarea>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>
             <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyConfigDialog')">Hủy</button>
@@ -75,6 +85,13 @@
 </div>
 
 <script type="text/javascript">
+    $(function () {
+        CKEDITOR.replace('cp_buy_more',
+        {
+            uiColor: '#337ab7',
+            height: '300px',
+        });
+    });
     var url_addUpdateCompanyConfig = '@Url.Action("addUpdateCompanyConfig","Admin")', url_deleteCompanyConfig = '@Url.Action("deleteCompanyConfig", "Admin")';
 </script>
 <script type="text/javascript" src="~/Scripts/CompanyConfig.js"></script>
