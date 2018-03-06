@@ -19,6 +19,12 @@
                     $("#cp_waranty_text").val(obj.waranty_text);
                     $("#cp_waranty_year").val(obj.waranty_year);
                     $("#cp_waranty_link_web").val(obj.waranty_link_web);
+                    CKEDITOR.instances['cp_buy_more'].setData(obj.buy_more);
+                    if (obj.is_waranty == 1) {
+                        document.getElementById("cp_is_waranty").checked = true;
+                    } else {
+                        document.getElementById("cp_is_waranty").checked = false;
+                    }
                     $("#CompanyConfigDialog").show();
                 } else {
                     //alert(rs);
@@ -36,13 +42,19 @@
         $("#cp_waranty_text").val("");
         $("#cp_waranty_year").val("1");
         $("#cp_waranty_link_web").val("");
+        CKEDITOR.instances['cp_buy_more'].setData("");
+        document.getElementById("cp_is_waranty").checked = false;
         $("#CompanyConfigDialog").show();
     }
     
 }
 
 function saveCompanyConfig() {
-    if ($("#cp_ID").val() == "0") { checkDuplicateQrCode(); }
+    var sbuy_more = CKEDITOR.instances.cp_buy_more.getData();
+    var is_waranty = 0;
+    //alert(document.getElementById("cp_is_waranty").checked);
+    if (document.getElementById("cp_is_waranty").checked==true) { is_waranty = 1;}
+    //if ($("#cp_ID").val() == "0") { checkDuplicateQrCode(); }
     if ($("#cp_code_company").val() == "-1") {
         alert("Nhập doanh nghiệp!");
         return;
@@ -64,7 +76,7 @@ function saveCompanyConfig() {
         return;
     }
     if ($("#cp_waranty_text").val() == "") {
-        alert("Nhập Thông tin bảo hành!");
+        alert("Nhập tên sản phẩm và Thông tin bảo hành!");
         return;
     }
     if ($("#cp_waranty_link_web").val() == "") {
@@ -93,6 +105,7 @@ function saveCompanyConfig() {
         data: JSON.stringify({
             ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
             , waranty_year: $("#cp_waranty_year").val(), waranty_text: $("#cp_waranty_text").val(), waranty_link_web: $("#cp_waranty_link_web").val()
+            , is_waranty: is_waranty, buy_more: sbuy_more
         }),
         success: function (rs) {
             if (rs == '') {
@@ -109,11 +122,13 @@ function confirmDelCompanyConfig(cpId, CompanyConfig_name) {
         alert("Đây là cấu hình hệ thống, bạn chỉ có thể sửa chứ không được xóa");
         return;
     }
+    
     $("#cp_ID").val(cpId);
     openNotification("Bạn có chắc chắn xóa " + CompanyConfig_name + " ?", "deleteCompanyConfig");
 }
 
 function deleteCompanyConfig() {
+    
     $.ajax({
         url: url_deleteCompanyConfig, type: 'post',
         data: { cpId: $("#cp_ID").val() },

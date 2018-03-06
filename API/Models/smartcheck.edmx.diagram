@@ -18,12 +18,12 @@
         <EntityTypeShape EntityType="smartcheckModel.winning_log" Width="1.5" PointX="10.75" PointY="5.75" />
         <EntityTypeShape EntityType="smartcheckModel.config_bonus_point" Width="1.5" PointX="11.375" PointY="10.75" />
         <EntityTypeShape EntityType="smartcheckModel.winning" Width="1.5" PointX="5.375" PointY="10.75" />
-        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="0.75" PointY="4.75" />
         <EntityTypeShape EntityType="smartcheckModel.customer" Width="1.5" PointX="5.75" PointY="0.75" />
         <EntityTypeShape EntityType="smartcheckModel.splash" Width="1.5" PointX="13.75" PointY="0.75" />
         <EntityTypeShape EntityType="smartcheckModel.waranty_customer" Width="1.5" PointX="13.75" PointY="3.75" />
         <EntityTypeShape EntityType="smartcheckModel.qrcode" Width="1.5" PointX="2.75" PointY="12.75" />
         <EntityTypeShape EntityType="smartcheckModel.checkall" Width="1.5" PointX="13.375" PointY="6.75" />
+        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="11.375" PointY="13.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

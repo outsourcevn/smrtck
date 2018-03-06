@@ -21,6 +21,8 @@ namespace API.Controllers
         // GET: Admin
         public ActionResult Index()
         {
+            ViewBag.is_admin = Config.getCookie("is_admin");
+            ViewBag.code_company= Config.getCookie("company_id");
             return View();
         }
         public ActionResult Login(string message)
@@ -53,7 +55,7 @@ namespace API.Controllers
                 Config.setCookie("company_email", us.email);
                 Config.setCookie("company_phone", us.phone);
                 Config.setCookie("company_code", us.code.ToString());
-                return RedirectToAction("Company");
+                return RedirectToAction("Index");
             }
             else
             {
@@ -66,7 +68,7 @@ namespace API.Controllers
                     Config.setCookie("company_email", us.email);
                     Config.setCookie("company_phone", us.phone);
                     Config.setCookie("company_code", us.code.ToString());
-                    return RedirectToAction("CheckAll");
+                    return RedirectToAction("Index");
                 }
                 else { 
                     ViewBag.message = "Sai số điện thoại hoặc mật khẩu";
@@ -1185,7 +1187,7 @@ namespace API.Controllers
             var p = db.Database.SqlQuery<itemCheckAll>(query).ToList();
             return JsonConvert.SerializeObject(p);
  
-        }
+        }       
         public ActionResult Reset(string message)
         {
             ViewBag.Message = message;
@@ -1300,6 +1302,57 @@ namespace API.Controllers
             ViewBag.onePage = onePage;
             ViewBag.k = k;
             return View();
+        }
+        public string getDashBoard(int type)
+        {
+            try
+            {
+                if (type == 1)
+                {
+                    int? cdn = db.companies.Count(o => o.id != -1);
+                    int? cnpp = db.partners.Count(o => o.id != -1);
+                    int? ctqr = db.qrcodes.Count(o => o.id != -1);
+                    int? ctqrsc = db.checkalls.Count(o => o.id != -1);
+                    string rs= "[{\"cdn\":" + cdn + ", \"cnpp\":" + cnpp + ", \"ctqr\":" + ctqr + ",\"ctqrsc\":" + ctqrsc + "}]";
+                    return rs;// JsonConvert.SerializeObject(rs);
+                }
+                else
+                {
+                    string s_company_id = Config.getCookie("company_id");
+                    if (s_company_id != "" && s_company_id != null)
+                    {
+                        int company_id = int.Parse(s_company_id);
+                        int? cdn = db.customers.Count(o => o.id != -1);
+                        int? cnpp = db.partners.Count(o => o.code_company == company_id);
+                        int? ctqr = db.qrcodes.Count(o => o.code_company == company_id);
+                        int? ctqrsc = db.checkalls.Count(o => o.code_company == company_id);
+                        string rs = "[{\"cdn\":" + cdn + ", \"cnpp\":" + cnpp + ", \"ctqr\":" + ctqr + ",\"ctqrsc\":" + ctqrsc + "}]";
+                        return rs;// JsonConvert.SerializeObject(rs);
+                    } else return "-1";
+                }
+            }
+            catch
+            {
+                return "-1";
+            }
+        }
+        public string getLogDashBoard(int? code_company)
+        {
+            try
+            {
+                if (code_company != null && code_company!=0)
+                {
+                    return JsonConvert.SerializeObject(db.checkalls.Where(o => o.code_company == code_company).OrderByDescending(o => o.id).ToList());
+                }
+                else
+                {
+                    return JsonConvert.SerializeObject(db.checkalls.OrderByDescending(o => o.id).Take(50).ToList());
+                }
+            }
+            catch
+            {
+                return "-1";
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ function closeDDialog(dID) {
 }
 
 function openNotification(txt, action) {
+    
     $("#lbNotification").text(txt);
     $("#notifyAction").val(action);
     $("#notificationDialog").show();
@@ -17,6 +18,7 @@ function openNotification(txt, action) {
 
 function notifyOK() {
     var action = $("#notifyAction").val();
+    
     if (action == "deleteCustomer") {
         deleteCustomer();
     } else if (action == "deleteCompany") {
@@ -29,8 +31,8 @@ function notifyOK() {
         deleteSplash();
     } else if (action == "delUser") {
         deleteUser();
-    } else if (action == "delDriver") {
-        deleteDriver();
+    } else if (action == "deleteCompanyConfig") {
+        deleteCompanyConfig();
     } else if (action == "delCarType") {
         deleteCarType();
     } else if (action == "delHireType") {

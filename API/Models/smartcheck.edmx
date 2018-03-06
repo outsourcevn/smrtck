@@ -64,6 +64,8 @@
           <Property Name="waranty_year" Type="int" />
           <Property Name="waranty_text" Type="ntext" />
           <Property Name="waranty_link_web" Type="nvarchar" MaxLength="501" />
+          <Property Name="buy_more" Type="ntext" />
+          <Property Name="is_waranty" Type="int" />
         </EntityType>
         <EntityType Name="config_bonus_point">
           <Key>
@@ -323,12 +325,12 @@
           <EntitySet Name="winning_log" EntityType="smartcheckModel.winning_log" />
           <EntitySet Name="config_bonus_point" EntityType="smartcheckModel.config_bonus_point" />
           <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
-          <EntitySet Name="config_app" EntityType="smartcheckModel.config_app" />
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
           <EntitySet Name="splashes" EntityType="smartcheckModel.splash" />
           <EntitySet Name="waranty_customer" EntityType="smartcheckModel.waranty_customer" />
           <EntitySet Name="qrcodes" EntityType="smartcheckModel.qrcode" />
           <EntitySet Name="checkalls" EntityType="smartcheckModel.checkall" />
+          <EntitySet Name="config_app" EntityType="smartcheckModel.config_app" />
         </EntityContainer>
         <EntityType Name="company">
           <Key>
@@ -506,21 +508,6 @@
           <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="config_app">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="text_in_qr_code" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
-          <Property Name="text_in_active" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
-          <Property Name="text_in_location" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
-          <Property Name="text_in_point" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
-          <Property Name="code_company" Type="Int32" />
-          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="waranty_year" Type="Int32" />
-          <Property Name="waranty_text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="waranty_link_web" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="customer">
           <Key>
             <PropertyRef Name="id" />
@@ -608,6 +595,23 @@
           <Property Name="waranty_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
           <Property Name="waranty_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="waranty_address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="config_app">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="text_in_qr_code" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
+          <Property Name="text_in_active" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
+          <Property Name="text_in_location" Type="String" MaxLength="2001" FixedLength="false" Unicode="true" />
+          <Property Name="text_in_point" Type="String" MaxLength="1501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="waranty_year" Type="Int32" />
+          <Property Name="waranty_text" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="waranty_link_web" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="buy_more" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="is_waranty" Type="Int32" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -804,22 +808,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="config_app">
-            <EntityTypeMapping TypeName="smartcheckModel.config_app">
-              <MappingFragment StoreEntitySet="config_app">
-                <ScalarProperty Name="waranty_link_web" ColumnName="waranty_link_web" />
-                <ScalarProperty Name="waranty_text" ColumnName="waranty_text" />
-                <ScalarProperty Name="waranty_year" ColumnName="waranty_year" />
-                <ScalarProperty Name="company" ColumnName="company" />
-                <ScalarProperty Name="code_company" ColumnName="code_company" />
-                <ScalarProperty Name="text_in_point" ColumnName="text_in_point" />
-                <ScalarProperty Name="text_in_location" ColumnName="text_in_location" />
-                <ScalarProperty Name="text_in_active" ColumnName="text_in_active" />
-                <ScalarProperty Name="text_in_qr_code" ColumnName="text_in_qr_code" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="customers">
             <EntityTypeMapping TypeName="smartcheckModel.customer">
               <MappingFragment StoreEntitySet="customers">
@@ -909,6 +897,24 @@
                 <ScalarProperty Name="lon" ColumnName="lon" />
                 <ScalarProperty Name="stt" ColumnName="stt" />
                 <ScalarProperty Name="guid" ColumnName="guid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="config_app">
+            <EntityTypeMapping TypeName="smartcheckModel.config_app">
+              <MappingFragment StoreEntitySet="config_app">
+                <ScalarProperty Name="is_waranty" ColumnName="is_waranty" />
+                <ScalarProperty Name="buy_more" ColumnName="buy_more" />
+                <ScalarProperty Name="waranty_link_web" ColumnName="waranty_link_web" />
+                <ScalarProperty Name="waranty_text" ColumnName="waranty_text" />
+                <ScalarProperty Name="waranty_year" ColumnName="waranty_year" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="text_in_point" ColumnName="text_in_point" />
+                <ScalarProperty Name="text_in_location" ColumnName="text_in_location" />
+                <ScalarProperty Name="text_in_active" ColumnName="text_in_active" />
+                <ScalarProperty Name="text_in_qr_code" ColumnName="text_in_qr_code" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

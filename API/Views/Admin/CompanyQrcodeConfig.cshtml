@@ -23,11 +23,12 @@
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo thông tin sản phẩm(khi quét app)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th><th>Thông tin bảo hành</th></tr>
+    <tr><th>Mã Sản Phẩm</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo thông tin sản phẩm(khi quét app)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th><th>Thông tin bảo hành</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
     {
 
         <tr>
+            <td>@item.id</td>
             <td>@item.company</td>
             <td>@item.code_company</td>
             <td>@item.text_in_qr_code</td>
@@ -71,11 +72,12 @@
         <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;"></textarea>
         <p>Tên sản phẩm(mã sản phẩm) và thông tin bảo hành</p>
         <textarea id="cp_waranty_text" class="form-control" placeholder="Thông tin bảo hành" style="height:67px;"></textarea>
-        <p>Số năm bảo hành: Nếu là sản phẩm có bảo hành thì check vào đây <input type="checkbox" id="cp_is_waranty" class="form-control"/></p>        
+        <p><input type="checkbox" id="cp_is_waranty" /> Nếu là sản phẩm có bảo hành thì check vào đây</p>
+        <p>Số năm bảo hành</p>        
         <select id="cp_waranty_year"><option selected value="1">1 năm</option><option  value="2">2 năm</option><option  value="3">3 năm</option><option  value="4">4 năm</option><option value="5">5 năm</option></select>
         <p>Link website (khi hết hàng click vào mua hàng)</p>
         <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
-        <p>Mua hàng thêm(Soạn thảo hotline khi cần mua hàng thêm)</p>
+        <p>Mua hàng thêm(Soạn thảo hotline và thông tin khi khách cần mua hàng thêm)</p>
         <textarea id="cp_buy_more" name="cp_buy_more" class="form-control"></textarea>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>

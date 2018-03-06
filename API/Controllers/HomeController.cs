@@ -352,6 +352,23 @@ namespace API.Controllers
                 return Api("error", field, "Lỗi sql: " + ex.ToString());
             }
         }
+        //Hàm này trả về chi tiết trúng thưởng
+        public string getBuyMoreDetail(int id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                var p = db.config_app.Find(id);
+                field.Add("buy_more", p.buy_more.Replace("\"", "\\\""));
+                return Api("success", field, "Chi tiết mua thêm");
+                
+            }
+            catch (Exception ex)
+            {
+                field.Add("buy_more", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
         public ActionResult ViewWinningDetail(int id)
         {
             var p = db.winnings.Find(id);
