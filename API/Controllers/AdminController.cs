@@ -22,7 +22,7 @@ namespace API.Controllers
         public ActionResult Index()
         {
             ViewBag.is_admin = Config.getCookie("is_admin");
-            ViewBag.code_company= Config.getCookie("company_id");
+            ViewBag.code_company= Config.getCookie("company_code");
             return View();
         }
         public ActionResult Login(string message)
@@ -39,7 +39,8 @@ namespace API.Controllers
             Config.removeCookie("company_email");
             Config.removeCookie("company_phone");
             Config.removeCookie("company_code");
-            return View();
+            return RedirectToAction("Login", new { message = ViewBag.message });
+            //return View();
         }
         [HttpPost]
         public ActionResult SubmitLogin(string phone, string pass)
@@ -652,6 +653,61 @@ namespace API.Controllers
                 return "Có lỗi xảy ra khi in " + ex.ToString();
             }
         }
+        public string getListAppProducts(int code_company)
+        {
+            try
+            {
+                var p = (from q in db.config_app where q.code_company == code_company select q).OrderBy(o => o.text_in_qr_code).ToList();
+                return JsonConvert.SerializeObject(p);
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
+            }
+        }
+        public string getListItemProducts(int? id_config,int? code_company)
+        {
+            try
+            {
+                var p = (from q in db.company_configapp_qrcode_link where q.code_company== code_company && q.id_config_app == id_config select q).OrderBy(o => o.from_sn).ToList();
+                return JsonConvert.SerializeObject(p);
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
+            }
+        }
+        [HttpPost]
+        public string saveListAppProducts(int? code_company,string TreeItem)
+        {
+            try
+            {
+                string query = "delete from company_configapp_qrcode_link where code_company=" + code_company;
+                db.Database.ExecuteSqlCommand(query);
+
+                dynamic StudList = JsonConvert.DeserializeObject(TreeItem);
+                var stud = StudList.TreeItem;
+                foreach (var detail in stud)
+                {
+                    int? id_code_company = detail["code_company"];
+                    int id_config_app = detail["id_config_app"];
+                    int from_sn = detail["from_sn"];
+                    int to_sn = detail["to_sn"];
+                    company_configapp_qrcode_link ccql = new company_configapp_qrcode_link();
+                    ccql.code_company = id_code_company;
+                    ccql.from_sn = from_sn;
+                    ccql.id_config_app = id_config_app;
+                    ccql.to_sn = to_sn;
+                    db.company_configapp_qrcode_link.Add(ccql);
+                    db.SaveChanges();
+                }
+                return "1";
+            }
+            catch (Exception ex)
+            {
+                return "0";
+            }
+        }
         [HttpPost]
         public string updateCompanyQrCode(int code_company, string company, string partner, int? id_partner, int? ffrom, int? tto)
         {
@@ -926,11 +982,28 @@ namespace API.Controllers
             var p = (from q in db.config_app where q.code_company == code_company select new { value = q.text_in_qr_code, id = q.id }).Distinct().ToList();
             return JsonConvert.SerializeObject(p);
         }
+        public string getjsonwinningcompany(int code_company)
+        {
+            var p = (from q in db.winnings where q.code_company == code_company select new { value = q.name, id = q.id }).Distinct().ToList();
+            return JsonConvert.SerializeObject(p);
+        }
         public string confirmUpdateProduct(int code_company, int ffrom, int tto,int id_config_app)
         {
             try
             {
                 db.Database.ExecuteSqlCommand("update qrcode set id_config_app=" + id_config_app + " where code_company=" + code_company + " and from_stt=" + ffrom + " and to_stt=" + tto);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+        public string confirmUpdateWinning(int code_company, int ffrom, int tto, int winning_id)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand("update qrcode set winning_id=" + winning_id + ",w_from_stt="+ ffrom + ",w_to_stt=" + tto + " where code_company=" + code_company + " and from_stt<=" + ffrom + " and to_stt>=" + tto);
                 return "1";
             }
             catch
@@ -1318,7 +1391,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    string s_company_id = Config.getCookie("company_id");
+                    string s_company_id = Config.getCookie("company_code");
                     if (s_company_id != "" && s_company_id != null)
                     {
                         int company_id = int.Parse(s_company_id);

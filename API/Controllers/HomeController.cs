@@ -358,8 +358,20 @@ namespace API.Controllers
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
             {
-                var p = db.config_app.Find(id);
-                field.Add("buy_more", p.buy_more.Replace("\"", "\\\""));
+                var p = db.checkalls.Find(id);
+                long? stt = p.stt;
+                int? code_company = p.code_company;
+                var q = db.qrcodes.Where(o => o.code_company == code_company && o.from_stt <= stt && o.to_stt >= stt).FirstOrDefault();
+                int? config_id = q.id_config_app;
+                var cid = db.config_app.Find(config_id);
+
+                if (cid != null)
+                {
+                    field.Add("buy_more", cid.buy_more.Replace("\"", "\\\""));
+                }else
+                {
+                    field.Add("buy_more","");
+                }
                 return Api("success", field, "Chi tiết mua thêm");
                 
             }
@@ -432,8 +444,34 @@ namespace API.Controllers
             {
                 if (keyword == null) keyword = "";
                 var p = db.checkalls.Where(o => o.user_id == user_id).Where(o=>o.waranty_text.Contains(keyword) || o.waranty_phone.Contains(keyword) || o.address.Contains(keyword) || o.partner.Contains(keyword)).OrderByDescending(o => o.id).Take(100).ToList();
+                //var p=from q in db.checkalls where (q.user_id== user_id) && (q.waranty_text.Contains(keyword) || q.waranty_phone.Contains(keyword) || q.address.Contains(keyword) || q.partner.Contains(keyword) select new { id=q.id, address = q.address, code_company = q.code_company, company = q.company, date_time = q.date_time, guid = q.guid, id_config_app = q.id_config_app, id_partner = q.id_partner,lat=q.lat,lon=q.lon,os=q.os, partner = q.partner, product_text = q.product_text, province = q.province, status = q.status, stt = q.stt, user_email = q.user_email, user_id = q.user_id, user_name = q.user_name, user_phone = q.user_phone,
+                //    waranty_address = q.waranty_address,
+                //    waranty_link_web = q.waranty_link_web,
+                //    waranty_name = q.waranty_name,
+                //    waranty_phone = q.waranty_phone,
+                //    waranty_text = q.waranty_text,
+                //    waranty_year = q.waranty_year                    
+                //});
                 field.Add("list", JsonConvert.SerializeObject(p));
                 return ApiArray("success", field, "Danh sách lịch sử quét của user này");
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        //Hàm này trả về danh sách nhà phân phối của dòng có id trong hàm getHistoryCheckOfUser trả về
+        //Họ ấn vào đó để sửa thông tin bảo hành, mình hiện ra ngoài Họ tên, Email và Số điện thoại...để họ cập nhật lại thì các em load thêm 1 list nhà phân phối do api này trả về
+        public string getListPartnerOfUser(long id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+                int? code_company = db.checkalls.Find(id).code_company;
+                var p = db.partners.Where(o => o.code_company==code_company).OrderBy(o => o.name).Take(100).ToList();
+                field.Add("list", JsonConvert.SerializeObject(p));
+                return ApiArray("success", field, "Danh sách Nhà phân phối");
             }
             catch (Exception ex)
             {
@@ -467,7 +505,7 @@ namespace API.Controllers
         }
         //Cập nhật lại thông tin của người cần bảo hành
         [HttpPost]
-        public string updateHistoryCheckOfUser(int id, string waranty_name,string waranty_phone,string waranty_address, double? key)
+        public string updateHistoryCheckOfUser(int id, string waranty_name,string waranty_phone,string waranty_address,int? id_partner,string partner, double? key)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             if (key == null || !getKeyApi(key))
@@ -478,7 +516,7 @@ namespace API.Controllers
             try
             {
                 customer_bonus_log cbl = new customer_bonus_log();
-                db.Database.ExecuteSqlCommand("update checkall set waranty_name=N'"+ waranty_name + "',waranty_phone=N'" + waranty_phone + "', waranty_address=N'" + waranty_address + "' where id=" + id);
+                db.Database.ExecuteSqlCommand("update checkall set id_partner="+ id_partner + ", partner=N'" + partner + "', waranty_name=N'" + waranty_name + "',waranty_phone=N'" + waranty_phone + "', waranty_address=N'" + waranty_address + "' where id=" + id);
                 field.Add("waranty_phone", waranty_phone);
                 return Api("success", field, "Cập nhật thông tin bảo hành thành công!");
             }
@@ -697,6 +735,8 @@ namespace API.Controllers
                 string partner = "";
                 int? id_partner = 0;
                 long? winning_id = 0;
+                int? w_from_stt = 0;
+                int? w_to_stt = 0;
                 long? stt = 0;
                 long NUMBER = 27;//Mặc định qr code cũ thì stt là 0 vì chỉ có GUID
                 int? waranty_year = 1;
@@ -726,6 +766,9 @@ namespace API.Controllers
                     partner = db.partners.Find((int)rs.id_partner).name;//rs.partner;
                     id_partner = rs.id_partner;
                     stt = rs.stt;
+                    winning_id = rs.winning_id;
+                    w_from_stt = rs.w_from_stt;
+                    w_to_stt = rs.w_to_stt;
                     int? id_config_app = rs.id_config_app;
                     if ((NUMBER - 27) / 13 != 0) stt = (NUMBER - 27) / 13;
                     //winning_id = rs.winning_id!=null?rs.winning_id:0;
@@ -762,6 +805,7 @@ namespace API.Controllers
                     field.Add("active", "Sản phẩm này không được kích hoạt");
                     field.Add("location", "Tại địa điểm " + address);
                     field.Add("point", "Sản phẩm này không được tính tích điểm");
+                    field.Add("user_id_scaned", "");
                     field.Add("total", "...");
                     return Api("success", field, "Gửi thông tin về server thành công!");
                     //var info = db.config_app.Where(o => o.id==1).FirstOrDefault();
@@ -782,6 +826,7 @@ namespace API.Controllers
                     field.Add("info", label);
                     field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
                     field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
+                    field.Add("user_id_scaned", cka.user_id.ToString());
                     int? count = db.customers.Find(user_id).points;
                     field.Add("point", "Sản phẩm này đã được tích điểm vào lúc " + dtfm + ", bạn không thể tích thêm điểm");
                     field.Add("total", count.ToString());
@@ -844,26 +889,64 @@ namespace API.Controllers
                         DateTime wdt=DateTime.Now;
                         if (db.winnings.Any(o => o.code_company == code_company && o.from_date <= wdt && o.to_date>=wdt && o.quantity>0))
                         {
-                            var wnbn = db.winnings.Where(o => o.code_company == code_company && o.from_date <= wdt && o.to_date >= wdt && o.quantity > 0).OrderBy(o=>o.money).FirstOrDefault();
-                            if (wnbn != null)
+                            //Nếu có trúng thưởng cho số sn này thì lấy, còn không thì mặc định
+                            long? win_sn = 0;
+                            if (NUMBER != 0)
                             {
-                                winning_id = wnbn.id;
-                                winning_log wl = new winning_log();
-                                wl.address = address;
-                                wl.date_time = DateTime.Now;
-                                wl.lat = lat;
-                                wl.lon = lon;
-                                wl.money = wnbn.money;
-                                wl.qrcode = guid;
-                                wl.user_id = user_id;
-                                wl.user_email = ctm.email;
-                                wl.user_name = ctm.name;
-                                wl.user_phone = ctm.phone;
-                                wl.winning_id = winning_id;
-                                wl.winning_name = wnbn.name;
-                                db.winning_log.Add(wl);
-                                db.SaveChanges();
-                                db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
+                                win_sn = NUMBER;//stt;
+                            }
+                            else
+                            {
+                                win_sn = stt;//stt;
+                            }
+                            //Có những trúng thưởng cho những khoảng id đặc biệt
+                            if (winning_id != null && win_sn >= w_from_stt && win_sn <= w_to_stt && db.winnings.Any(o => o.id == winning_id))
+                            {
+                                var wnbn = db.winnings.Find(winning_id);
+                                if (wnbn != null)
+                                {
+                                    winning_id = wnbn.id;
+                                    winning_log wl = new winning_log();
+                                    wl.address = address;
+                                    wl.date_time = DateTime.Now;
+                                    wl.lat = lat;
+                                    wl.lon = lon;
+                                    wl.money = wnbn.money;
+                                    wl.qrcode = guid;
+                                    wl.user_id = user_id;
+                                    wl.user_email = ctm.email;
+                                    wl.user_name = ctm.name;
+                                    wl.user_phone = ctm.phone;
+                                    wl.winning_id = winning_id;
+                                    wl.winning_name = wnbn.name;
+                                    db.winning_log.Add(wl);
+                                    db.SaveChanges();
+                                    db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
+                                }
+                            }
+                            else {
+                                //Mặc định trúng thưởng
+                                var wnbn = db.winnings.Where(o => o.code_company == code_company && o.from_date <= wdt && o.to_date >= wdt && o.quantity > 0).OrderBy(o => o.money).FirstOrDefault();
+                                if (wnbn != null)
+                                {
+                                    winning_id = wnbn.id;
+                                    winning_log wl = new winning_log();
+                                    wl.address = address;
+                                    wl.date_time = DateTime.Now;
+                                    wl.lat = lat;
+                                    wl.lon = lon;
+                                    wl.money = wnbn.money;
+                                    wl.qrcode = guid;
+                                    wl.user_id = user_id;
+                                    wl.user_email = ctm.email;
+                                    wl.user_name = ctm.name;
+                                    wl.user_phone = ctm.phone;
+                                    wl.winning_id = winning_id;
+                                    wl.winning_name = wnbn.name;
+                                    db.winning_log.Add(wl);
+                                    db.SaveChanges();
+                                    db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
+                                }
                             }
                         }
                     }
@@ -885,6 +968,7 @@ namespace API.Controllers
                     }
                     point = point.Replace("{DIEM}", count.ToString());
                     field.Add("point", point);
+                    field.Add("user_id_scaned", "");
                     field.Add("total", count.ToString());
                     field.Add("winning_id", winning_id.ToString());
                 }
@@ -899,6 +983,7 @@ namespace API.Controllers
                 field.Add("point","");
                 field.Add("total","");
                 field.Add("winning_id", "0");
+                field.Add("user_id_scaned", "");
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
         }
