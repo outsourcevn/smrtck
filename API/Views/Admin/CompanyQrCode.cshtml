@@ -34,6 +34,7 @@
             <button type="button" class="btn btn-primary" onclick="delCompanyQrCode()">Xóa in Mã Qr Code</button>
             <button type="button" class="btn btn-danger" onclick="updateCompanyQrCode()">Cập nhật lại nhà phân phối</button>
             <button type="button" class="btn btn-danger" onclick="updateProduct()">Cập nhật lại sản phẩm</button>
+            <button type="button" class="btn btn-danger" onclick="updateWinning()">Cập nhật lại trúng thưởng</button>
         </div>
         @if (ViewBag.notice != null && ViewBag.notice != "")
         {
@@ -57,8 +58,18 @@
         <select id="sl_product"></select>
     </div>
     <div class="divBtn">
-        <button type="button" class="btn btn-primary" onclick="confirmUpdateProduct();">Cập nhật sản phẩm cho công ty này</button>
+        <button type="button" class="btn btn-primary" onclick="confirmUpdateProduct();">Cập nhật sản phẩm cho khoảng SN này</button>
         <button type="button" class="btn btn-primary" onclick="$('#DialogProduct').hide();">Thoát</button>
+    </div>
+</div>
+<div id="DialogWinning" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Chọn trúng thưởng</div>
+    <div class="dDialogContent">
+        <select id="sl_winning"></select>
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="confirmUpdateWinning();">Cập nhật trúng thưởng cho khoảng SN này</button>
+        <button type="button" class="btn btn-primary" onclick="$('#DialogWinning').hide();">Thoát</button>
     </div>
 </div>
 <div id="DialogTextQrCode" style="display:none;top:20%;position:fixed;" class="col-sm-4 dDialog">
@@ -188,6 +199,38 @@
         });
         
     }
+    function updateWinning() {
+        if ($("#cp_code_company").val() == "") {
+            alert("Nhập doanh nghiệp!");
+            return;
+        }
+        if ($("#cp_from").val() == "") {
+            alert("Nhập từ số thứ tự!");
+            return;
+        }
+        if ($("#cp_to").val() == "") {
+            alert("Nhập đến số thứ tự!");
+            return;
+        }
+
+        $('#DialogWinning').show();
+        $('#sl_winning').html('');
+        $.ajax({
+            url: "/Admin/getjsonwinningcompany", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val()
+            },
+            success: function (rs) {
+                //alert(rs);
+                var jsonData = JSON.parse(rs);
+                for (var i = 0; i < jsonData.length; i++) {
+                    //var counter = jsonData[i];
+                    $('#sl_winning').append('<option value=' + jsonData[i].id + '>' + jsonData[i].value + '</option>');                    
+                }
+            }
+        });
+
+    }
     function searchCompanyName() {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
@@ -292,6 +335,22 @@
                 if (rs=="1")
                 alert("Cập nhật thành công");
                 location.reload();
+            }
+        });
+    }
+    function confirmUpdateWinning() {
+        $.ajax({
+            url: "/Admin/confirmUpdateWinning", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val(), winning_id: $("#sl_winning").val()
+            },
+            success: function (rs) {
+                if (rs == "1") {
+                    alert("Cập nhật thành công");
+                    location.reload();
+                } else {
+                    alert("Cập nhật chưa thành công, bạn xem lại các thông số");
+                }
             }
         });
     }

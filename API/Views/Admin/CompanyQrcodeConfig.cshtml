@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Cấu hình APP Qr Code Sản Phẩm";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    int? code_company = 0;
 }
 <style>
     textarea {
@@ -14,8 +15,10 @@
 <div class="panel-heading">
     <div class="form-inline">
         <div class="form-group">
-            <input type="text" id="keyword" class="form-control" placeholder="Nhập mã hoặc tên của công ty" value="@ViewBag.k" style="width:360px;" />
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập mã hoặc tên của công ty" value="@ViewBag.k" style="width:360px;" onkeyup="searchCompanyNameSearch();"/>
+            <input id="key_code_company" name="key_code_company" type="hidden" value="0">
             <button onclick="searchCompanyConfig();" class="btn-default btn-info">Tìm Kiếm</button>
+            <button onclick="autoLoadProducts();" class="btn-default btn-info">Cấu Hình Sản Phẩm Theo Khối</button>
         </div>
         @*<div class="form-group">
                 <input type="button" value="Tìm Kiếm" class="btn btn-primary" onclick="search();" /><input type="button" value="Export to Excel" class="btn btn-primary" onclick="toexcel();" />
@@ -23,18 +26,19 @@
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Mã Sản Phẩm</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo thông tin sản phẩm(khi quét app)</th><th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th><th>Thông tin bảo hành</th></tr>
+    <tr><th>Mã Sản Phẩm</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Thông báo thông tin sản phẩm(khi quét app)</th><th>Từ số SN đến số SN</th>@*<th>Thông báo kích hoạt</th><th>Thông báo Địa Điểm</th><th>Thông báo tích điểm</th>*@<th>Thông tin bảo hành</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
     {
-
+        code_company = item.code_company;
         <tr>
             <td>@item.id</td>
             <td>@item.company</td>
             <td>@item.code_company</td>
             <td>@item.text_in_qr_code</td>
-            <td>@item.text_in_active</td>
-            <td>@item.text_in_location</td>
-            <td>@item.text_in_point</td>
+            <td></td>
+            <td>@*@item.text_in_active*@</td>
+            <td>@*@item.text_in_location*@</td>
+            <td>@*@item.text_in_point*@</td>
             <td>Thông tin: @item.waranty_text<br />
                 Số năm: @item.waranty_year<br />
                 web: @item.waranty_link_web<br />
@@ -45,7 +49,7 @@
                 else
                 {
                     <text>Không bảo hành</text>
-}
+    }
             </td>
             <td><a href="#" onclick="openCompanyConfig(@item.id)">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompanyConfig(@item.id,'@item.company');">Xóa</a></td>
@@ -57,24 +61,24 @@
 <div id="CompanyConfigDialog" style="display:none;min-height:800px;" class="col-sm-4 dDialog" >
     <div class="dTitle">Thêm/Sửa</div>
     <div class="dDialogContent" style="min-height: 800px;">
-        <input type="hidden" id="cp_ID" />
+        <input type="hidden" id="cp_ID"/>
         <p>Chọn Doanh Nghiệp</p>        
         <input id="cp_company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
         <p>Mã Doanh Nghiệp</p>
         <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
-        <p>Thông báo thông tin sản phẩm(khi quét app) </i></p>
+        <p>Tên sản phẩm </i></p>
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
-        <p>Thông báo kích hoạt</p>
-        <textarea id="cp_text_in_active"  class="form-control" placeholder="Thông báo kích hoạt" style="height:67px;"></textarea>
-        <p>Thông báo Địa Điểm</p>
-        <textarea id="cp_text_in_location"  class="form-control" placeholder="Thông báo Địa Điểm" style="height:67px;"></textarea>        
-        <p>Thông báo Tích Điểm</p>
-        <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;"></textarea>
-        <p>Tên sản phẩm(mã sản phẩm) và thông tin bảo hành</p>
+        <p style="display:none;">Thông báo kích hoạt</p>
+        <textarea id="cp_text_in_active"  class="form-control" placeholder="Thông báo kích hoạt" style="height:67px;display:none;" ></textarea>
+        <p style="display:none;">Thông báo Địa Điểm</p>
+        <textarea id="cp_text_in_location"  class="form-control" placeholder="Thông báo Địa Điểm" style="height:67px;display:none;" ></textarea>        
+        <p style="display:none;">Thông báo Tích Điểm</p>
+        <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;display:none;" ></textarea>
+        <p >Thông tin bảo hành</p>
         <textarea id="cp_waranty_text" class="form-control" placeholder="Thông tin bảo hành" style="height:67px;"></textarea>
         <p><input type="checkbox" id="cp_is_waranty" /> Nếu là sản phẩm có bảo hành thì check vào đây</p>
         <p>Số năm bảo hành</p>        
-        <select id="cp_waranty_year"><option selected value="1">1 năm</option><option  value="2">2 năm</option><option  value="3">3 năm</option><option  value="4">4 năm</option><option value="5">5 năm</option></select>
+        <select id="cp_waranty_year"><option selected value="1">1 tháng</option><option selected value="3">3 tháng</option><option  value="6">6 tháng</option><option  value="12">12 tháng</option><option  value="18">18 tháng</option><option value="24">24 tháng</option><option value="36">36 tháng</option><option value="48">48 tháng</option><option value="60">60 tháng</option></select>
         <p>Link website (khi hết hàng click vào mua hàng)</p>
         <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
         <p>Mua hàng thêm(Soạn thảo hotline và thông tin khi khách cần mua hàng thêm)</p>
@@ -85,7 +89,17 @@
         </div>
     </div>
 </div>
-
+<div id="dv_tbl_config" style="display:none;min-height:800px;width:80%;" class="col-sm-4 dDialog">
+    <div class="dTitle">Cấu hình sản phẩm cho các khoảng thứ tự tem</div>
+    <table id="tbl_config" style="width:100%;left:0%;float:left;display:block;" class="table marginBottom0">
+        <tr><th>Tên sản phẩm</th><th>Từ số thứ tự</th><th>Số lượng</th><th>Đến số thứ tự</th></tr>
+        <tr><td></td><td><input type="text" id="s_from_1" class="form-control" placeholder="Nhập từ số thứ tự"/></td><td><input type="text" id="s_num_1" class="form-control" placeholder="Số lượng" /></td><td><input type="text" id="s_to_1" class="form-control" placeholder="Đến số thứ tự" /></td></tr>
+    </table>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="saveListAppProducts();" id="btn-save-all">SAVE</button>
+        <button type="button" class="btn btn-primary" onclick="closeDDialog('#dv_tbl_config')">Ẩn</button>
+    </div>
+</div>
 <script type="text/javascript">
     $(function () {
         CKEDITOR.replace('cp_buy_more',
@@ -98,6 +112,127 @@
 </script>
 <script type="text/javascript" src="~/Scripts/CompanyConfig.js"></script>
 <script>
+   
+    var arr_id_config_app=[];//Lưu lại các cấu hình của từng khối
+    var totalRow=0;//Tổng số sản phẩm cần cấu hình cho khối
+    var maxRowItem=0;//Số dòng lớn nhất của khối nào đó
+    var arr_total_items_each_row=[];//Số khối của sản phẩm
+    function autoLoadProducts() {
+        var code_company = @code_company;// document.getElementById("key_code_company").value;
+        var url = "/Admin/getListAppProducts?code_company=" + code_company;
+        var xmlhttp = new XMLHttpRequest();
+        $("#dv_tbl_config").show();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    success: function (data) {
+                        //alert(data);
+                        var json = $.parseJSON(data);
+                        $("#tbl_config").html("<tr><th>Tên sản phẩm</th><th>Từ số thứ tự</th><th>Số lượng</th><th>Đến số thứ tự</th></tr>");
+                        for (var i = 0; i < json.length; ++i) {
+                            $("#tbl_config").append("<tr><td><img src=\"/Images/addrow.png\" style=\"cursor:pointer;\" onclick=\"addRowItems("+i+");\">&nbsp;<b>" + json[i].text_in_qr_code + "</b></td><td colspan=3 id=rowtr_"+i+"></td></tr>");
+                            loaditemproducts(json[i].id,i,code_company);
+                            totalRow++;
+                            arr_id_config_app.push(json[i].id);
+                            //<td><input type=\"text\" id=\"s_from_" + i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\"/></td><td><input type=\"text\" id=\"s_num_" + i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+")\" /></td><td><input type=\"text\" id=\"s_to_" + i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td>
+                        }
+                    }
+                });
+            }
+        };
+        xmlhttp.open("POST", url, true);
+        xmlhttp.send();
+    }
+    function loaditemproducts(id_config,id_row,code_company){
+
+        var url = "/Admin/getListItemProducts?id_config=" + id_config+"&code_company="+code_company;
+        var xmlhttp = new XMLHttpRequest();
+        $("#dv_tbl_config").show();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    success: function (data) {
+                        //alert(data);
+                        var json = $.parseJSON(data);
+                        if (json.length>0){
+                           
+                            for (var i = 0; i < json.length; ++i) {
+                                var num=json[i].to_sn-json[i].from_sn;
+                                $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" value=\""+json[i].from_sn+"\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" value=\""+num+"\"/></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" value=\""+json[i].to_sn+"\"/></td></tr></table>");
+
+                            }
+                            if (json.length>maxRowItem) maxRowItem=json.length;
+                            //$("#rowtr_"+id_row).append("</table>");
+                            arr_total_items_each_row[id_row]=json.length;//Số khối của sản phẩm dòng i
+                        }else{
+                            
+                            for (var i = 0; i <=0; ++i) {
+                                $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
+                            }
+                            //$("#rowtr_"+id_row).append("</table>");
+                            arr_total_items_each_row[id_row]=0;//Số khối của sản phẩm dòng i
+                        }
+                    }
+                });
+            }
+        };
+        xmlhttp.open("POST", url, true);
+        xmlhttp.send();
+    }
+    function addRowItems(id_row){
+        var i=arr_total_items_each_row[id_row];
+        $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
+        arr_total_items_each_row[id_row]++;
+        if (arr_total_items_each_row[id_row]>maxRowItem) maxRowItem=arr_total_items_each_row[id_row];
+    }
+    function saveListAppProducts(){
+        var i=totalRow;
+        var j=maxRowItem;
+        var allTreeItem=[];
+        $("#btn-save-all").html("ĐANG LƯU XIN CHỜ...");
+        $("#btn-save-all").prop("disabled",true);
+        for(var ii=0;ii<=i;ii++){
+            if (document.getElementById("s_from_"+ii+"_0")){
+                for(var jj=0;jj<maxRowItem;jj++){
+                    if (document.getElementById("s_from_"+ii+"_"+jj)){
+                        var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
+                        allTreeItem.push(item);
+                    }else break;
+                }
+            }
+        }
+        var data = { code_company: @code_company, TreeItem: allTreeItem };
+        var sTreeItem = JSON.stringify(data);
+        $.ajax({
+            url: '/Admin/saveListAppProducts',
+            type: 'POST',
+            datatype: 'text',
+            data:"code_company=@code_company&TreeItem="+sTreeItem,
+            success: function(data){
+                if (data=="1"){
+                    alert("Ghi dữ liệu thành công!");
+                    $("#btn-save-all").prop("disabled",false);
+                    $("#btn-save-all").html("SAVE");
+                };
+            },
+            error: function (jqXHR, exception) {
+                alert("Lỗi khi ghi!");
+                $("#btn-save-all").prop("disabled",false);
+                $("#btn-save-all").html("SAVE");
+            }
+        });
+    }
+    function calculate(id,id_row){
+        if (document.getElementById("s_from_"+id_row+"_"+id)){
+            if (document.getElementById("s_from_"+id_row+"_"+id).value!="" && document.getElementById("s_from_"+id_row+"_"+id).value!=0 && document.getElementById("s_num_"+id_row+"_"+id).value!=""){
+                document.getElementById("s_to_"+id_row+"_"+id).value=parseInt(document.getElementById("s_from_"+id_row+"_"+id).value)+parseInt(document.getElementById("s_num_"+id_row+"_"+id).value);
+            }
+        }
+    }
     function searchCompanyName(type) {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
@@ -106,6 +241,19 @@
             select: function (event, ui) {
                 $(event.target).val(ui.item.value);
                 $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
+    }
+    function searchCompanyNameSearch(type) {
+        var keyword = document.getElementById("keyword").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#keyword').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#key_code_company').val(ui.item.id);
                 return false;
             },
             minLength: 1
