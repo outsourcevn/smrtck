@@ -56,7 +56,7 @@
         </tr>
     }
 </table>
-@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyConfig", new { page }))
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrcodeConfig", new { page }))
 <!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
 <div id="CompanyConfigDialog" style="display:none;min-height:800px;" class="col-sm-4 dDialog" >
     <div class="dTitle">Thêm/Sửa</div>
@@ -162,7 +162,7 @@
                            
                             for (var i = 0; i < json.length; ++i) {
                                 var num=json[i].to_sn-json[i].from_sn;
-                                $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" value=\""+json[i].from_sn+"\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" value=\""+num+"\"/></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" value=\""+json[i].to_sn+"\"/></td></tr></table>");
+                                $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+","+i+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" value=\""+json[i].from_sn+"\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" value=\""+num+"\"/></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" value=\""+json[i].to_sn+"\"/></td></tr></table>");
 
                             }
                             if (json.length>maxRowItem) maxRowItem=json.length;
@@ -171,7 +171,7 @@
                         }else{
                             
                             for (var i = 0; i <=0; ++i) {
-                                $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
+                                $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+","+i+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
                             }
                             //$("#rowtr_"+id_row).append("</table>");
                             arr_total_items_each_row[id_row]=0;//Số khối của sản phẩm dòng i
@@ -185,28 +185,44 @@
     }
     function addRowItems(id_row){
         var i=arr_total_items_each_row[id_row];
-        $("#rowtr_"+id_row).append("<table><tr><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
+        $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
         arr_total_items_each_row[id_row]++;
         if (arr_total_items_each_row[id_row]>maxRowItem) maxRowItem=arr_total_items_each_row[id_row];
+    }
+    function removeRowItems(id_row,i){
+        $("#tbl_"+id_row+"_"+i).hide();
     }
     function saveListAppProducts(){
         var i=totalRow;
         var j=maxRowItem;
         var allTreeItem=[];
+        //alert(i+"-"+j);
         $("#btn-save-all").html("ĐANG LƯU XIN CHỜ...");
         $("#btn-save-all").prop("disabled",true);
         for(var ii=0;ii<=i;ii++){
             if (document.getElementById("s_from_"+ii+"_0")){
-                for(var jj=0;jj<maxRowItem;jj++){
+                for(var jj=0;jj<=maxRowItem;jj++){
                     if (document.getElementById("s_from_"+ii+"_"+jj)){
-                        var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
-                        allTreeItem.push(item);
+                        //alert(document.getElementById("tbl_"+ii+"_"+jj).style.display);
+                        if (document.getElementById("tbl_"+ii+"_"+jj).style.display!="none"){
+                            var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
+                            allTreeItem.push(item);
+                        }
                     }else break;
                 }
             }
         }
+        if (allTreeItem.length<=0){
+            alert("Bạn chưa Nhập dữ liệu cho dòng nào?");
+            $("#btn-save-all").prop("disabled",false);
+            $("#btn-save-all").html("SAVE");
+            return;
+        }
         var data = { code_company: @code_company, TreeItem: allTreeItem };
+        //alert(allTreeItem);
+        //return;
         var sTreeItem = JSON.stringify(data);
+        //alert(sTreeItem);
         $.ajax({
             url: '/Admin/saveListAppProducts',
             type: 'POST',
@@ -217,7 +233,11 @@
                     alert("Ghi dữ liệu thành công!");
                     $("#btn-save-all").prop("disabled",false);
                     $("#btn-save-all").html("SAVE");
-                };
+                } else{
+                    alert("Lỗi khi ghi!");
+                    $("#btn-save-all").prop("disabled",false);
+                    $("#btn-save-all").html("SAVE");
+                }
             },
             error: function (jqXHR, exception) {
                 alert("Lỗi khi ghi!");
@@ -229,7 +249,7 @@
     function calculate(id,id_row){
         if (document.getElementById("s_from_"+id_row+"_"+id)){
             if (document.getElementById("s_from_"+id_row+"_"+id).value!="" && document.getElementById("s_from_"+id_row+"_"+id).value!=0 && document.getElementById("s_num_"+id_row+"_"+id).value!=""){
-                document.getElementById("s_to_"+id_row+"_"+id).value=parseInt(document.getElementById("s_from_"+id_row+"_"+id).value)+parseInt(document.getElementById("s_num_"+id_row+"_"+id).value);
+                document.getElementById("s_to_"+id_row+"_"+id).value=parseInt(document.getElementById("s_from_"+id_row+"_"+id).value)+parseInt(document.getElementById("s_num_"+id_row+"_"+id).value)-1;
             }
         }
     }
