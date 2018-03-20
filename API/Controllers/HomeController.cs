@@ -13,7 +13,7 @@ using System.Xml.Linq;
 using System.Drawing;
 using System.IO;
 using Newtonsoft.Json.Linq;
-
+using ImageProcessor;
 namespace API.Controllers
 {
     public class HomeController : Controller
@@ -90,7 +90,7 @@ namespace API.Controllers
         //3. Trường message là các thông báo cụ thể: Ví dụ đăng ký thành công nếu status là success, thông báo đã tồn tại email và số điện thoại này nếu status là failed, báo lỗi chi tiết sql nếu status là error
         //Lưu ý hàm này có thể dùng để cập nhật thông tin user, nếu user_id gửi lên là null hoặc =0 thì là thêm mới, còn nếu user_id gửi lên là số thì hàm này sẽ cập nhật thông tin user có id là user_id tương ứng với các đối số mới. Dùng khi màn hình đổi thông tin user nếu lúc đăng ký nhập sai.
         [HttpPost]
-        public string register(string name, string email, string phone, string pass, long? user_id,string identify,string address,string ref_phone,double? key)
+        public string register(string name, string email, string phone, string pass, long? user_id,string identify,string address,string ref_phone,string avatar,string profile_fb,double? key)
         {
             Dictionary<string, string> field = new Dictionary<string, string>();
             try
@@ -135,6 +135,23 @@ namespace API.Controllers
                             db.Database.ExecuteSqlCommand("update customers set points=points+" + bnp + " where id=" + bnu.id);
                         }
                     }
+                    if (avatar != "")
+                    {
+                        try
+                        {
+                            string fileName = ct.id.ToString() + ".jpg";
+                            string file_name = Server.MapPath(@"\") + "\\images\\customer\\" + fileName;
+                            save_file_from_url(file_name, avatar);
+                            avatar = "/images/customer/" + fileName;
+                            ImageProcessor.ImageFactory iFF = new ImageProcessor.ImageFactory();
+                            iFF.Load(file_name).Quality(50).Save(file_name);
+                            db.Database.ExecuteSqlCommand("update customers set avatar=N'" + avatar + "' where id=" + ct.id);
+                        }
+                        catch (Exception dlimage) { }
+                    }
+                    field.Add("name", name);
+                    field.Add("phone", phone);
+                    field.Add("avatar", avatar);
                     field.Add("user_id", ct.id.ToString());
                     return Api("success", field, "Đăng ký thành công!");
                 }
@@ -152,6 +169,9 @@ namespace API.Controllers
                     ct.address = address;
                     ct.date_time = DateTime.Now;
                     db.SaveChanges();
+                    field.Add("name", name);
+                    field.Add("phone", phone);
+                    field.Add("avatar", ct.avatar);
                     field.Add("user_id", user_id.ToString());
                     return Api("success", field, "Cập nhật thành công!");
                 }
@@ -159,6 +179,34 @@ namespace API.Controllers
                 field.Add("user_id", "");
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
+        }
+        public static void save_file_from_url(string file_name, string url)
+        {
+            byte[] content;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            WebResponse response = request.GetResponse();
+
+            Stream stream = response.GetResponseStream();
+
+            using (BinaryReader br = new BinaryReader(stream))
+            {
+                content = br.ReadBytes(500000);
+                br.Close();
+            }
+            response.Close();
+
+            FileStream fs = new FileStream(file_name, FileMode.Create);
+            BinaryWriter bw = new BinaryWriter(fs);
+            try
+            {
+                bw.Write(content);
+            }
+            finally
+            {
+                fs.Close();
+                bw.Close();
+            }
+
         }
         //Hàm này login bằng số phone và mật khẩu, gửi kèm key bảo mật
         //Trả về là user_id của user này nếu đăng nhập thành công, nếu không báo sai pass và mật khẩu kèm theo user_id là rỗng
@@ -250,6 +298,10 @@ namespace API.Controllers
             {
                 DateTime dtn = DateTime.Now;
                 var p = (from q in db.splashes select q).OrderByDescending(o => o.id).ToList();
+                for(int i = 0; i < p.Count; i++)
+                {
+                    p[i].welcome_text = p[i].welcome_text.Replace("\"", "\\\"");
+                }
                 field.Add("list", JsonConvert.SerializeObject(p));
                 return ApiArray("success", field, "Danh sách các màn hình chào splash");
             }
@@ -443,7 +495,7 @@ namespace API.Controllers
             try
             {
                 if (keyword == null) keyword = "";
-                var p = db.checkalls.Where(o => o.user_id == user_id).Where(o=>o.waranty_text.Contains(keyword) || o.waranty_phone.Contains(keyword) || o.address.Contains(keyword) || o.partner.Contains(keyword)).OrderByDescending(o => o.id).Take(100).ToList();
+                var p = db.checkalls.Where(o => o.user_id == user_id).Where(o=>o.waranty_text.Contains(keyword) || o.waranty_name.Contains(keyword) || o.product_text.Contains(keyword) && o.waranty_phone.Contains(keyword) || o.address.Contains(keyword) || o.partner.Contains(keyword)).OrderByDescending(o => o.id).Take(100).ToList();
                 //var p=from q in db.checkalls where (q.user_id== user_id) && (q.waranty_text.Contains(keyword) || q.waranty_phone.Contains(keyword) || q.address.Contains(keyword) || q.partner.Contains(keyword) select new { id=q.id, address = q.address, code_company = q.code_company, company = q.company, date_time = q.date_time, guid = q.guid, id_config_app = q.id_config_app, id_partner = q.id_partner,lat=q.lat,lon=q.lon,os=q.os, partner = q.partner, product_text = q.product_text, province = q.province, status = q.status, stt = q.stt, user_email = q.user_email, user_id = q.user_id, user_name = q.user_name, user_phone = q.user_phone,
                 //    waranty_address = q.waranty_address,
                 //    waranty_link_web = q.waranty_link_web,
@@ -774,18 +826,38 @@ namespace API.Controllers
                     //winning_id = rs.winning_id!=null?rs.winning_id:0;
                     if (db.config_app.Any(o => o.code_company == code_company))
                     {
-                        var info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o=>o.id).FirstOrDefault();
-                        if (id_config_app != null)                       
+                        if (db.company_configapp_qrcode_link.Any(o => o.code_company == code_company && o.from_sn<= stt && o.to_sn>=stt))
                         {
-                            info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
+                            var fcfapp = db.company_configapp_qrcode_link.Where(o => o.code_company == code_company && o.from_sn <= stt && o.to_sn >= stt).OrderBy(o=>o.id).FirstOrDefault();
+                            int fcfapp_id_config_app = (int)fcfapp.id_config_app;
+                            var info = db.config_app.Where(o => o.id==fcfapp_id_config_app).OrderBy(o => o.id).FirstOrDefault();
+                            //if (id_config_app != null)
+                            //{
+                            //    info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
+                            //}
+                            label = info.text_in_qr_code;
+                            active = "Kích hoạt thành công, Sản phẩm được kích hoạt bảo hành vào thời điểm {NGAYTHANG}";//info.text_in_active;
+                            location = "Sản phẩm được quét tại địa điểm {DIADIEM}";// info.text_in_location;
+                            point = "Bạn được tích số điểm mới là {DIEM}";//info.text_in_point;
+                            waranty_year = info.waranty_year;
+                            waranty_text = info.waranty_text;
+                            waranty_link_web = info.waranty_link_web;
                         }
-                        label = info.text_in_qr_code;
-                        active = info.text_in_active;
-                        location = info.text_in_location;
-                        point = info.text_in_point;
-                        waranty_year = info.waranty_year;
-                        waranty_text = info.waranty_text;
-                        waranty_link_web = info.waranty_link_web;
+                        else
+                        {
+                            var info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o => o.id).FirstOrDefault();
+                            //if (id_config_app != null)
+                            //{
+                            //    info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
+                            //}
+                            label = info.text_in_qr_code;
+                            active = "Kích hoạt thành công, Sản phẩm được kích hoạt bảo hành vào thời điểm {NGAYTHANG}";//info.text_in_active;
+                            location = "Sản phẩm được quét tại địa điểm {DIADIEM}";// info.text_in_location;
+                            point = "Bạn được tích số điểm mới là {DIEM}";//info.text_in_point;
+                            waranty_year = info.waranty_year;
+                            waranty_text = info.waranty_text;
+                            waranty_link_web = info.waranty_link_web;
+                        }
                     }
                     else
                     {
@@ -858,6 +930,7 @@ namespace API.Controllers
                     cka.province = Config.getProvince(address);
                     cka.company = company;
                     cka.code_company = code_company;
+                    cka.product_text = label;
                     cka.id_partner = id_partner;
                     cka.partner = partner;
                     cka.waranty_link_web = waranty_link_web;

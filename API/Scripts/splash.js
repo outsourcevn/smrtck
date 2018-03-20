@@ -8,7 +8,8 @@
             url: "/Admin/getFullDesSplash?id=" + id, type: 'get',
             success: function (rs) {
                 if (rs != "") {
-                    $("#cp_welcome_text").val(rs);
+                    CKEDITOR.instances['cp_welcome_text'].setData(rs);
+                    //$("#cp_welcome_text").val(rs);
                 } else {
 
                 }
@@ -18,8 +19,8 @@
     $("#SplashDialog").show();
 }
 function savesplash() {
-    //var cp_welcome_text = CKEDITOR.instances.cp_welcome_text.getData();
-    if ($("#cp_welcome_text").val() == "" || $("#cp_welcome_text").val() == 0) {
+    var cp_welcome_text = CKEDITOR.instances.cp_welcome_text.getData();
+    if (cp_welcome_text == "") {
         alert("Nhập lời giới thiệu chào mừng!");
         return;
     }
@@ -37,7 +38,7 @@ function savesplash() {
         url: url_addUpdatesplash, type: 'post',
         contentType: 'application/json',
         data: JSON.stringify({
-            ID: $("#cp_ID").val(), welcome_text: $("#cp_welcome_text").val(), image: $("#image").val()
+            ID: $("#cp_ID").val(), welcome_text: cp_welcome_text, image: $("#image").val()
         }),
         success: function (rs) {
             if (rs == '') {

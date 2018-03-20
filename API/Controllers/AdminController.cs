@@ -708,6 +708,31 @@ namespace API.Controllers
                 return "0";
             }
         }
+        public string updateProductText()
+        {
+            var p = (from q in db.checkalls select q).ToList();
+            for(int i = 0; i < p.Count; i++)
+            {
+                var items = p[i];
+                if (db.company_configapp_qrcode_link.Any(o=>o.code_company==items.code_company && o.from_sn<=items.stt && o.to_sn>=items.stt))
+                {
+                    var p1 = db.company_configapp_qrcode_link.Where(o => o.code_company == items.code_company && o.from_sn <= items.stt && o.to_sn >= items.stt).OrderBy(o=>o.id).FirstOrDefault();
+                    int id_config = (int)p1.id_config_app;
+                    var p2 = db.config_app.Find(id_config);
+                    if (p2 != null)
+                    {
+                        db.Database.ExecuteSqlCommand("update checkall set product_text=N'"+p2.text_in_qr_code+"' where id="+items.id);
+                    }
+                }
+                else
+                {
+                    var info = db.config_app.Where(o => o.id == 1).FirstOrDefault();
+                    string label = info.text_in_qr_code;
+                    db.Database.ExecuteSqlCommand("update checkall set product_text=N'" + label + "' where id=" + items.id);
+                }
+            }
+            return "0";
+        }
         [HttpPost]
         public string updateCompanyQrCode(int code_company, string company, string partner, int? id_partner, int? ffrom, int? tto)
         {
