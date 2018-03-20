@@ -81,7 +81,7 @@
         <select id="cp_waranty_year"><option selected value="1">1 tháng</option><option selected value="3">3 tháng</option><option  value="6">6 tháng</option><option  value="12">12 tháng</option><option  value="18">18 tháng</option><option value="24">24 tháng</option><option value="36">36 tháng</option><option value="48">48 tháng</option><option value="60">60 tháng</option></select>
         <p>Link website (khi hết hàng click vào mua hàng)</p>
         <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
-        <p>Mua hàng thêm(Soạn thảo hotline và thông tin khi khách cần mua hàng thêm)</p>
+        <p>Thông tin mô tả sản phẩm và Mua hàng thêm(Ngoài mô tả sản phẩm, dòng cuối soạn thảo hotline và thông tin khi khách cần mua hàng thêm)</p>
         <textarea id="cp_buy_more" name="cp_buy_more" class="form-control"></textarea>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>
@@ -161,7 +161,7 @@
                         if (json.length>0){
                            
                             for (var i = 0; i < json.length; ++i) {
-                                var num=json[i].to_sn-json[i].from_sn;
+                                var num=json[i].to_sn-json[i].from_sn+1;
                                 $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+","+i+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" value=\""+json[i].from_sn+"\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" value=\""+num+"\"/></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" value=\""+json[i].to_sn+"\"/></td></tr></table>");
 
                             }
@@ -185,7 +185,7 @@
     }
     function addRowItems(id_row){
         var i=arr_total_items_each_row[id_row];
-        $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
+        $("#rowtr_"+id_row).append("<table id=tbl_"+id_row+"_"+i+"><tr><td><img src=\"/Images/removerow.png\" style=\"cursor:pointer;\" onclick=\"removeRowItems("+id_row+","+i+");\">&nbsp;</td><td><input type=\"text\" id=\"s_from_" +id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Nhập từ số thứ tự\" onblur=\"calculate("+i+","+id_row+")\"/></td><td><input type=\"text\" id=\"s_num_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Số lượng\" onblur=\"calculate("+i+","+id_row+")\" /></td><td><input type=\"text\" id=\"s_to_" + id_row+"_"+ i + "\" class=\"form-control\" placeholder=\"Đến số thứ tự\" /></td></tr></table>");
         arr_total_items_each_row[id_row]++;
         if (arr_total_items_each_row[id_row]>maxRowItem) maxRowItem=arr_total_items_each_row[id_row];
     }

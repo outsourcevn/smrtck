@@ -50,7 +50,7 @@
     {
      
         <tr style="border-bottom:1 solid #808080;">
-            <td>@item.welcome_text</td>            
+            <td>@Html.Raw(@item.welcome_text)</td>            
             <td>              
                 <img src="@item.image" style="width:414px;height:736px;border:1px solid #808080;" />
             </td>
@@ -67,13 +67,13 @@
 </script>
 <script type="text/javascript" src="~/Scripts/splash.js"></script>
 <script>
-    //$(function () {   
-    //    CKEDITOR.replace('cp_welcome_text',
-    //    {
-    //        uiColor: '#337ab7',
-    //        height: '300px',
-    //    });
-    //});
+    $(function () {   
+        CKEDITOR.replace('cp_welcome_text',
+        {
+            uiColor: '#337ab7',
+            height: '300px',
+        });
+    });
     function searchCompanyName() {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
