@@ -27,5 +27,8 @@ namespace API.Models
         public Nullable<double> lat { get; set; }
         public string address { get; set; }
         public string qrcode { get; set; }
+        public Nullable<long> sn { get; set; }
+        public string company { get; set; }
+        public string partner { get; set; }
     }
 }

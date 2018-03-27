@@ -26,5 +26,7 @@ namespace API.Models
         public string waranty_link_web { get; set; }
         public string buy_more { get; set; }
         public Nullable<int> is_waranty { get; set; }
+        public string product_info { get; set; }
+        public string image { get; set; }
     }
 }

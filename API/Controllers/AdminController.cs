@@ -848,7 +848,18 @@ namespace API.Controllers
                 return View();
             }
         }
-
+        public string getTotalBlockOfCompany(int? code_company)
+        {
+            try
+            {
+                return db.qrcodes.Where(o => o.code_company == code_company).Max(o => o.to_stt).ToString();
+            }
+            catch
+            {
+                return "0";
+            }
+            //return "0";
+        }
         // GET: Admin/Delete/5
         public ActionResult Delete(int id)
         {
@@ -1336,6 +1347,54 @@ namespace API.Controllers
                         //    iFF.Load(path).Quality(percent).Save(path);
                         //}
                         fName = "/images/voucher/" + strDay + "/" + _fileName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return Json(new { Message = fName }, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult uploadimgproduct()
+        {
+            //if (Config.getCookie("logged") == "") return RedirectToAction("Login", "Account");
+            if (Config.getCookie("is_admin") != "1") return Json(new { Message = "Error" }, JsonRequestBehavior.AllowGet);
+            var fName = "";
+            try
+            {
+                foreach (string fileName in Request.Files)
+                {
+                    HttpPostedFileBase file = Request.Files[fileName];
+                    //if (!Config.IsImage(file)) return Json(new { Message = "/images/invalidimage.png" }, JsonRequestBehavior.AllowGet);
+                    //Save file content goes here
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        var originalDirectory = new DirectoryInfo(string.Format("{0}images\\products", Server.MapPath(@"\")));
+                        string strDay = DateTime.Now.ToString("yyyyMM");
+                        string pathString = System.IO.Path.Combine(originalDirectory.ToString(), strDay);
+
+                        var _fileName = Guid.NewGuid().ToString("N") + ".jpg";
+
+                        bool isExists = System.IO.Directory.Exists(pathString);
+
+                        if (!isExists)
+                            System.IO.Directory.CreateDirectory(pathString);
+
+                        var path = string.Format("{0}\\{1}", pathString, _fileName);
+                        file.SaveAs(path);
+                        //FileInfo f2 = new FileInfo(path);
+                        //if (f2.Length > 100000)
+                        //{
+                        //    int percent = 50;
+                        //    if (f2.Length > 1000000) percent = 10;
+                        //    else
+                        //        if (f2.Length > 500000) percent = 20;
+                        //        else if (f2.Length > 300000) percent = 30;
+                        //    ImageProcessor.ImageFactory iFF = new ImageProcessor.ImageFactory();
+                        //    iFF.Load(path).Quality(percent).Save(path);
+                        //}
+                        fName = "/images/products/" + strDay + "/" + _fileName;
                     }
                 }
             }

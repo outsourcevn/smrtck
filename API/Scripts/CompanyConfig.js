@@ -1,4 +1,4 @@
-﻿function openCompanyConfig(id, cp_company, cp_code_company, cp_text_in_qr_code, cp_text_in_active, cp_text_in_location, cp_text_in_point, cp_waranty_text, cp_waranty_year, cp_waranty_link_web) {
+﻿function openCompanyConfig(id, cp_company, cp_code_company,image, cp_text_in_qr_code, cp_text_in_active, cp_text_in_location, cp_text_in_point, cp_waranty_text, cp_waranty_year, cp_waranty_link_web) {
     if (id!=0){
         $.ajax({
             url: "/Admin/GetCompanyQrCodeInfo", type: 'get',
@@ -16,10 +16,14 @@
                     $("#cp_text_in_active").val(obj.text_in_active);
                     $("#cp_text_in_location").val(obj.text_in_location);
                     $("#cp_text_in_point").val(obj.text_in_point);
-                    $("#cp_waranty_text").val(obj.waranty_text);
+                    //$("#cp_waranty_text").val(obj.waranty_text);
+                    $('#image').val(obj.image);
+                    $('#img_div_image').find('img').attr('src', obj.image);
                     $("#cp_waranty_year").val(obj.waranty_year);
                     $("#cp_waranty_link_web").val(obj.waranty_link_web);
                     CKEDITOR.instances['cp_buy_more'].setData(obj.buy_more);
+                    CKEDITOR.instances['cp_product_info'].setData(obj.product_info);
+                    CKEDITOR.instances['cp_waranty_text'].setData(obj.waranty_text);
                     if (obj.is_waranty == 1) {
                         document.getElementById("cp_is_waranty").checked = true;
                     } else {
@@ -34,6 +38,7 @@
     } else {
         $("#cp_ID").val(0);
         $("#cp_company").val("");
+        $("#image").val("");
         $("#cp_code_company").val("");
         $("#cp_text_in_qr_code").val("Đây là....Mã sản phẩm là {GUID}");
         $("#cp_text_in_active").val("Kích hoạt thành công..., thời điểm bảo hành được tính từ {NGAYTHANG}...");
@@ -51,6 +56,8 @@
 
 function saveCompanyConfig() {
     var sbuy_more = CKEDITOR.instances.cp_buy_more.getData();
+    var swaranty_text = CKEDITOR.instances.cp_waranty_text.getData();
+    var sproduct_info = CKEDITOR.instances.cp_product_info.getData();
     var is_waranty = 0;
     //alert(document.getElementById("cp_is_waranty").checked);
     if (document.getElementById("cp_is_waranty").checked==true) { is_waranty = 1;}
@@ -60,7 +67,7 @@ function saveCompanyConfig() {
         return;
     }
     if ($("#cp_text_in_qr_code").val() == "") {
-        alert("Nhập Thông báo ở QR Code(phủ)!");
+        alert("Nhập tên sản phẩm!");
         return;
     }
     if ($("#cp_text_in_active").val() == "") {
@@ -75,8 +82,8 @@ function saveCompanyConfig() {
         alert("Nhập Thông báo tích điểm!");
         return;
     }
-    if ($("#cp_waranty_text").val() == "") {
-        alert("Nhập tên sản phẩm và Thông tin bảo hành!");
+    if (is_waranty==1 && swaranty_text == "") {
+        alert("Nhập thông tin bảo hành!");
         return;
     }
     if ($("#cp_waranty_link_web").val() == "") {
@@ -103,9 +110,9 @@ function saveCompanyConfig() {
         url: url_addUpdateCompanyConfig, type: 'post',
         contentType: 'application/json',
         data: JSON.stringify({
-            ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
-            , waranty_year: $("#cp_waranty_year").val(), waranty_text: $("#cp_waranty_text").val(), waranty_link_web: $("#cp_waranty_link_web").val()
-            , is_waranty: is_waranty, buy_more: sbuy_more
+            ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), image: $("#image").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
+            , waranty_year: $("#cp_waranty_year").val(), waranty_text: swaranty_text, waranty_link_web: $("#cp_waranty_link_web").val()
+            , is_waranty: is_waranty, buy_more: sbuy_more, product_info: sproduct_info
         }),
         success: function (rs) {
             if (rs == '') {
