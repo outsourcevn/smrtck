@@ -240,8 +240,8 @@
                                 trs+="<td>"+json[i].address+"</td>";
                                 trs+="<td>"+json[i].company+"</td>";
                                 trs+="<td>"+json[i].partner+"</td>";
-                                if (json[i].waranty_text!=null && json[i].waranty_text!="null"){
-                                    trs+="<td>"+json[i].waranty_text+"</td>";
+                                if (json[i].product_text != null && json[i].product_text != "null") {
+                                    trs += "<td>" + json[i].product_text + "</td>";
                                 }else{
                                     trs+="<td>&nbsp;</td>";
                                 }

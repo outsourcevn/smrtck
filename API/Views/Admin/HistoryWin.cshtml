@@ -55,7 +55,7 @@
     function searchWin(id, val) {
         window.location.href = "/Admin/HistoryWin?k=" + $("#keyword").val();
     }
-    function confirmWin() {
+    function confirmWin(id) {
         var result = confirm("Bạn có chắc chắn người này đã nhận trúng thưởng?");
         if (result) {
             $.ajax({
