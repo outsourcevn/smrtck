@@ -22,5 +22,9 @@ namespace API.Models
         public string pass { get; set; }
         public Nullable<System.DateTime> date_time { get; set; }
         public Nullable<int> is_admin { get; set; }
+        public Nullable<int> modifiable { get; set; }
+        public string phone_contact { get; set; }
+        public string address { get; set; }
+        public string email_contact { get; set; }
     }
 }

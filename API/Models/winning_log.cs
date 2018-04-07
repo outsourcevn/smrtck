@@ -30,5 +30,9 @@ namespace API.Models
         public Nullable<long> sn { get; set; }
         public string company { get; set; }
         public string partner { get; set; }
+        public string product_name { get; set; }
+        public Nullable<int> code_company { get; set; }
+        public Nullable<int> id_partner { get; set; }
+        public Nullable<int> is_received { get; set; }
     }
 }

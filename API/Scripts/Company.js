@@ -1,10 +1,18 @@
-﻿function openCompany(id, name, email, phone,code) {
+﻿function openCompany(id, name, email, phone,code,phone_contact,email_contact,modifiable,address) {
 
     $("#cp_ID").val(id);
-    $("#cp_name").val(name);
+    $("#cp_name").val(name);   
     $("#cp_email").val(email);
     $("#cp_phone").val(phone);
     $("#cp_code").val(code);
+    $("#cp_phone_contact").val(phone_contact);
+    $("#cp_email_contact").val(email_contact);
+    $("#cp_address").val(address);
+    if (modifiable == 1) {
+        document.getElementById("cp_modifiable").checked = true;
+    } else {
+        document.getElementById("cp_modifiable").checked = false;
+    }
     $("#CompanyDialog").show();
     if (id == 0) {
         $.ajax({
@@ -21,7 +29,8 @@
 }
 
 function saveCompany() {
-
+    var is_modifiable = 0;
+    if (document.getElementById("cp_modifiable").checked == true) { is_modifiable = 1; }
     if ($("#cp_name").val() == "") {
         alert("Nhập tên!");
         return;
@@ -38,19 +47,22 @@ function saveCompany() {
         alert("Nhập phone!");
         return;
     }
-    if ($("#cp_pass").val() == "") {
-        alert("Nhập mật khẩu!");
-        return;
-    }
-    if ($("#cp_pass").val() != $("#cp_pass2").val()) {
-        alert("Mật khẩu phải giống nhau!");
-        return;
+    if ($("#cp_ID").val() == 0) {
+        if ($("#cp_pass").val() == "") {
+            alert("Nhập mật khẩu!");
+            return;
+        }
+        if ($("#cp_pass").val() != $("#cp_pass2").val()) {
+            alert("Mật khẩu phải giống nhau!");
+            return;
+        }
     }
     $.ajax({
         url: url_addUpdateCompany, type: 'post',
         contentType: 'application/json',
         data: JSON.stringify({
-            ID: $("#cp_ID").val(), name: $("#cp_name").val(), code: $("#cp_code").val(), email: $("#cp_email").val(), phone: $("#cp_phone").val(), pass: $("#cp_pass").val()
+            ID: $("#cp_ID").val(), name: $("#cp_name").val(), code: $("#cp_code").val(), email: $("#cp_email").val(), phone: $("#cp_phone").val(), pass: $("#cp_pass").val(),
+            modifiable: is_modifiable, phone_contact: $("#cp_phone_contact").val(), email_contact: $("#cp_email_contact").val(), address: $("#cp_address").val()
         }),
         success: function (rs) {
             if (rs == '') {

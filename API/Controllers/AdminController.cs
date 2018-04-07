@@ -184,6 +184,17 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
+        public ActionResult HistoryWin(string k, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.winning_log;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
+        }
         public ActionResult VoucherPoint(string k, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
@@ -303,9 +314,13 @@ namespace API.Controllers
             var ctm = db.qrcodes;
             var pageNumber = page ?? 1;            
             var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
-            if (code_company != null)
+            if (code_company != null && id_partner != null)
             {
                 onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.from_stt >= ffrom && o.to_stt <= tto).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            }
+            if (code_company != null && (partner == null || partner=="null"))
+            {
+                onePage = ctm.Where(o => o.code_company == code_company && o.from_stt >= ffrom && o.to_stt <= tto).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             }
             ViewBag.onePage = onePage;
             ViewBag.PageCount = onePage.PageCount;
@@ -330,6 +345,18 @@ namespace API.Controllers
             catch
             {
                 return 0;
+            }
+        }
+        public string getautofillpartner(int code_company)
+        {
+            try
+            {
+                var p = db.partners.Where(o => o.code_company == code_company).OrderBy(o => o.name).ToList();
+                return JsonConvert.SerializeObject(p);
+            }
+            catch
+            {
+                return "";
             }
         }
         public ActionResult LogCompanyQrCode(DateTime? fdate, DateTime? tdate,string k,int? order, int? page)
@@ -373,6 +400,10 @@ namespace API.Controllers
             ViewBag.fdate = fdate;
             ViewBag.tdate = tdate;
             ViewBag.page = page == null ? 1 : page;
+            return View();
+        }
+        public ActionResult Test()
+        {
             return View();
         }
         public ActionResult CheckAll(int? code_company, string company, string partner, int? id_partner, DateTime? fdate, DateTime? tdate, string k,int? order, int? page)
@@ -486,6 +517,19 @@ namespace API.Controllers
             try
             {
                 db.Database.ExecuteSqlCommand("update company set is_admin=" + val + " where id=" + id);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+        [HttpPost]
+        public string confirmReceivedWin(long id)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand("update winning_log set is_received=1 where id=" + id);
                 return "1";
             }
             catch
@@ -910,9 +954,33 @@ namespace API.Controllers
         [HttpPost]
         public string addUpdateCompany(company cp)
         {
-            MD5 md5Hash = MD5.Create();
-            cp.pass = Config.GetMd5Hash(md5Hash, cp.pass);
-            cp.date_time = DateTime.Now;
+            DateTime? dt = DateTime.Now;
+         
+            if (cp.id != 0)
+            {
+                if (cp.pass != null && cp.pass != "")
+                {
+                    MD5 md5Hash = MD5.Create();
+                    cp.pass = Config.GetMd5Hash(md5Hash, cp.pass);
+                }else
+                {
+                    var cpn = db.companies.Find(cp.id);
+                    cp.pass = cpn.pass;
+                }
+                var cpn2 = db.companies.Find(cp.id);
+                dt = cpn2.date_time;
+                if (dt==null) dt = DateTime.Now;
+                cp.is_admin = cpn2.is_admin;
+                if (cp.is_admin == null) cp.is_admin = 0;
+            }
+            else
+            {
+                
+                    MD5 md5Hash = MD5.Create();
+                    cp.pass = Config.GetMd5Hash(md5Hash, cp.pass);
+                    cp.date_time = DateTime.Now;
+                
+            }            
             return DBContext.addUpdatecompany(cp);
         }
 

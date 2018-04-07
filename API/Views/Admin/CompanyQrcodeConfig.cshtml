@@ -28,7 +28,7 @@
 <link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
   <script src="~/Scripts/dropzone/dropzone.js"></script>
 <table class="table marginBottom0">
-    <tr><th>Mã Sản Phẩm</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Tên sản phẩm</th><th>Ảnh</th><th>Từ số SN đến số SN</th><th>Thông tin bảo hành</th></tr>
+    <tr><th>ID</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Tên sản phẩm</th><th>Mã Sản Phẩm</th><th>Ảnh</th><th>Thông tin bảo hành</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
     {
         code_company = item.code_company;
@@ -37,13 +37,13 @@
             <td>@item.company</td>
             <td>@item.code_company</td>
             <td>@item.text_in_qr_code</td>
+            <td>@item.product_code</td>
             <td><img src="@item.image" style="width:50px;height:50px;"></td>
             <td>@*@item.text_in_active*@</td>
             <td>@*@item.text_in_location*@</td>
             <td>@*@item.text_in_point*@</td>
-            <td>
-                Số năm: @item.waranty_year<br />
-                web: @item.waranty_link_web<br />
+            <td align="left">
+                Số tháng: @item.waranty_year<br />               
                 @if (item.is_waranty==1)
                 {
                     <text>Có bảo hành</text>
@@ -60,8 +60,8 @@
 </table>
 @*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrcodeConfig", new { page }))*@
 <!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
-<div id="CompanyConfigDialog" style="display:none;min-height:800px;min-width:70%;float:left;left:20%;" class="col-sm-4 dDialog" >
-    <div class="dTitle">Thêm/Sửa</div>
+<div id="CompanyConfigDialog" style="display:none;min-height:800px;min-width:70%;float:left;left:20%;background:#dbdef2;border:1px solid;" class="col-sm-4 dDialog" >
+    <div class="dTitle">Thêm/Sửa - <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyConfigDialog')">Hủy</button></div>
     <div class="dDialogContent" style="min-height: 800px;">
         <input type="hidden" id="cp_ID"/>
         <p>Chọn Doanh Nghiệp</p>        
@@ -70,11 +70,13 @@
         <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
         <p>Tên sản phẩm </i></p>
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
+        <p>Mã Sản Phẩm</p>
+        <input id="cp_product_code" type="text" class="form-control" placeholder="Nhập mã sản phẩm">
         <p>Ảnh sản phẩm </i></p>
         <input type="hidden" id="image" value="">
         <div class="col-md-3">
             <div id="img_div_image">
-                <img style="width: 100px; height: 100px" /><a href="#" id="remove_img_image">Xóa ảnh</a>
+                <img style="width: 100px; height: 100px" id="prd_image"/><a href="#" id="remove_img_image">Xóa ảnh</a>
             </div>
             <div id="hinhanh_image" class="dropzone" style="width: 200px;">
                 <div class="dz-default dz-message" data-dz-message>
@@ -88,16 +90,16 @@
         <textarea id="cp_text_in_location"  class="form-control" placeholder="Thông báo Địa Điểm" style="height:67px;display:none;" ></textarea>        
         <p style="display:none;">Thông báo Tích Điểm</p>
         <textarea id="cp_text_in_point"  class="form-control" placeholder="Thông báo tích Điểm" style="height:67px;display:none;" ></textarea>
-        <p >Thông tin bảo hành</p>
+        <p >Liên hệ nơi bảo hành</p>
         <textarea id="cp_waranty_text" class="form-control"></textarea>
         <p><input type="checkbox" id="cp_is_waranty" /> Nếu là sản phẩm có bảo hành thì check vào đây</p>
         <p>Số năm bảo hành</p>        
         <select id="cp_waranty_year"><option selected value="1">1 tháng</option><option selected value="3">3 tháng</option><option  value="6">6 tháng</option><option  value="12">12 tháng</option><option  value="18">18 tháng</option><option value="24">24 tháng</option><option value="36">36 tháng</option><option value="48">48 tháng</option><option value="60">60 tháng</option></select>
-        <p>Link website (khi hết hàng click vào mua hàng)</p>
-        <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website">
-        <p>Thông tin mô tả sản phẩm</p>
+        <p style="height:67px;display:none;">Link website (khi hết hàng click vào mua hàng)</p>
+        <input id="cp_waranty_link_web" type="text" class="form-control" placeholder="Gõ link website" style="height:67px;display:none;">
+        <p>Thông tin chi tiết sản phẩm</p>
         <textarea id="cp_product_info" name="cp_product_info" class="form-control"></textarea>
-        <p>Thông tin mua thêm</p>
+        <p>Liên hệ nơi bán</p>
         <textarea id="cp_buy_more" name="cp_buy_more" class="form-control"></textarea>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>
@@ -162,6 +164,13 @@
         xmlhttp.open("POST", url, true);
         xmlhttp.send();
     }
+    function loadWarantyYear(){
+        $("#cp_waranty_year").html("");        
+        for(var i=0;i<100;i++){
+            $("#cp_waranty_year").append("<option selected value=\""+i+"\">"+i+" tháng</option>");
+        }
+    }
+    loadWarantyYear();
     function autoLoadProducts() {
         var code_company = @code_company;// document.getElementById("key_code_company").value;
         var url = "/Admin/getListAppProducts?code_company=" + code_company;

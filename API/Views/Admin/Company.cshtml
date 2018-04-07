@@ -38,7 +38,7 @@
             <td>@item.email</td>
             <td>@item.phone</td>            
             <td>@item.date_time</td>
-            <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code)">Sửa</a></td>
+            <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code,'@item.phone_contact','@item.email_contact',@item.modifiable,'@item.address')">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompany(@item.id,'@item.name');">Xóa</a></td>
             <td><a href="#" onclick="confirmAdmin(@item.id,1);">Đặt Làm Admin</a></td>
             <td><a href="#" onclick="confirmAdmin(@item.id,0);">Bỏ quyền Admin</a></td>
@@ -59,10 +59,17 @@
         <input id="cp_email" type="text" class="form-control" placeholder="Nhập email">
         <p>Phone</p>
         <input id="cp_phone" type="text" class="form-control" placeholder="Nhập phone">
-        <p>Mật khẩu</p>
+        <p>Điện thoại liên hệ trên app</p>
+        <input id="cp_phone_contact" type="text" class="form-control" placeholder="Dùng để hiển thị trên app smartcheck">
+        <p>Email liên hệ</p>
+        <input id="cp_email_contact" type="text" class="form-control" placeholder="Dùng để hiển thị trên app smartcheck">
+        <p>Địa chỉ công ty</p>
+        <input id="cp_address" type="text" class="form-control" placeholder="Nhập địa chỉ công ty">        
+        <p>Mật khẩu (Để trắng nếu không muốn đổi mật khẩu)</p>
         <input id="cp_pass" type="password" class="form-control" placeholder="Nhập mật khẩu">
         <p>Nhập Lại Mật khẩu</p>
         <input id="cp_pass2" type="password" class="form-control" placeholder="Nhập lại mật khẩu">
+        <p><input type="checkbox" id="cp_modifiable" />Check nếu Có cho phép cập nhật lại nhà phân phối tại app</p>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="saveCompany()">Đồng Ý</button>
             <button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyDialog')">Hủy</button>

@@ -41,5 +41,6 @@ namespace API.Models
         public string waranty_name { get; set; }
         public string waranty_phone { get; set; }
         public string waranty_address { get; set; }
+        public string image { get; set; }
     }
 }

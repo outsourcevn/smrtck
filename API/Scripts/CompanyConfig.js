@@ -1,4 +1,4 @@
-﻿function openCompanyConfig(id, cp_company, cp_code_company,image, cp_text_in_qr_code, cp_text_in_active, cp_text_in_location, cp_text_in_point, cp_waranty_text, cp_waranty_year, cp_waranty_link_web) {
+﻿function openCompanyConfig(id, cp_company, cp_code_company,image, cp_text_in_qr_code,cp_product_code, cp_text_in_active, cp_text_in_location, cp_text_in_point, cp_waranty_text, cp_waranty_year, cp_waranty_link_web) {
     if (id!=0){
         $.ajax({
             url: "/Admin/GetCompanyQrCodeInfo", type: 'get',
@@ -13,6 +13,7 @@
                     $("#cp_company").val(obj.company);
                     $("#cp_code_company").val(obj.code_company);
                     $("#cp_text_in_qr_code").val(obj.text_in_qr_code);
+                    $("#cp_product_code").val(obj.product_code);                    
                     $("#cp_text_in_active").val(obj.text_in_active);
                     $("#cp_text_in_location").val(obj.text_in_location);
                     $("#cp_text_in_point").val(obj.text_in_point);
@@ -21,6 +22,7 @@
                     $('#img_div_image').find('img').attr('src', obj.image);
                     $("#cp_waranty_year").val(obj.waranty_year);
                     $("#cp_waranty_link_web").val(obj.waranty_link_web);
+
                     CKEDITOR.instances['cp_buy_more'].setData(obj.buy_more);
                     CKEDITOR.instances['cp_product_info'].setData(obj.product_info);
                     CKEDITOR.instances['cp_waranty_text'].setData(obj.waranty_text);
@@ -39,15 +41,19 @@
         $("#cp_ID").val(0);
         $("#cp_company").val("");
         $("#image").val("");
+        $("#prd_image").attr("src", "");
         $("#cp_code_company").val("");
-        $("#cp_text_in_qr_code").val("Đây là....Mã sản phẩm là {GUID}");
+        $("#cp_text_in_qr_code").val("");
+        $("#cp_product_code").val("");
         $("#cp_text_in_active").val("Kích hoạt thành công..., thời điểm bảo hành được tính từ {NGAYTHANG}...");
         $("#cp_text_in_location").val("...tại địa điểm {DIADIEM}...");
         $("#cp_text_in_point").val("...số điểm {DIEM}...");
         $("#cp_waranty_text").val("");
         $("#cp_waranty_year").val("1");
         $("#cp_waranty_link_web").val("");
-        CKEDITOR.instances['cp_buy_more'].setData("");
+        CKEDITOR.instances['cp_buy_more'].setData("");       
+        CKEDITOR.instances['cp_product_info'].setData("");
+        CKEDITOR.instances['cp_waranty_text'].setData("");
         document.getElementById("cp_is_waranty").checked = false;
         $("#CompanyConfigDialog").show();
     }
@@ -70,6 +76,10 @@ function saveCompanyConfig() {
         alert("Nhập tên sản phẩm!");
         return;
     }
+    if ($("#cp_product_code").val() == "") {
+        alert("Nhập mã sản phẩm!");
+        return;
+    }
     if ($("#cp_text_in_active").val() == "") {
         alert("Nhập Thông báo kích hoạt!");
         return;
@@ -86,10 +96,10 @@ function saveCompanyConfig() {
         alert("Nhập thông tin bảo hành!");
         return;
     }
-    if ($("#cp_waranty_link_web").val() == "") {
-        alert("Nhập link website khi cần mua hàng!");
-        return;
-    }
+    //if ($("#cp_waranty_link_web").val() == "") {
+    //    alert("Nhập link website khi cần mua hàng!");
+    //    return;
+    //}
     //if ($("#cp_text_in_qr_code").val().indexOf("{GUID}")<0) {
     //    alert("Nhập Thông báo ở QR Code(phủ) phải tồn tại ký tự {GUID}!");
     //    return;
@@ -110,7 +120,7 @@ function saveCompanyConfig() {
         url: url_addUpdateCompanyConfig, type: 'post',
         contentType: 'application/json',
         data: JSON.stringify({
-            ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), image: $("#image").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
+            ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), image: $("#image").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), product_code: $("#cp_product_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
             , waranty_year: $("#cp_waranty_year").val(), waranty_text: swaranty_text, waranty_link_web: $("#cp_waranty_link_web").val()
             , is_waranty: is_waranty, buy_more: sbuy_more, product_info: sproduct_info
         }),

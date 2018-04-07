@@ -15,8 +15,6 @@
     <div class="dTitle"><b>Thêm/Sửa</b></div>
     <div class="dDialogContent">
         <input type="hidden" id="cp_ID" />
-        <p>Lời giới thiệu chào mừng</p>
-        <textarea id="cp_welcome_text" name="cp_welcome_text" class="form-control"></textarea>
         <input type="hidden" id="image" value="">
         <div class="col-md-3">
             <div id="img_div_image">
@@ -24,10 +22,12 @@
             </div>
             <div id="hinhanh_image" class="dropzone" style="width: 200px;">
                 <div class="dz-default dz-message" data-dz-message>
-                    <span><i class="fa fa-plus fa-2x"></i>Tải ảnh đại diện lên* (414 x 736)</span>
+                    <span><i class="fa fa-plus fa-2x"></i>Kéo ảnh vào bài viết, hoặc click chuột phải chọn copy ảnh và paste vào bài</span>
                 </div>
             </div>
         </div>
+        <p>Lời giới thiệu chào mừng</p>
+        <textarea id="cp_welcome_text" name="cp_welcome_text" class="form-control"></textarea>        
         <div class="col-md-12" style="align-items: center;justify-content: center;position:relative;float:left;display:block;">
             <div class="col-md-6" style="left:25%;">
                 <button type="button" class="btn btn-primary form-control" style="width:100px;text-align:center;position:relative;" onclick="savesplash()" id="btnSAVE">SAVE</button>
@@ -54,7 +54,7 @@
             <td>              
                 <img src="@item.image" style="width:414px;height:736px;border:1px solid #808080;" />
             </td>
-            <td><a href="#" onclick="opensplash(@item.id,'@item.welcome_text','@item.image')">Sửa</a></td>
+            <td><a href="#" onclick="opensplash(@item.id,'@item.image')">Sửa</a></td>
             <td><a href="#" onclick="confirmDelsplash(@item.id,'@item.welcome_text');">Xóa</a></td>
         </tr>
     }

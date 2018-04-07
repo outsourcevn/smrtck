@@ -69,9 +69,18 @@
             <td>@item.guid</td>
             <td><span style="color:blue;">@item.stt</span></td>
             <td>@item.date_time</td>
-            <td>@item.user_email</td>
-            <td>@item.user_phone</td>
-            <td>@item.address</td>
+            @if (item.waranty_phone != null && item.waranty_phone != "")
+            {
+                <td>@item.waranty_name</td>
+                <td>@item.waranty_phone</td>
+                <td>@item.waranty_address</td>
+            }
+            else
+            {
+                <td>@item.user_email</td>
+                <td>@item.user_phone</td>
+                <td>@item.address</td>
+            }
             <td>@item.province</td>
             <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>            
         </tr>

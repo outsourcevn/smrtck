@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewBag.Title = "Test";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2>Quét xong ấn vào Nút Phục Hồi và ấn vào nút Quét Lại</h2>
+<div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Ảnh để quét</div>
+    <div class="dDialogContent">
+        <img src="" id="qrcodeload" /><br />
+        <span id="qrcodeloadtext"></span>
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="$('#DialogImage').hide();">Thoát</button>
+    </div>
+</div>
+<a href="#" onclick="Undo('8e08cfaf-c7eb-4e7a-8511-13416749d807',1)" id="undobtn">Phục Hồi</a>
+&nbsp;-&nbsp;<a href="/Admin/Test">Quét Lại</a>
+<script>
+    function Generate(guid, type) {
+        guid = "8e08cfaf-c7eb-4e7a-8511-13416749d807";
+        if (type == 1) {
+            var stt = 201;//prompt("Nhập số thứ tự", "");
+            if (stt != null && stt != "") {
+                stt = stt * 13 + 27;
+                guid = guid + "-" + stt;
+            }
+        }
+        $("#DialogImage").show();
+        $("#qrcodeload").attr("src", "/Images/loader.gif");
+        $("#qrcodeloadtext").html("Mã guid là "+guid);
+        $.ajax({
+            url: "/Admin/generateCode", type: 'post',
+            data: {
+                content: guid
+            },
+            success: function (rs) {
+                //alert(rs);
+                $("#qrcodeload").attr("src", rs);
+            }
+        });
+    }
+    Generate("",1);
+function Undo(guid, stype) {
+    guid = "8e08cfaf-c7eb-4e7a-8511-13416749d807";
+    var num = 0;
+    var sguid = guid;
+    $("#undobtn").html("Đang chờ phục hồi...xin đợi!");
+    if (stype == 1) {
+        var stt = 201;//prompt("Nhập số thứ tự", "");
+        if (stt != null && stt != "") {
+            num = stt;
+            stt = stt * 13 + 27;
+            guid = guid + "-" + stt;
+        }
+    }
+    $.ajax({
+        url: "/Admin/UndoQrCode", type: 'post',
+        data: {
+            guid: guid, stt: num, sguid: sguid
+        },
+        success: function (rs) {
+            if (rs == "1") {
+                alert("Phục hồi thành công!");
+            } else {
+                alert("Không tồn tại mã guid là: " + guid);
+            }
+            $("#undobtn").html("Phục Hồi");
+        }
+    });
+}
+</script>

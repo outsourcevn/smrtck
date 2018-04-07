@@ -19,7 +19,8 @@
         <p>Mã Doanh Nghiệp</p>
         <input id="cp_code_company" value="@ViewBag.code_company"  type="text" class="form-control" placeholder="Nhập mã" disabled>
         <p>Chọn nhà phân phối</p>
-        <input id="cp_partner" value="@ViewBag.partner"  type="text" class="form-control" placeholder="Gõ tìm tên nhà phân phối" onkeyup="searchPartnerName();">
+        @*<input id="cp_partner" value="@ViewBag.partner"  type="text" class="form-control" placeholder="Gõ tìm tên nhà phân phối" onkeyup="searchPartnerName();">*@
+        <select id="cp_partner" class="form-control" data-live-search="true" onchange="setidpartner();"></select>
         <p>Mã nhà phân phối</p>
         <input id="cp_id_partner" value="@ViewBag.id_partner"  type="text" class="form-control" placeholder="Nhập mã" disabled>
         <p>In từ số thứ tự</p>
@@ -166,11 +167,14 @@
     }
 </ul><!--/.pagination-->
 <script>
+    function setidpartner() {
+        $("#cp_id_partner").val($("#cp_partner").val());
+    }
     function updateProduct() {
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
-        }        
+        }
         if ($("#cp_from").val() == "") {
             alert("Nhập từ số thứ tự!");
             return;
@@ -197,7 +201,7 @@
                 }
             }
         });
-        
+
     }
     function updateWinning() {
         if ($("#cp_code_company").val() == "") {
@@ -225,12 +229,13 @@
                 var jsonData = JSON.parse(rs);
                 for (var i = 0; i < jsonData.length; i++) {
                     //var counter = jsonData[i];
-                    $('#sl_winning').append('<option value=' + jsonData[i].id + '>' + jsonData[i].value + '</option>');                    
+                    $('#sl_winning').append('<option value=' + jsonData[i].id + '>' + jsonData[i].value + '</option>');
                 }
             }
         });
 
     }
+    autofillpartner();
     function searchCompanyName() {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
@@ -240,6 +245,7 @@
                 $(event.target).val(ui.item.value);
                 $('#cp_code_company').val(ui.item.id);
                 autofillnumber();
+                autofillpartner();
                 return false;
             },
             minLength: 1
@@ -253,7 +259,7 @@
             source: urlSearch + keyword + "&code_company=" + code,
             select: function (event, ui) {
                 $(event.target).val(ui.item.value);
-                $('#cp_id_partner').val(ui.item.id);                
+                $('#cp_id_partner').val(ui.item.id);
                 return false;
             },
             minLength: 1
@@ -292,7 +298,48 @@
             },
             success: function (rs) {
                 //alert(rs);
+                if (rs == 0) rs = 1;
                 $('#cp_from').val(rs);
+
+            }
+        });
+    }
+    function autofillpartner(val) {
+        $.ajax({
+            url: "/Admin/getautofillpartner", type: 'get',
+            data: {
+                code_company: $("#cp_code_company").val()
+            },
+            success: function (rs) {
+                //alert(rs);
+                var json = $.parseJSON(rs);
+                if (json.length > 0) {
+                    $("#cp_partner").html("");
+                    for (var i = 0; i < json.length; ++i) {
+                        //var num = json[i].to_sn - json[i].from_sn + 1;
+                        $("#cp_partner").append("<option value=\"" + json[i].id + "\">" + json[i].name + "</option>");
+                        //alert(json[i].name);
+                    }
+                    $("#cp_partner").val(val);
+                    if (val == null || val == "") {
+                        if ("@ViewBag.id_partner" != "") {
+                            $("#cp_id_partner").val("@ViewBag.id_partner");
+                            $("#cp_partner").val("@Html.Raw(ViewBag.partner)");
+                        } else {
+                            $("#cp_partner").val(json[0].name);
+                            $("#cp_id_partner").val(json[0].id);
+                        }
+                    } else {
+                        if ("@ViewBag.id_partner" != "") {
+                            $("#cp_id_partner").val("@ViewBag.id_partner");
+                            $("#cp_partner").val("@Html.Raw(ViewBag.partner)");
+                        }
+                        else {
+                            $("#cp_partner").val(json[0].name);
+                            $("#cp_id_partner").val(json[0].id);
+                        }
+                    }
+                }
             }
         });
     }
@@ -392,10 +439,10 @@
             alert("Nhập doanh nghiệp!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
-            alert("Nhập nhà phân phối!");
-            return;
-        }
+        //if ($("#cp_id_partner").val() == "") {
+        //    alert("Nhập nhà phân phối!");
+        //    return;
+        //}
         if ($("#cp_from").val() == "") {
             alert("Nhập từ số thứ tự!");
             return;
@@ -524,7 +571,7 @@
             if (stt != null && stt != "") {
                 num=stt;
                 stt = stt * 13 + 27;
-                guid = guid + "-" + stt;                
+                guid = guid + "-" + stt;
             }
         }
         $.ajax({

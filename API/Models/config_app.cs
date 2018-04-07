@@ -28,5 +28,6 @@ namespace API.Models
         public Nullable<int> is_waranty { get; set; }
         public string product_info { get; set; }
         public string image { get; set; }
+        public string product_code { get; set; }
     }
 }

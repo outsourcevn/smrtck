@@ -1,0 +1,75 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@using API.Models;
+@{
+    ViewBag.Title = "Lịch Sử Trúng Thưởng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<h2>@ViewBag.Title</h2>
+<div class="panel-heading">
+    <div class="form-inline">
+        <div class="form-group">
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập số điện thoại hoặc email, tên..." value="@ViewBag.k" style="width:360px;" />
+            <button onclick="searchWin();" class="btn-default btn-info">Tìm Kiếm</button>
+        </div>
+    </div>
+</div>
+<table class="table marginBottom0">
+    <tr><th>Tên trúng thưởng</th><th>Công ty/Nhà phân phối</th><th>Thông tin khách hàng</th><th>Thời gian/Địa điểm</th><th>Sản phẩm quét</th><th>Số Serrial</th><th></th></tr>
+    @foreach (var item in (PagedList<winning_log>)ViewBag.OnePage)
+    {
+
+        <tr>
+            <td>
+                @item.winning_name<br />
+                Trị giá @string.Format("{0:n0}", @item.money) đ
+            </td>
+            <td>
+                Doanh nghiệp sở hữu: @item.company<br />
+                Nhà phân phối: @item.partner<br />
+                
+            </td>
+            <td>
+                Tên khách hàng: @item.user_name<br />
+                Số điện thoại: @item.user_phone<br />
+                Email: @item.user_email
+            </td>
+            <td>Lúc @item.date_time<br /> tại @item.address</td>
+            <td>@item.product_name</td>
+            <td>@item.sn</td>
+            <td>
+                @if (item.is_received == null || item.is_received == 0)
+                {
+                    <a href="#" onclick="confirmWin(@item.id);">Xác nhận trúng thưởng</a>
+                }else
+                {
+                    <p>Đã nhận thưởng</p>
+}
+            </td>         
+        </tr>
+    }
+</table>
+@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("HistoryWin", new { page }))
+
+<script>
+    function searchWin(id, val) {
+        window.location.href = "/Admin/HistoryWin?k=" + $("#keyword").val();
+    }
+    function confirmWin() {
+        var result = confirm("Bạn có chắc chắn người này đã nhận trúng thưởng?");
+        if (result) {
+            $.ajax({
+                url: "/Admin/confirmReceivedWin", type: 'post',
+                data: { id: id },
+                success: function (rs) {
+                    if (rs == '1') {
+                        alert("Đã xác nhận trúng thưởng");
+                        location.reload();
+                    } else {
+                        alert(rs);
+                    }
+                }
+            });
+        }
+    }
+</script>

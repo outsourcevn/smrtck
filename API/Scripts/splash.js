@@ -1,6 +1,6 @@
-﻿function opensplash(id, welcome_text, image) {
+﻿function opensplash(id,image) {
     $("#cp_ID").val(id);
-    $("#cp_welcome_text").val(welcome_text);
+    //$("#cp_welcome_text").val(welcome_text);
     $("#image").val(image);  
     $('#img_div_image').find('img').attr('src', image);
     if (id != 0) {
@@ -24,14 +24,14 @@ function savesplash() {
         alert("Nhập lời giới thiệu chào mừng!");
         return;
     }
-    if ($("#image").val() == "") {
-        alert("Nhập ảnh đại diện!");
-        return;
-    }
-    if ($("#big_image").val() == "") {
-        alert("Nhập ảnh cover!");
-        return;
-    }
+    //if ($("#image").val() == "") {
+    //    alert("Nhập ảnh đại diện!");
+    //    return;
+    //}
+    //if ($("#big_image").val() == "") {
+    //    alert("Nhập ảnh cover!");
+    //    return;
+    //}
 
     document.getElementById("btnSAVE").disabled = true;
     $.ajax({

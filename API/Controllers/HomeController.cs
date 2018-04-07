@@ -14,6 +14,8 @@ using System.Drawing;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using ImageProcessor;
+using System.Text;
+
 namespace API.Controllers
 {
     public class HomeController : Controller
@@ -250,6 +252,31 @@ namespace API.Controllers
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
         }
+        public string loginFbCheck(string profile_fb)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+
+                if (profile_fb != null && profile_fb != "" && db.customers.Any(o => o.profile_fb == profile_fb))
+                {
+                    var p = (from q in db.customers where q.profile_fb == profile_fb select q).OrderBy(o => o.id).FirstOrDefault();
+                    field.Add("user_id", p.id.ToString());
+                    return Api("success", field, "Đăng nhập thành công!");
+                }
+                else
+                {
+                    
+                    field.Add("user_id", "");
+                    return Api("failed", field, "Đăng nhập thất bại!");
+                }
+            }
+            catch (Exception ex)
+            {
+                field.Add("user_id", "");
+                return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
+            }
+        }
         public static void save_file_from_url(string file_name, string url)
         {
             byte[] content;
@@ -431,6 +458,33 @@ namespace API.Controllers
             var p = db.voucher_points.Find(id);
             return View(p);
         }
+        public string updateCpnPtrWn()
+        {
+            var p = (from q in db.winning_log select q).ToList();
+            for(int i = 0; i < p.Count; i++)
+            {
+                var item = p[i];
+                int scode_company = 0;
+                long spartner = 0;
+                try
+                {
+                    scode_company = db.companies.Where(o => o.name == item.company).OrderBy(o => o.id).FirstOrDefault().id;
+                }catch
+                {
+
+                }
+                try
+                {
+                    spartner = db.partners.Where(o => o.company == item.company && o.name==item.partner).OrderBy(o => o.id).FirstOrDefault().id;
+                }
+                catch
+                {
+
+                }                
+                db.Database.ExecuteSqlCommand("update winning_log set code_company=" + scode_company + ",id_partner=" + spartner + " where company=N'" + item.company + "' and partner=N'" + item.partner + "'");
+            }
+            return "updated";
+        }
         //Hàm này trả về chi tiết trúng thưởng
         public string getWinningDetail(int id,int? sn,int? os)
         {
@@ -455,6 +509,18 @@ namespace API.Controllers
                     field.Add("image2", p.image2);
                     field.Add("image3", p.image3);
                     field.Add("des", p.des.Replace("\"", "\\\""));//HttpUtility.HtmlEncode(p.des)
+                    try
+                    {
+                        var p2 = db.winning_log.Where(o => o.winning_id == p.id && o.code_company == p.code_company && o.id_partner == p.id_partner && o.sn == sn).OrderBy(o => o.id).FirstOrDefault();
+                        if (p2!=null)
+                            field.Add("product_name", p2.product_name.Replace("\"", "\\\""));
+                        else
+                            field.Add("product_name", "");
+                    }
+                    catch
+                    {
+                        field.Add("product_name", "");
+                    }
                     return Api("success", field, "Danh sách chi tiết trúng thưởng");
                 }
                 else {
@@ -472,7 +538,9 @@ namespace API.Controllers
                     field.Add("image1", p.image1);
                     field.Add("image2", p.image2);
                     field.Add("image3", p.image3);
-                    field.Add("des", "");//HttpUtility.HtmlEncode(p.des)
+                    field.Add("des", "");
+                    field.Add("product_name", "");
+                    //HttpUtility.HtmlEncode(p.des)
                     return Api("success", field, "Danh sách chi tiết trúng thưởng");
                 }
             }
@@ -492,6 +560,25 @@ namespace API.Controllers
                     field.Add("id", id.ToString());                    
                     return Api("success", field, "Xóa trúng thưởng này thành công");
                 
+            }
+            catch (Exception ex)
+            {
+                field.Add("list", "[]");
+                return Api("error", field, "Lỗi sql: " + ex.ToString());
+            }
+        }
+        public string testJson()
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            try
+            {
+
+                var p = db.config_app.Find(29);
+                field.Add("product_info", convertToAscii(p.product_info));
+                field.Add("waranty_text", convertToAscii(p.waranty_text));
+                field.Add("buy_more", convertToAscii(p.buy_more));
+                return Api("success", field, "test json");
+
             }
             catch (Exception ex)
             {
@@ -891,6 +978,7 @@ namespace API.Controllers
                 string active = "";
                 string location = "";
                 string point = "";
+                string image = "";
                 int? code_company = 0;
                 string company = "";
                 string partner = "";
@@ -904,6 +992,7 @@ namespace API.Controllers
                 string waranty_text = "";
                 string waranty_link_web = "";
                 string product_info="";
+                string buy_more = "";
                 int? id_config_app = 0;
                 //Kiểm tra QR code mới hay cũ
                 if (guid != null && guid.Contains("-"))
@@ -945,6 +1034,7 @@ namespace API.Controllers
                             //{
                             //    info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
                             //}
+                            image = info.image;
                             label = info.text_in_qr_code;
                             active = "Kích hoạt thành công, Sản phẩm được kích hoạt bảo hành vào thời điểm {NGAYTHANG}";//info.text_in_active;
                             location = "Sản phẩm được quét tại địa điểm {DIADIEM}";// info.text_in_location;
@@ -952,7 +1042,8 @@ namespace API.Controllers
                             waranty_year = info.waranty_year;
                             waranty_text = info.waranty_text;
                             waranty_link_web = info.waranty_link_web;
-                            product_info = info.buy_more;
+                            buy_more = info.buy_more;
+                            product_info = info.product_info;
                             id_config_app = fcfapp.id_config_app;
                         }
                         else
@@ -962,6 +1053,7 @@ namespace API.Controllers
                             //{
                             //    info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
                             //}
+                            image = info.image;
                             label = info.text_in_qr_code;
                             active = "Kích hoạt thành công, Sản phẩm được kích hoạt bảo hành vào thời điểm {NGAYTHANG}";//info.text_in_active;
                             location = "Sản phẩm được quét tại địa điểm {DIADIEM}";// info.text_in_location;
@@ -969,13 +1061,15 @@ namespace API.Controllers
                             waranty_year = info.waranty_year;
                             waranty_text = info.waranty_text;
                             waranty_link_web = info.waranty_link_web;
-                            product_info = info.buy_more;
+                            buy_more = info.buy_more;
+                            product_info = info.product_info;
                             id_config_app = info.id;
                         }
                     }
                     else
                     {
                         var info = db.config_app.Where(o => o.id == 1).FirstOrDefault();
+                        image = info.image;
                         label = info.text_in_qr_code;
                         active = info.text_in_active;
                         location = info.text_in_location;
@@ -983,7 +1077,8 @@ namespace API.Controllers
                         waranty_year = info.waranty_year;
                         waranty_text = info.waranty_text;
                         waranty_link_web = info.waranty_link_web;
-                        product_info = info.buy_more;
+                        buy_more = info.buy_more;
+                        product_info = info.product_info;
                         id_config_app = info.id;
                     }
                 }
@@ -994,10 +1089,12 @@ namespace API.Controllers
                     field.Add("location", "Tại địa điểm " + address);
                     field.Add("point", "Sản phẩm này không được tính tích điểm");
                     field.Add("user_id_scaned", "");
+                    field.Add("image", "");
                     field.Add("waranty_year", "");
                     field.Add("waranty_text", "");
                     field.Add("waranty_link_web", "");
                     field.Add("product_info", "");
+                    field.Add("buy_more", "");
                     field.Add("total", "...");
                     field.Add("company", "");
                     field.Add("partner", "");
@@ -1017,7 +1114,18 @@ namespace API.Controllers
                 {
                     var cka = db.checkalls.Where(o => o.guid == guid).FirstOrDefault();
                     string dtfm = Config.formatDateTime(cka.date_time);
+                    if (product_info != null && product_info != "") product_info = product_info.Replace("\"", "\\\"");
+                    if (buy_more != null && buy_more != "") buy_more = buy_more.Replace("\"", "\\\"");
+                    if (waranty_text != null && waranty_text != "") waranty_text = waranty_text.Replace("\"", "\\\"");
+                    if (os == 0)
+                    {
+                        product_info = cka.id.ToString();
+                        buy_more = cka.id.ToString();
+                        waranty_text = cka.id.ToString();
+                    }
+
                     field.Add("info", label);
+                    field.Add("image", image);
                     field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
                     field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
                     field.Add("user_id_scaned", cka.user_id.ToString());
@@ -1026,9 +1134,9 @@ namespace API.Controllers
                     field.Add("total", count.ToString());
                     field.Add("waranty_year", waranty_year.ToString());
                     field.Add("waranty_text", waranty_text);
-                    field.Add("waranty_link_web", waranty_link_web);
-                    if (os == 0) product_info = "";
+                    field.Add("waranty_link_web", waranty_link_web);                    
                     field.Add("product_info", product_info);
+                    field.Add("buy_more", buy_more);
                     field.Add("company", company);
                     field.Add("partner", partner);
                 }
@@ -1061,6 +1169,7 @@ namespace API.Controllers
                     cka.code_company = code_company;
                     cka.product_text = label;
                     cka.id_partner = id_partner;
+                    cka.image = image;
                     cka.partner = partner;
                     cka.waranty_link_web = waranty_link_web;
                     cka.waranty_text = waranty_text;
@@ -1132,8 +1241,9 @@ namespace API.Controllers
                                     }
                                     wl.company = wnbn.company;
                                     wl.partner = wnbn.partner;
-                                    //wl.product_text = product_info;
-
+                                    wl.id_partner = id_partner;
+                                    wl.code_company = code_company;                           
+                                    wl.product_name = label;
                                     db.winning_log.Add(wl);
                                     db.SaveChanges();
                                     db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
@@ -1168,7 +1278,9 @@ namespace API.Controllers
                                     }
                                     wl.company = wnbn.company;
                                     wl.partner = wnbn.partner;
-                                    //wl.product_text = product_info;
+                                    wl.id_partner = id_partner;
+                                    wl.code_company = code_company;
+                                    wl.product_name = label;
                                     db.winning_log.Add(wl);
                                     db.SaveChanges();
                                     db.Database.ExecuteSqlCommand("update winning set quantity=quantity-1 where id=" + winning_id);
@@ -1183,6 +1295,7 @@ namespace API.Controllers
                     int? count = ctm.points;
                     label = label + ". Nhà phân phối " + partner;
                     field.Add("info", label);
+                    field.Add("image", image);
                     field.Add("active", active);
                     if (address == null || address == "")
                     {
@@ -1194,7 +1307,14 @@ namespace API.Controllers
                     }
                     point = point.Replace("{DIEM}", count.ToString());
                     if (product_info!=null && product_info!="") product_info = product_info.Replace("\"", "\\\"");
-                    if (os == 0) product_info = "";
+                    if (buy_more != null && buy_more != "") buy_more = buy_more.Replace("\"", "\\\"");
+                    if (waranty_text != null && waranty_text != "") waranty_text = waranty_text.Replace("\"", "\\\"");
+                    if (os == 0)
+                    {
+                        product_info = cka.id.ToString();// convertToAscii(product_info);
+                        buy_more = cka.id.ToString();// convertToAscii(buy_more);
+                        waranty_text = cka.id.ToString();// convertToAscii(waranty_text);
+                    }
                     field.Add("point", point);
                     field.Add("user_id_scaned", "");
                     field.Add("total", count.ToString());
@@ -1203,8 +1323,10 @@ namespace API.Controllers
                     field.Add("waranty_text", waranty_text);
                     field.Add("waranty_link_web", waranty_link_web);
                     field.Add("product_info", product_info);
+                    field.Add("buy_more", buy_more);
                     field.Add("company", company);
                     field.Add("partner", partner);
+                    
                 }
                 return Api("success", field, "Gửi thông tin về server thành công!");
             }
@@ -1213,6 +1335,7 @@ namespace API.Controllers
                 field.Clear();
                 field.Add("info", "");
                 field.Add("active","");
+                field.Add("image", "");
                 field.Add("location", "");
                 field.Add("point","");
                 field.Add("total","");
@@ -1222,15 +1345,195 @@ namespace API.Controllers
                 field.Add("waranty_text", "");
                 field.Add("waranty_link_web", "");
                 field.Add("product_info", "");
+                field.Add("buy_more", "");
                 field.Add("company", "");
                 field.Add("partner", "");
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
         }
-        //public string getProductInfo()
-        //{
+        public ActionResult viewBuyMoreAfterCheck(long id)
+        {
+            var p = db.checkalls.Find(id);
+            try { 
+                int? id_config_app = db.company_configapp_qrcode_link.Where(o => o.code_company == p.code_company && o.from_sn <= p.stt && o.to_sn >= p.stt).OrderBy(o => o.id).FirstOrDefault().id_config_app;
+                if (id_config_app != null)
+                {
+                    var p2 = db.config_app.Find(id_config_app);
+                    ViewBag.buy_more = p2.buy_more;
+                    return View();
+                }else
+                {
+                    var p2 = db.config_app.Where(o => o.code_company == p.code_company).OrderBy(o => o.id).FirstOrDefault();
+                    ViewBag.buy_more = p2.buy_more;
+                    return View();
+                }
+            }
+            catch
+            {
+                ViewBag.buy_more = "";
+            }
+            return View();        
+        }
+        public ActionResult viewWarantyTextAfterCheck(long id)
+        {
+            var p = db.checkalls.Find(id);
+            try
+            {
+                int? id_config_app = db.company_configapp_qrcode_link.Where(o => o.code_company == p.code_company && o.from_sn <= p.stt && o.to_sn >= p.stt).OrderBy(o => o.id).FirstOrDefault().id_config_app;
+                if (id_config_app != null)
+                {
+                    var p2 = db.config_app.Find(id_config_app);
+                    ViewBag.waranty_text = p2.waranty_text;
+                    return View();
+                }
+                else
+                {
+                    var p2 = db.config_app.Where(o => o.code_company == p.code_company).OrderBy(o => o.id).FirstOrDefault();
+                    ViewBag.waranty_text = p2.waranty_text;
+                    return View();
+                }
+            }
+            catch
+            {
+                ViewBag.waranty_text = "";
+            }
+            return View();
+        }
+        public ActionResult viewProductInfoAfterCheck(long id)
+        {
+            var p = db.checkalls.Find(id);
+            try
+            {
+                int? id_config_app = db.company_configapp_qrcode_link.Where(o => o.code_company == p.code_company && o.from_sn <= p.stt && o.to_sn >= p.stt).OrderBy(o => o.id).FirstOrDefault().id_config_app;
+                if (id_config_app != null)
+                {
+                    var p2 = db.config_app.Find(id_config_app);
+                    ViewBag.product_info = p2.product_info;
+                    return View();
+                }
+                else
+                {
+                    var p2 = db.config_app.Where(o => o.code_company == p.code_company).OrderBy(o => o.id).FirstOrDefault();
+                    ViewBag.product_info = p2.product_info;
+                    return View();
+                }
+            }
+            catch
+            {
+                ViewBag.product_info = "";
+            }
+            return View();
+        }
+        public string getProductInfoOfUserCheck(long id)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            var p = db.checkalls.Find(id);
+            try
+            {
+                int? id_config_app = db.company_configapp_qrcode_link.Where(o => o.code_company == p.code_company && o.from_sn <= p.stt && o.to_sn >= p.stt).OrderBy(o => o.id).FirstOrDefault().id_config_app;
+                if (id_config_app != null)
+                {
+                    var p2 = db.config_app.Find(id_config_app);
+                    field.Add("product_info", p2.product_info.Replace("\"", "\\\""));                    
+                    return Api("success", field, "Thông tin sản phẩm");
+                }
+                else
+                {
+                    var p2 = db.config_app.Where(o => o.code_company == p.code_company).OrderBy(o => o.id).FirstOrDefault();
+                    field.Add("product_info", p2.product_info.Replace("\"", "\\\""));
+                    return Api("success", field, "Thông tin sản phẩm");
+                }
+            }
+            catch(Exception ex)
+            {
+                field.Add("product_info", "");
+                return Api("error", field, "lỗi sql: " + ex.ToString());
+            }
+        }
+        //Id của dòng bảo hành, xem list bảo hành, click vào dòng nào đó thì ra chi tiết, anh sẽ trả về đủ các trường cho anh em cần hiện
+        public string getDetailCheckOfUser(long id,int? os)
+        {
+            Dictionary<string, string> field = new Dictionary<string, string>();
+            var p = db.checkalls.Find(id);
+            try
+            {
+                string product_info = "0";
+                string buy_more = "0";
+                string waranty_text = "0";
+                field.Add("product_text", p.product_text);
+                field.Add("image", p.image);
+                field.Add("address", p.address);               
+                if (os == 0)
+                {
+                    product_info = p.id.ToString();// convertToAscii(product_info);
+                    buy_more = p.id.ToString();// convertToAscii(buy_more);
+                    waranty_text = p.id.ToString();// convertToAscii(waranty_text);
+                }
+                field.Add("waranty_year", p.waranty_year.ToString());
+                field.Add("waranty_text", waranty_text);
+                field.Add("waranty_link_web", p.waranty_link_web);
+                field.Add("product_info", product_info);
+                field.Add("buy_more", buy_more);
+                field.Add("company", p.company);
+                field.Add("partner", p.partner);
+                return Api("success", field, "Thông tin sản phẩm đã quét");
+            }
+            catch (Exception ex)
+            {
+                //field.Add("product_info", "");
+                return Api("error", field, "lỗi sql: " + ex.ToString());
+            }
+        }
+        //Id này là chi tiết của dòng đã quét
+        public ActionResult viewProductInfoOfUserCheckIOS(long id)
+        {
+            var p = db.checkalls.Find(id);
+            try
+            {
+                int? id_config_app = db.company_configapp_qrcode_link.Where(o => o.code_company == p.code_company && o.from_sn <= p.stt && o.to_sn >= p.stt).OrderBy(o => o.id).FirstOrDefault().id_config_app;
+                if (id_config_app != null)
+                {
+                    var p2 = db.config_app.Find(id_config_app);
+                    ViewBag.product_info = p2.product_info;
+                    return View();
+                }
+                else
+                {
+                    var p2 = db.config_app.Where(o => o.code_company == p.code_company).OrderBy(o => o.id).FirstOrDefault();
+                    ViewBag.product_info = p2.product_info;
+                    return View();
+                }
+            }
+            catch
+            {
+                return View();
+            }
+        }
+        public string convertToAscii(string unc)
+        {
+            //string unicodeString = "<p>Xin chào các bạn nhé</p><table style=\"table\"></table>";
+            var jsonSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            return jsonSerializer.Serialize(unc);
+            //return System.Text.Encoding.Unicode.GetBytes(unicodeString.ToString()).Aggregate("", (agg, val) => agg + val.ToString("X2"));
+            //string unicodeString = "<p>Xin chào các bạn nhé</p><table style=\"table\"></table>";
 
-        //}
+            //// Create two different encodings.
+            //Encoding ascii = Encoding.;
+            //Encoding unicode = Encoding.Unicode;
+
+            //// Convert the string into a byte array.
+            //byte[] unicodeBytes = unicode.GetBytes(unicodeString);
+
+            //// Perform the conversion from one encoding to the other.
+            //byte[] asciiBytes = Encoding.Convert(unicode, ascii, unicodeBytes);
+
+            //// Convert the new byte[] into a char[] and then into a string.
+            //char[] asciiChars = new char[ascii.GetCharCount(asciiBytes, 0, asciiBytes.Length)];
+            //ascii.GetChars(asciiBytes, 0, asciiBytes.Length, asciiChars, 0);
+            //string asciiString = new string(asciiChars);
+            //return asciiString;
+
+        }
         public string RetrieveFormatedAddress(double lat, double lon)
         {
             return "";
