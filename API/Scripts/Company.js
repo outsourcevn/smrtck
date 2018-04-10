@@ -1,4 +1,4 @@
-﻿function openCompany(id, name, email, phone,code,phone_contact,email_contact,modifiable,address) {
+﻿function openCompany(id, name, email, phone, code, phone_contact, email_contact, modifiable, address, web,mst,des) {
 
     $("#cp_ID").val(id);
     $("#cp_name").val(name);   
@@ -8,6 +8,9 @@
     $("#cp_phone_contact").val(phone_contact);
     $("#cp_email_contact").val(email_contact);
     $("#cp_address").val(address);
+    $("#cp_web").val(web);
+    $("#cp_des").val(des);
+    $("#cp_mst").val(mst);
     if (modifiable == 1) {
         document.getElementById("cp_modifiable").checked = true;
     } else {
@@ -62,7 +65,8 @@ function saveCompany() {
         contentType: 'application/json',
         data: JSON.stringify({
             ID: $("#cp_ID").val(), name: $("#cp_name").val(), code: $("#cp_code").val(), email: $("#cp_email").val(), phone: $("#cp_phone").val(), pass: $("#cp_pass").val(),
-            modifiable: is_modifiable, phone_contact: $("#cp_phone_contact").val(), email_contact: $("#cp_email_contact").val(), address: $("#cp_address").val()
+            modifiable: is_modifiable, phone_contact: $("#cp_phone_contact").val(), email_contact: $("#cp_email_contact").val(), address: $("#cp_address").val(),
+            web: $("#cp_web").val(), des: $("#cp_des").val(), mst: $("#cp_mst").val()
         }),
         success: function (rs) {
             if (rs == '') {

@@ -26,7 +26,7 @@
     </div>
 </div>
 <link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
-  <script src="~/Scripts/dropzone/dropzone.js"></script>
+<script src="~/Scripts/dropzone/dropzone.js"></script>
 <table class="table marginBottom0">
     <tr><th>ID</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Tên sản phẩm</th><th>Mã Sản Phẩm</th><th>Ảnh</th><th>Thông tin bảo hành</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
@@ -36,7 +36,13 @@
             <td>@item.id</td>
             <td>@item.company</td>
             <td>@item.code_company</td>
-            <td>@item.text_in_qr_code</td>
+            <td>
+                <p>Tên sản phẩm: @item.text_in_qr_code </p>
+                @if (item.product_date != null)
+                {
+                    <p>Ngày sản xuất: @item.product_date</p>
+                }
+            </td>
             <td>@item.product_code</td>
             <td><img src="@item.image" style="width:50px;height:50px;"></td>
             <td>@*@item.text_in_active*@</td>
@@ -72,6 +78,8 @@
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
         <p>Mã Sản Phẩm</p>
         <input id="cp_product_code" type="text" class="form-control" placeholder="Nhập mã sản phẩm">
+        <p>Ngày sản xuất (dd/mm/yyyy)</p>
+        <input id="cp_product_date" type="text" class="form-control" placeholder="ví dụ: 01/02/2018">
         <p>Ảnh sản phẩm </i></p>
         <input type="hidden" id="image" value="">
         <div class="col-md-3">

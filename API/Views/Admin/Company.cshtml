@@ -33,12 +33,20 @@
                 {
                     @item.name
                 }
+                <br>
+                Địa chỉ:@item.address<br />                
             </td>
             <td>@item.code</td>
-            <td>@item.email</td>
-            <td>@item.phone</td>            
+            <td>
+                Email đăng nhập: @item.email<br />
+                Email liên hệ: @item.email_contact
+            </td>
+            <td>
+                Phone đăng nhập:@item.phone<br />
+                Phone trên app: @item.phone_contact
+            </td>            
             <td>@item.date_time</td>
-            <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code,'@item.phone_contact','@item.email_contact',@item.modifiable,'@item.address')">Sửa</a></td>
+            <td><a href="#" onclick="openCompany(@item.id, '@item.name', '@item.email','@item.phone',@item.code,'@item.phone_contact','@item.email_contact',@item.modifiable,'@item.address','@item.web','@item.mst','@item.des')">Sửa</a></td>
             <td><a href="#" onclick="confirmDelCompany(@item.id,'@item.name');">Xóa</a></td>
             <td><a href="#" onclick="confirmAdmin(@item.id,1);">Đặt Làm Admin</a></td>
             <td><a href="#" onclick="confirmAdmin(@item.id,0);">Bỏ quyền Admin</a></td>
@@ -64,7 +72,13 @@
         <p>Email liên hệ</p>
         <input id="cp_email_contact" type="text" class="form-control" placeholder="Dùng để hiển thị trên app smartcheck">
         <p>Địa chỉ công ty</p>
-        <input id="cp_address" type="text" class="form-control" placeholder="Nhập địa chỉ công ty">        
+        <input id="cp_address" type="text" class="form-control" placeholder="Nhập địa chỉ công ty">  
+        <p>Website công ty</p>
+        <input id="cp_web" type="text" class="form-control" placeholder="Nhập địa chỉ web">  
+        <p>Mã số thuế</p>
+        <input id="cp_mst" type="text" class="form-control" placeholder="Nhập mã số thuế">     
+        <p>Giới thiệu công ty</p>
+        <textarea id="cp_des" class="form-control" placeholder="Giới thiệu công ty" style="height:67px;"></textarea> 
         <p>Mật khẩu (Để trắng nếu không muốn đổi mật khẩu)</p>
         <input id="cp_pass" type="password" class="form-control" placeholder="Nhập mật khẩu">
         <p>Nhập Lại Mật khẩu</p>

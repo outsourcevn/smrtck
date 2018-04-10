@@ -1104,6 +1104,7 @@ namespace API.Controllers
                 string waranty_link_web = "";
                 string product_info="";
                 string product_code = "";
+                string product_date = "";
                 string buy_more = "";
                 int? id_config_app = 0;
                 //Kiểm tra QR code mới hay cũ
@@ -1169,6 +1170,7 @@ namespace API.Controllers
                             buy_more = info.buy_more;
                             product_info = info.product_info;
                             product_code = info.product_code;
+                            product_date = info.product_date;
                             id_config_app = fcfapp.id_config_app;                            
                         }
                         else
@@ -1189,6 +1191,7 @@ namespace API.Controllers
                             buy_more = info.buy_more;
                             product_info = info.product_info;
                             product_code = info.product_code;
+                            product_date = info.product_date;
                             id_config_app = info.id;
                         }
                     }
@@ -1206,6 +1209,7 @@ namespace API.Controllers
                         buy_more = info.buy_more;
                         product_info = info.product_info;
                         product_code = info.product_code;
+                        product_date = info.product_date;
                         id_config_app = info.id;
                     }
                 }
@@ -1222,6 +1226,7 @@ namespace API.Controllers
                     field.Add("waranty_link_web", "");
                     field.Add("product_info", "");
                     field.Add("product_code", "");
+                    field.Add("product_date", "");
                     field.Add("buy_more", "");
                     field.Add("total", "...");
                     field.Add("company", "");
@@ -1260,6 +1265,9 @@ namespace API.Controllers
                     field.Add("active", "Sản phẩm này đã kích hoạt trước đó rồi. Vào thời gian " + dtfm);
                     field.Add("location", "Sản phẩm này đã báo địa điểm " + cka.address + " trước đó tại thời điểm " + dtfm);
                     field.Add("user_id_scaned", cka.user_id.ToString());
+                    field.Add("user_phone_scaned", cka.user_phone);
+                    field.Add("user_location_scaned", cka.address);
+                    field.Add("user_date_scaned", cka.date_time.ToString());
                     int? count = db.customers.Find(user_id).points;
                     field.Add("point", "Sản phẩm này đã được tích điểm vào lúc " + dtfm + ", bạn không thể tích thêm điểm");
                     field.Add("total", count.ToString());
@@ -1268,6 +1276,7 @@ namespace API.Controllers
                     field.Add("waranty_link_web", waranty_link_web);                    
                     field.Add("product_info", product_info);
                     field.Add("product_code", product_code);
+                    field.Add("product_date", product_date);
                     field.Add("buy_more", buy_more);
                     field.Add("company", company);
                     field.Add("company_phone", company_phone);
@@ -1461,6 +1470,7 @@ namespace API.Controllers
                     field.Add("waranty_link_web", waranty_link_web);
                     field.Add("product_info", product_info);
                     field.Add("product_code", product_code);
+                    field.Add("product_date", product_date);
                     field.Add("buy_more", buy_more);
                     field.Add("company", company);
                     field.Add("company_phone", company_phone);
@@ -1487,6 +1497,7 @@ namespace API.Controllers
                 field.Add("waranty_link_web", "");
                 field.Add("product_info", "");
                 field.Add("product_code", "");
+                field.Add("product_date", "");
                 field.Add("buy_more", "");
                 field.Add("company", "");
                 field.Add("company_phone", "");
