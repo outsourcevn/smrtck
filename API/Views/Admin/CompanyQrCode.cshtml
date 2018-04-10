@@ -204,6 +204,7 @@
 
     }
     function updateWinning() {
+        
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
@@ -344,6 +345,8 @@
         });
     }
     function saveCompanyQrCode() {
+        var parter_text = $("#cp_partner option:selected").text();
+
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
@@ -364,7 +367,7 @@
         $.ajax({
             url: "/Admin/generateQrCodeCompany", type: 'post',
             data: {
-                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
             },
             success: function (rs) {
                 alert(rs);
@@ -414,11 +417,12 @@
         });
     }
     function exportCompanyQrCode() {
+        var parter_text = $("#cp_partner option:selected").text();
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
+        if ($("#cp_id_partner").val() == "" || $("#cp_id_partner").val() == "0" || parter_text=="") {
             alert("Nhập nhà phân phối!");
             return;
         }
@@ -431,7 +435,7 @@
             return;
         }
         $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG TẠO FILE EXCEL, XIN CHỜ.......</h1>");
-        var url = "/Admin/exportCompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
+        var url = "/Admin/exportCompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + parter_text + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
         window.open(url, "_blank");
     }
     function searchCompanyQrCode() {
@@ -513,6 +517,9 @@
         });
     }
     function updateCompanyQrCode() {
+        var parter_text = $("#cp_partner option:selected").text();
+        //alert(parter_text);
+        //return;
         if ($("#cp_code_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
@@ -533,7 +540,7 @@
         $.ajax({
             url: "/Admin/updateCompanyQrCode", type: 'post',
             data: {
-                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
             },
             success: function (rs) {
                 alert(rs);

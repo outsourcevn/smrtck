@@ -262,7 +262,7 @@ namespace API.Controllers
             if (k == null) k = "";
             var ctm = db.winnings;
             var pageNumber = page ?? 1;
-            var onePage = ctm.Where(o => o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            var onePage = ctm.Where(o => o.name.Contains(k) || o.company.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             ViewBag.onePage = onePage;
             ViewBag.k = k;
             return View();
@@ -280,13 +280,13 @@ namespace API.Controllers
 
             if (Config.getCookie("is_admin") == "1")
             {
-                var onePage = ctm.Where(o => o.company.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                var onePage = ctm.Where(o => o.company.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
                 ViewBag.isadmin = "1";
                 ViewBag.onePage = onePage;
             }
             else
             {
-                var onePage = ctm.Where(o => (o.company.Contains(k) || o.name.Contains(k)) && o.code_company == code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                var onePage = ctm.Where(o => (o.company.Contains(k) || o.name.Contains(k)) && o.code_company == code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
                 ViewBag.isadmin = "0";
                 ViewBag.onePage = onePage;
             }
@@ -313,14 +313,14 @@ namespace API.Controllers
            
             var ctm = db.qrcodes;
             var pageNumber = page ?? 1;            
-            var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            var onePage = ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
             if (code_company != null && id_partner != null)
             {
-                onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.from_stt >= ffrom && o.to_stt <= tto).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.from_stt >= ffrom && o.to_stt <= tto).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
             }
             if (code_company != null && (partner == null || partner=="null"))
             {
-                onePage = ctm.Where(o => o.code_company == code_company && o.from_stt >= ffrom && o.to_stt <= tto).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                onePage = ctm.Where(o => o.code_company == code_company && o.from_stt >= ffrom && o.to_stt <= tto).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
             }
             ViewBag.onePage = onePage;
             ViewBag.PageCount = onePage.PageCount;
