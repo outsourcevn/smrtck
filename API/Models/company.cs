@@ -26,5 +26,8 @@ namespace API.Models
         public string phone_contact { get; set; }
         public string address { get; set; }
         public string email_contact { get; set; }
+        public string web { get; set; }
+        public string mst { get; set; }
+        public string des { get; set; }
     }
 }

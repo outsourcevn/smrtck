@@ -26,5 +26,6 @@ namespace API.Models
         public string address { get; set; }
         public string avatar { get; set; }
         public string profile_fb { get; set; }
+        public Nullable<System.DateTime> date_birth { get; set; }
     }
 }

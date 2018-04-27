@@ -688,6 +688,8 @@ namespace API.Controllers
                 int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
                 string notice = "Đã xóa các mã qr code cho công ty " + company + ", nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
                 ql.actions = notice;
+                ql.user_name = Config.getCookie("user_name");
+                ql.date_time = DateTime.Now;
                 db.qrcode_log.Add(ql);
                 db.SaveChanges();
                 return notice;
@@ -834,6 +836,8 @@ namespace API.Controllers
                 int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
                 string notice = "Đã cập nhật các mã qr code cho công ty " + company + ", thành nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
                 ql.actions = notice;
+                ql.user_name = Config.getCookie("user_name");
+                ql.date_time = DateTime.Now;
                 db.qrcode_log.Add(ql);
                 db.SaveChanges();
                 return notice;
@@ -1043,6 +1047,14 @@ namespace API.Controllers
         public int? getMaxCompanyCode()
         {
             return db.companies.Max(o => o.code)+1;
+        }
+        [HttpPost]
+        public string getDesCompany(int id)
+        {
+            var cpn=db.companies.Find(id);
+            if (cpn != null)
+                return cpn.des;
+            else return "0";
         }
         [HttpGet]
         public string GetCompanyQrCodeInfo(int id)

@@ -1,4 +1,4 @@
-﻿function openCompany(id, name, email, phone, code, phone_contact, email_contact, modifiable, address, web,mst,des) {
+﻿function openCompany(id, name, email, phone, code, phone_contact, email_contact, modifiable, address, web,mst) {
 
     $("#cp_ID").val(id);
     $("#cp_name").val(name);   
@@ -8,9 +8,9 @@
     $("#cp_phone_contact").val(phone_contact);
     $("#cp_email_contact").val(email_contact);
     $("#cp_address").val(address);
-    $("#cp_web").val(web);
-    $("#cp_des").val(des);
+    $("#cp_web").val(web);    
     $("#cp_mst").val(mst);
+    $("#cp_des").val("");
     if (modifiable == 1) {
         document.getElementById("cp_modifiable").checked = true;
     } else {
@@ -23,6 +23,18 @@
             success: function (rs) {
                 if (rs != "0") {
                     $("#cp_code").val(rs);
+                } else {
+
+                }
+            }
+        });       
+    } else {
+        $.ajax({
+            url: "/Admin/getDesCompany", type: 'post',
+            data: { id: id },
+            success: function (rs) {
+                if (rs != "0") {
+                    $("#cp_des").val(rs);
                 } else {
 
                 }

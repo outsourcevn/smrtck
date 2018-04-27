@@ -40,10 +40,10 @@ namespace API.Models
         public virtual DbSet<waranty_customer> waranty_customer { get; set; }
         public virtual DbSet<qrcode> qrcodes { get; set; }
         public virtual DbSet<company_configapp_qrcode_link> company_configapp_qrcode_link { get; set; }
-        public virtual DbSet<customer> customers { get; set; }
         public virtual DbSet<checkall> checkalls { get; set; }
+        public virtual DbSet<winning_log> winning_log { get; set; }
         public virtual DbSet<company> companies { get; set; }
         public virtual DbSet<config_app> config_app { get; set; }
-        public virtual DbSet<winning_log> winning_log { get; set; }
+        public virtual DbSet<customer> customers { get; set; }
     }
 }

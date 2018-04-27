@@ -41,6 +41,7 @@
         {
             <h4><i>Nhật Ký: @ViewBag.notice</i></h4>
         }
+        <i style="color:red;">Lưu ý khi cập nhật nhà phân phối: Lưu ý: Ví dụ nếu đã có khối từ 500 đến 1000, ta chỉ có thể chia thành từ 500 đến < 1000 hoặc từ > 500 đến 1000 chứ không cắt ở giữa khối. Tức nếu chia 550 đến 775 là vi phạm sự liên tục</i>
     </div>
 </div>
 <div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
@@ -136,6 +137,7 @@
                     <a href="#" onclick="Undo('@item.guid',1)">Chọn mã để phục hồi quét thử</a>
                 }
             </td>
+            <td><a href="#" onclick="Generate('@item.guid',0)">Xóa Khối Này</a></td>
         </tr>
     }
 </table>
@@ -504,17 +506,20 @@
             alert("Nhập đến số thứ tự!");
             return;
         }
-        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG XÓA QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
-        $.ajax({
-            url: "/Admin/delCompanyQrCode", type: 'post',
-            data: {
-                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
-            },
-            success: function (rs) {
-                alert(rs);
-                location.reload();
-            }
-        });
+        var r = confirm("Bạn có chắc chắn xóa?");
+        if (r == true) {
+            $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG XÓA QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+            $.ajax({
+                url: "/Admin/delCompanyQrCode", type: 'post',
+                data: {
+                    code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: $("#cp_partner").val(), id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+                },
+                success: function (rs) {
+                    alert(rs);
+                    location.reload();
+                }
+            });
+        }
     }
     function updateCompanyQrCode() {
         var parter_text = $("#cp_partner option:selected").text();
@@ -536,17 +541,20 @@
             alert("Nhập đến số thứ tự!");
             return;
         }
-        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG CẬP NHẬT QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
-        $.ajax({
-            url: "/Admin/updateCompanyQrCode", type: 'post',
-            data: {
-                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
-            },
-            success: function (rs) {
-                alert(rs);
-                location.reload();
-            }
-        });
+        var r = confirm("Bạn có chắc chắn cập nhật. Lưu ý: Ví dụ nếu đã có khối từ 500 đến 1000, ta chỉ có thể chia thành từ 500 đến <1000 hoặc từ >500 đến 1000 chứ không cắt ở giữa khối. Tức nếu chia 550 đến 775 là vi phạm sự liên tục!");
+        if (r == true) {
+            $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG CẬP NHẬT QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+            $.ajax({
+                url: "/Admin/updateCompanyQrCode", type: 'post',
+                data: {
+                    code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
+                },
+                success: function (rs) {
+                    alert(rs);
+                    location.reload();
+                }
+            });
+        }
     }
     function Generate(guid, type) {
         if (type == 1) {

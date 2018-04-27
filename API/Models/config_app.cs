@@ -29,5 +29,6 @@ namespace API.Models
         public string product_info { get; set; }
         public string image { get; set; }
         public string product_code { get; set; }
+        public string product_date { get; set; }
     }
 }
