@@ -1200,24 +1200,24 @@ namespace API.Controllers
                         }
                         else
                         {
-                            var info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o => o.id).FirstOrDefault();
+                            //var info = db.config_app.Where(o => o.code_company == code_company).OrderBy(o => o.id).FirstOrDefault();
                             //if (id_config_app != null)
                             //{
                             //    info = db.config_app.Where(o => o.id == id_config_app).FirstOrDefault();
                             //}
-                            image = info.image;
-                            label = info.text_in_qr_code;
+                            image = "";// info.image;
+                            label = "";// info.text_in_qr_code;
                             active = "Kích hoạt thành công, Sản phẩm được kích hoạt bảo hành vào thời điểm {NGAYTHANG}";//info.text_in_active;
                             location = "Sản phẩm được quét tại địa điểm {DIADIEM}";// info.text_in_location;
                             point = "Bạn được tích số điểm mới là {DIEM}";//info.text_in_point;
-                            waranty_year = info.waranty_year;
-                            waranty_text = info.waranty_text;
-                            waranty_link_web = info.waranty_link_web;
-                            buy_more = info.buy_more;
-                            product_info = info.product_info;
-                            product_code = info.product_code;
-                            product_date = info.product_date;
-                            id_config_app = info.id;
+                            waranty_year = 0;// info.waranty_year;
+                            waranty_text = ""; ;// info.waranty_text;
+                            waranty_link_web = "";// info.waranty_link_web;
+                            buy_more = "";// info.buy_more;
+                            product_info = "";// info.product_info;
+                            product_code = "";// info.product_code;
+                            product_date = "";// info.product_date;
+                            id_config_app = 0;// info.id;
                         }
                     }
                     else

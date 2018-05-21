@@ -6,33 +6,37 @@
             success: function (rs) {
                 //alert(rs);
                 if (rs != "") {
-                    rs = rs.replace("[", "").replace("]", "");
-                    var obj = JSON.parse(rs);
+                    //rs = rs.replace("[", "").replace("]", "");
+                    //var obj = JSON.parse(rs);
+                    var json = $.parseJSON(rs);
                     //alert(obj.company);
                     $("#cp_ID").val(id);
-                    $("#cp_company").val(obj.company);
-                    $("#cp_code_company").val(obj.code_company);
-                    $("#cp_text_in_qr_code").val(obj.text_in_qr_code);
-                    $("#cp_product_code").val(obj.product_code);
-                    $("#cp_product_date").val(obj.product_date);
-                    $("#cp_text_in_active").val(obj.text_in_active);
-                    $("#cp_text_in_location").val(obj.text_in_location);
-                    $("#cp_text_in_point").val(obj.text_in_point);
-                    //$("#cp_waranty_text").val(obj.waranty_text);
-                    $('#image').val(obj.image);
-                    $('#img_div_image').find('img').attr('src', obj.image);
-                    $("#cp_waranty_year").val(obj.waranty_year);
-                    $("#cp_waranty_link_web").val(obj.waranty_link_web);
-                    
-                    CKEDITOR.instances['cp_buy_more'].setData(obj.buy_more);
-                    CKEDITOR.instances['cp_product_info'].setData(obj.product_info);
-                    CKEDITOR.instances['cp_waranty_text'].setData(obj.waranty_text);
-                    if (obj.is_waranty == 1) {
-                        document.getElementById("cp_is_waranty").checked = true;
-                    } else {
-                        document.getElementById("cp_is_waranty").checked = false;
+                    for (var i = 0; i < 1; ++i) {
+                        var obj = json[i];
+                        $("#cp_company").val(obj.company);
+                        $("#cp_code_company").val(obj.code_company);
+                        $("#cp_text_in_qr_code").val(obj.text_in_qr_code);
+                        $("#cp_product_code").val(obj.product_code);
+                        $("#cp_product_date").val(obj.product_date);
+                        $("#cp_text_in_active").val(obj.text_in_active);
+                        $("#cp_text_in_location").val(obj.text_in_location);
+                        $("#cp_text_in_point").val(obj.text_in_point);
+                        //$("#cp_waranty_text").val(obj.waranty_text);
+                        $('#image').val(obj.image);
+                        $('#img_div_image').find('img').attr('src', obj.image);
+                        $("#cp_waranty_year").val(obj.waranty_year);
+                        $("#cp_waranty_link_web").val(obj.waranty_link_web);
+
+                        CKEDITOR.instances['cp_buy_more'].setData(obj.buy_more);
+                        CKEDITOR.instances['cp_product_info'].setData(obj.product_info);
+                        CKEDITOR.instances['cp_waranty_text'].setData(obj.waranty_text);
+                        if (obj.is_waranty == 1) {
+                            document.getElementById("cp_is_waranty").checked = true;
+                        } else {
+                            document.getElementById("cp_is_waranty").checked = false;
+                        }
+                        $("#CompanyConfigDialog").show();
                     }
-                    $("#CompanyConfigDialog").show();
                 } else {
                     //alert(rs);
                 }

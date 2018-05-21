@@ -14,7 +14,7 @@
 <!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
 <div id="CompanyQrCodeDialog" style="display:block;" class="col-md-12">    
     <div class="dDialogContent" style="min-height: 600px;">
-        <p>Chọn Doanh Nghiệp</p>
+        <p>Chọn Doanh Nghiệp (<span id="noticecompany"></span>)</p>
         <input id="cp_company" value="@ViewBag.company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
         <p>Mã Doanh Nghiệp</p>
         <input id="cp_code_company" value="@ViewBag.code_company"  type="text" class="form-control" placeholder="Nhập mã" disabled>
@@ -28,7 +28,7 @@
         <p>Đến số thứ tự</i></p>
         <input id="cp_to" value="@ViewBag.tto"  type="text" class="form-control" placeholder="Đến số thứ tự" onkeyup="autofillnumberto();">
         <div class="divBtn">
-            <button type="button" class="btn btn-primary" onclick="saveCompanyQrCode()">In Mã Qr Code</button>            
+            <button type="button" class="btn btn-primary" onclick="$('#DialogQrGuid').show();">Tạo Khối Qr Code</button>            
             <button type="button" class="btn btn-danger" onclick="exportCompanyQrCode()">Xuất ra file Excel</button>
             <button type="button" class="btn btn-primary" onclick="searchCompanyQrCode()">Tìm kiếm</button>
             <button type="button" class="btn btn-danger" onclick="cancelCompanyQrCode()">Hủy in Mã Qr Code</button>
@@ -42,6 +42,19 @@
             <h4><i>Nhật Ký: @ViewBag.notice</i></h4>
         }
         <i style="color:red;">Lưu ý khi cập nhật nhà phân phối: Lưu ý: Ví dụ nếu đã có khối từ 500 đến 1000, ta chỉ có thể chia thành từ 500 đến < 1000 hoặc từ > 500 đến 1000 chứ không cắt ở giữa khối. Tức nếu chia 550 đến 775 là vi phạm sự liên tục</i>
+    </div>
+</div>
+<div id="DialogQrGuid" style="display:none;" class="col-sm-4 dDialog">
+    <div class="dTitle">Mã GUID</div>
+    <div class="dDialogContent">
+        <p>Mã GUID tự động, bạn có thể copy và paste mã khác nếu muốn (dành cho phục hồi mã khối đã thất thoát)</p>
+        <input id="qrcodegen" value="@ViewBag.qrcodegen" type="text" class="form-control" placeholder="Nhập mã ">
+        <p><input type="checkbox" id="is_restore" /> Nếu là in phục hồi xin check vào đây</p>
+        
+    </div>
+    <div class="divBtn">
+        <button type="button" class="btn btn-primary" onclick="saveCompanyQrCode();">Tiếp Tục Tạo Khối QR Code</button>
+        <button type="button" class="btn btn-primary" onclick="$('#DialogQrGuid').hide();">Thoát</button>
     </div>
 </div>
 <div id="DialogImage" style="display:none;" class="col-sm-4 dDialog">
@@ -135,9 +148,9 @@
                 else
                 {
                     <a href="#" onclick="Undo('@item.guid',1)">Chọn mã để phục hồi quét thử</a>
-                }
+                }               
             </td>
-            <td><a href="#" onclick="Generate('@item.guid',0)">Xóa Khối Này</a></td>
+            <td><a href="#" onclick="deleteblockqrcode(@item.id)">Xóa Khối Này</a></td>
         </tr>
     }
 </table>
@@ -207,7 +220,7 @@
     }
     function updateWinning() {
         
-        if ($("#cp_code_company").val() == "") {
+        if ($("#cp_code_company").val() == "" || $("#cp_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
         }
@@ -294,6 +307,7 @@
         });
     }
     function autofillnumber() {
+        $('#noticecompany').html("");
         $.ajax({
             url: "/Admin/getmaxsttfromcompany", type: 'post',
             data: {
@@ -302,10 +316,26 @@
             success: function (rs) {
                 //alert(rs);
                 if (rs == 0) rs = 1;
+                var maxrs = rs - 1;
                 $('#cp_from').val(rs);
+                $('#noticecompany').append(" - In đến số thứ tự SN lớn nhất là " + maxrs);
 
             }
         });
+        $.ajax({
+            url: "/Admin/countnumberblock", type: 'post',
+            data: {
+                code_company: $("#cp_code_company").val()
+            },
+            success: function (rs) {
+                //alert(rs);
+                if (rs == 0) rs = 1;
+                $('#noticecompany').append(" - Tổng số khối đã in là " + rs + " (không kể khối lẻ) ");
+
+            }
+        });
+
+        
     }
     function autofillpartner(val) {
         $.ajax({
@@ -317,7 +347,7 @@
                 //alert(rs);
                 var json = $.parseJSON(rs);
                 if (json.length > 0) {
-                    $("#cp_partner").html("");
+                    $("#cp_partner").html("<option value=\"\"></option>");
                     for (var i = 0; i < json.length; ++i) {
                         //var num = json[i].to_sn - json[i].from_sn + 1;
                         $("#cp_partner").append("<option value=\"" + json[i].id + "\">" + json[i].name + "</option>");
@@ -329,8 +359,8 @@
                             $("#cp_id_partner").val("@ViewBag.id_partner");
                             $("#cp_partner").val("@Html.Raw(ViewBag.partner)");
                         } else {
-                            $("#cp_partner").val(json[0].name);
-                            $("#cp_id_partner").val(json[0].id);
+                            //$("#cp_partner").val(json[0].name);
+                            //$("#cp_id_partner").val(json[0].id);
                         }
                     } else {
                         if ("@ViewBag.id_partner" != "") {
@@ -338,8 +368,8 @@
                             $("#cp_partner").val("@Html.Raw(ViewBag.partner)");
                         }
                         else {
-                            $("#cp_partner").val(json[0].name);
-                            $("#cp_id_partner").val(json[0].id);
+                            //$("#cp_partner").val(json[0].name);
+                            //$("#cp_id_partner").val(json[0].id);
                         }
                     }
                 }
@@ -348,12 +378,14 @@
     }
     function saveCompanyQrCode() {
         var parter_text = $("#cp_partner option:selected").text();
-
-        if ($("#cp_code_company").val() == "") {
+        var qrcodegen = $("#qrcodegen").val();
+        var vis_restore = false;
+        if (document.getElementById("is_restore").checked == true) { vis_restore = true; }
+        if ($("#cp_code_company").val() == "" || $("#cp_company").val()=="") {
             alert("Nhập doanh nghiệp!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
+        if ($("#cp_id_partner").val() == "" || parter_text=="") {
             alert("Nhập nhà phân phối!");
             return;
         }
@@ -365,17 +397,27 @@
             alert("Nhập đến số thứ tự!");
             return;
         }
-        $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG SINH QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
-        $.ajax({
-            url: "/Admin/generateQrCodeCompany", type: 'post',
-            data: {
-                code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val()
-            },
-            success: function (rs) {
-                alert(rs);
-                location.reload();
-            }
-         });
+        var ff = parseInt($("#cp_from").val());
+        var tt = parseInt($("#cp_to").val());
+        if (ff >= tt) {
+            alert("Số thứ tự sau phải lớn hơn số thứ tự trước!");
+            return;
+        }
+        var r = confirm("Bạn có chắc chắn in khối qr code này? Kiểm tra kỹ lại các thông số trước khi in!!!");
+        if (r == true) {
+            $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG SINH QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+            $.ajax({
+                url: "/Admin/generateQrCodeCompany", type: 'post',
+                data: {
+                    code_company: $("#cp_code_company").val(), company: $("#cp_company").val(), partner: parter_text, id_partner: $("#cp_id_partner").val(), ffrom: $("#cp_from").val(), tto: $("#cp_to").val(),
+                    guid: qrcodegen, is_restore: vis_restore
+                },
+                success: function (rs) {
+                    alert(rs);
+                    location.reload();
+                }
+            });
+        }
     }
     function confirmUpdateProduct() {
         $.ajax({
@@ -449,14 +491,14 @@
         //    alert("Nhập nhà phân phối!");
         //    return;
         //}
-        if ($("#cp_from").val() == "") {
-            alert("Nhập từ số thứ tự!");
-            return;
-        }
-        if ($("#cp_to").val() == "") {
-            alert("Nhập đến số thứ tự!");
-            return;
-        }
+        //if ($("#cp_from").val() == "") {
+        //    alert("Nhập từ số thứ tự!");
+        //    return;
+        //}
+        //if ($("#cp_to").val() == "") {
+        //    alert("Nhập đến số thứ tự!");
+        //    return;
+        //}
         var url = "/Admin/CompanyQrCode?code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&ffrom=" + $("#cp_from").val() + "&tto=" + $("#cp_to").val();
         window.location.href = url;
     }
@@ -521,15 +563,31 @@
             });
         }
     }
+    function deleteblockqrcode(id) {
+        var r = confirm("Bạn có chắc chắn xóa khối qr code này?");
+        if (r == true) {
+            $("#load").html("<img src=\"/Images/loader.gif\"><h1>ĐANG XÓA QR CODE PHỦ CÀO, XIN CHỜ.......</h1>");
+            $.ajax({
+                url: "/Admin/deleteblockqrcode", type: 'post',
+                data: {
+                    idqr: id
+                },
+                success: function (rs) {
+                    alert(rs);
+                    location.reload();
+                }
+            });
+        }
+    }
     function updateCompanyQrCode() {
         var parter_text = $("#cp_partner option:selected").text();
         //alert(parter_text);
         //return;
-        if ($("#cp_code_company").val() == "") {
+        if ($("#cp_code_company").val() == "" || $("#cp_company").val() == "") {
             alert("Nhập doanh nghiệp!");
             return;
         }
-        if ($("#cp_id_partner").val() == "") {
+        if ($("#cp_id_partner").val() == "" || parter_text=="") {
             alert("Nhập nhà phân phối!");
             return;
         }
@@ -539,6 +597,12 @@
         }
         if ($("#cp_to").val() == "") {
             alert("Nhập đến số thứ tự!");
+            return;
+        }
+        var ff = parseInt($("#cp_from").val());
+        var tt = parseInt($("#cp_to").val());
+        if (ff >= tt) {
+            alert("Số thứ tự sau phải lớn hơn số thứ tự trước!");
             return;
         }
         var r = confirm("Bạn có chắc chắn cập nhật. Lưu ý: Ví dụ nếu đã có khối từ 500 đến 1000, ta chỉ có thể chia thành từ 500 đến <1000 hoặc từ >500 đến 1000 chứ không cắt ở giữa khối. Tức nếu chia 550 đến 775 là vi phạm sự liên tục!");

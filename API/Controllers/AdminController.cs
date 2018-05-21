@@ -195,6 +195,17 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
+        public ActionResult HistoryVoucher(string k, int? page)
+        {
+            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (k == null) k = "";
+            var ctm = db.voucher_log;
+            var pageNumber = page ?? 1;
+            var onePage = ctm.Where(o => o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            ViewBag.onePage = onePage;
+            ViewBag.k = k;
+            return View();
+        }
         public ActionResult VoucherPoint(string k, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
@@ -318,10 +329,19 @@ namespace API.Controllers
             {
                 onePage = ctm.Where(o => o.code_company == code_company && o.id_partner == id_partner && o.from_stt >= ffrom && o.to_stt <= tto).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
             }
-            if (code_company != null && (partner == null || partner=="null"))
+            if (code_company != null && (id_partner == null || partner==""))
             {
                 onePage = ctm.Where(o => o.code_company == code_company && o.from_stt >= ffrom && o.to_stt <= tto).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
             }
+            if (code_company != null && (id_partner == null || partner == "") && ffrom==null && tto==null)
+            {
+                onePage = ctm.Where(o => o.code_company == code_company).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
+            }
+            if (code_company != null && (id_partner == null || partner == "") && ffrom != null && tto == null)
+            {
+                onePage = ctm.Where(o => o.code_company == code_company && o.from_stt >= ffrom).OrderBy(f => f.from_stt).ToPagedList(pageNumber, 100);
+            }
+            ViewBag.qrcodegen = Guid.NewGuid().ToString();
             ViewBag.onePage = onePage;
             ViewBag.PageCount = onePage.PageCount;
             ViewBag.code_company = code_company;
@@ -341,6 +361,18 @@ namespace API.Controllers
             {
                 var p = db.qrcodes.Where(o => o.code_company == code_company).OrderByDescending(o=>o.from_stt).FirstOrDefault();
                 return p.to_stt+1;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public int? countnumberblock(int code_company)
+        {
+            try
+            {
+                int? p = db.qrcodes.Count(o => o.code_company == code_company && o.from_stt<o.to_stt);
+                return p;
             }
             catch
             {
@@ -594,14 +626,23 @@ namespace API.Controllers
             }
         }
         [HttpPost]
-        public string generateQrCodeCompany(int code_company,string company,string partner,int id_partner, int ffrom, int tto)
+        public string generateQrCodeCompany(int code_company,string company,string partner,int id_partner,string guid,bool is_restore, int ffrom, int tto)
         {
             try
             {
-                if (db.qrcodes.Any(o => o.code_company == code_company && o.id_partner == id_partner && ((o.from_stt >= ffrom && o.from_stt <= tto)|| (o.to_stt >= ffrom && o.to_stt <= tto))))
+                //long? max_stt1 = db.qrcodes.Where(o => o.code_company == code_company).Max(x=>x.stt);
+                long? max_stt2 = db.qrcodes.Where(o => o.code_company == code_company).Max(x => x.to_stt);
+                if (is_restore==false && tto <= max_stt2)
                 {
-                    long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.to_stt);
-                    return "Đã tồn tại khoảng thứ tự này, đề nghị chọn khoảng in khác, đã in đến số thứ tự " + maxstt;
+                    //long? maxstt = db.qrcodes.Where(o => o.code_company == code_company).Max(o => o.to_stt);
+                    return "Đã tồn tại khoảng thứ tự này, đề nghị chọn khoảng in khác, đã in đến số thứ tự " + max_stt2;
+                }
+                if (is_restore)
+                {
+                    if (db.qrcodes.Any(o => o.code_company == code_company && o.stt>= ffrom && o.stt<= tto))
+                    {
+                        return "Đã tồn tại khoảng thứ tự này, đề nghị chọn khoảng in khác";
+                    }
                 }
                 //string info = db.config_app.Where(o => o.id==1).OrderBy(o => o.id).FirstOrDefault().text_in_qr_code;
                 //if (db.config_app.Any(o => o.code_company == code_company))
@@ -613,7 +654,7 @@ namespace API.Controllers
                 DateTime fromtime = DateTime.Now;
                 //for (long i = ffrom; i <= tto; i++)
                 //{
-                    string guid=Guid.NewGuid().ToString();                    
+                    if (guid==null || guid=="") guid=Guid.NewGuid().ToString();                    
                     qrcode qr = new qrcode();
                     qr.code_company = code_company;
                     qr.company = company;
@@ -687,6 +728,35 @@ namespace API.Controllers
                 qrcode_log ql = new qrcode_log();
                 int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
                 string notice = "Đã xóa các mã qr code cho công ty " + company + ", nhà phân phối " + partner + ", từ số thứ tự " + ffrom + " đến số thứ tự " + tto + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
+                ql.actions = notice;
+                ql.user_name = Config.getCookie("user_name");
+                ql.date_time = DateTime.Now;
+                db.qrcode_log.Add(ql);
+                db.SaveChanges();
+                return notice;
+            }
+            catch (Exception ex)
+            {
+                return "Có lỗi xảy ra khi in " + ex.ToString();
+            }
+        }
+        [HttpPost]
+        public string deleteblockqrcode(long idqr)
+        {
+            try
+            {
+                var fn = db.qrcodes.Find(idqr);
+                if (db.checkalls.Any(o => o.code_company == fn.code_company && o.id_partner == fn.id_partner && o.stt >= fn.from_stt && o.stt <= fn.to_stt))
+                {
+                    //long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
+                    return "Không xóa được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + fn.from_stt + "->" + fn.to_stt + "), đề nghị chọn khoảng số thứ tự khác để hủy";
+                }
+
+                DateTime fromtime = DateTime.Now;
+                db.Database.ExecuteSqlCommand("delete from qrcode where id=" + idqr);
+                qrcode_log ql = new qrcode_log();
+                int totalminutes = (int)(DateTime.Now - fromtime).TotalMinutes;
+                string notice = "Đã xóa các mã qr code cho công ty " + fn.company + ", nhà phân phối " + fn.partner + ", từ số thứ tự " + fn.from_stt + " đến số thứ tự " + fn.to_stt + ",hoàn thành lúc " + DateTime.Now + ", hết " + totalminutes + " phút";
                 ql.actions = notice;
                 ql.user_name = Config.getCookie("user_name");
                 ql.date_time = DateTime.Now;
@@ -785,11 +855,19 @@ namespace API.Controllers
             try
             {
                 //Tìm id cũ, do các stt nối tiếp nhau nên chỉ cập nhật ông nào cũ
-                int? old_id_partner = db.qrcodes.Where(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto).FirstOrDefault().id_partner;
+                int? old_id_partner = 0;
+                if (db.qrcodes.Any(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto))
+                {
+                    old_id_partner = db.qrcodes.Where(o => o.code_company == code_company && o.stt >= ffrom && o.stt <= tto).FirstOrDefault().id_partner;
+                }else
+                {
+                    old_id_partner = 0;
+                    return "Không tìm thấy khối qr code này của nhà phân phối cũ nào để cập nhật cho nhà phân phối mới này. Bạn cần in mới khối Qr code này để bổ sung.";
+                }
                 if (db.checkalls.Any(o => o.code_company == code_company && o.id_partner== old_id_partner && o.stt >= ffrom && o.stt <= tto))
                 {
                     //long? maxstt = db.qrcodes.Where(o => o.code_company == code_company && o.id_partner == id_partner).Max(o => o.stt);
-                    return "Không cập nhật được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + ffrom + "->" + tto + "), đề nghị chọn khoảng số thứ tự khác để hủy";
+                    return "Không cập nhật được do trong dữ liệu quét của khách hàng đã tồn tại một thứ tự trong khoảng thứ tự (" + ffrom + "->" + tto + "), đề nghị chọn khoảng số thứ tự khác";
                 }
 
                 DateTime fromtime = DateTime.Now;

@@ -53,7 +53,9 @@
                         @item.name
                     }*@
                 <p id="all_code_@item.id" style="color:red;"></p>
-                <script>getTotalPartnerQrCode(@item.id,@item.code_company);</script>
+                @if (ViewBag.k != "") { 
+                    <script>getTotalPartnerQrCode(@item.id,@item.code_company);</script>
+                }
             </td>
             <td>@item.company</td>
             <td>@item.code_company</td>           
