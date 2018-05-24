@@ -27,5 +27,8 @@ namespace API.Models
         public Nullable<double> lat { get; set; }
         public string address { get; set; }
         public Nullable<long> code { get; set; }
+        public Nullable<int> is_received { get; set; }
+        public string company { get; set; }
+        public Nullable<int> code_company { get; set; }
     }
 }

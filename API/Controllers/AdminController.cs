@@ -184,25 +184,54 @@ namespace API.Controllers
             ViewBag.k = k;
             return View();
         }
-        public ActionResult HistoryWin(string k, int? page)
+        public ActionResult HistoryWin(string k,int? code_company, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
+            {
+                code_company = int.Parse(Config.getCookie("company_code"));
+            }
             if (k == null) k = "";
             var ctm = db.winning_log;
             var pageNumber = page ?? 1;
-            var onePage = ctm.Where(o => o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
-            ViewBag.onePage = onePage;
+            if (Config.getCookie("is_admin") == "1")
+            {
+                var onePage = ctm.Where(o => o.winning_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                ViewBag.isadmin = "1";
+                ViewBag.onePage = onePage;
+            }
+            else
+            {
+                var onePage = ctm.Where(o => (o.winning_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)) || o.code_company==code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                ViewBag.isadmin = "0";
+                ViewBag.onePage = onePage;
+            }
+            
             ViewBag.k = k;
             return View();
         }
-        public ActionResult HistoryVoucher(string k, int? page)
+        public ActionResult HistoryVoucher(string k, int? code_company,int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
+            {
+                code_company = int.Parse(Config.getCookie("company_code"));
+            }
             if (k == null) k = "";
             var ctm = db.voucher_log;
             var pageNumber = page ?? 1;
-            var onePage = ctm.Where(o => o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
-            ViewBag.onePage = onePage;
+            if (Config.getCookie("is_admin") == "1")
+            {
+                var onePage = ctm.Where(o => o.voucher_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                ViewBag.isadmin = "1";
+                ViewBag.onePage = onePage;
+            }
+            else
+            {
+                var onePage = ctm.Where(o => (o.voucher_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)) || o.code_company == code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                ViewBag.isadmin = "0";
+                ViewBag.onePage = onePage;
+            }
             ViewBag.k = k;
             return View();
         }
@@ -562,6 +591,19 @@ namespace API.Controllers
             try
             {
                 db.Database.ExecuteSqlCommand("update winning_log set is_received=1 where id=" + id);
+                return "1";
+            }
+            catch
+            {
+                return "0";
+            }
+        }
+        [HttpPost]
+        public string confirmReceivedVoucher(long id)
+        {
+            try
+            {
+                db.Database.ExecuteSqlCommand("update voucher_log set is_received=1 where id=" + id);
                 return "1";
             }
             catch

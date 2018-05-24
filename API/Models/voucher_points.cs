@@ -29,5 +29,7 @@ namespace API.Models
         public string image1 { get; set; }
         public string image2 { get; set; }
         public string image3 { get; set; }
+        public Nullable<int> code_company { get; set; }
+        public string company { get; set; }
     }
 }

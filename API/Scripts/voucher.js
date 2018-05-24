@@ -1,5 +1,7 @@
-﻿function openVoucher(id, name, image, big_image, image1, image2, image3, price, from_date, to_date, quantity) {
+﻿function openVoucher(id, company, code_company, name, image, big_image, image1, image2, image3, price, from_date, to_date, quantity) {
     $("#cp_ID").val(id);
+    $("#cp_company").val(company);
+    $("#cp_code_company").val(code_company);
     $("#cp_name").val(name);
     $("#image").val(image);    
     $("#big_image").val(big_image);
@@ -32,6 +34,10 @@
 }
 function saveVoucher() {
     var full_des = CKEDITOR.instances.cp_full_des.getData();
+    if ($("#cp_company").val() == "" || $("#cp_code_company").val() == 0) {
+        alert("Nhập công ty!");
+        return;
+    }
     if ($("#cp_name").val() == "") {
         alert("Nhập tên!");
         return;
@@ -70,7 +76,7 @@ function saveVoucher() {
         url: url_addUpdateVoucher, type: 'post',
         contentType: 'application/json',
         data: JSON.stringify({
-            ID: $("#cp_ID").val(), name: $("#cp_name").val(), price: $("#cp_price").val(), from_date: $("#cp_from_date").val(), to_date: $("#cp_to_date").val(), quantity: $("#cp_quantity").val(), image: $("#image").val(), big_image: $("#big_image").val(), image1: $("#image1").val(), image2: $("#image2").val(), image3: $("#image3").val(), full_des: full_des
+            ID: $("#cp_ID").val(), name: $("#cp_name").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), price: $("#cp_price").val(), from_date: $("#cp_from_date").val(), to_date: $("#cp_to_date").val(), quantity: $("#cp_quantity").val(), image: $("#image").val(), big_image: $("#big_image").val(), image1: $("#image1").val(), image2: $("#image2").val(), image3: $("#image3").val(), full_des: full_des
         }),
         success: function (rs) {
             if (rs == '') {

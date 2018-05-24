@@ -15,6 +15,10 @@
     <div class="dTitle"><b>Thêm/Sửa</b></div>
     <div class="dDialogContent">
         <input type="hidden" id="cp_ID" />
+        <p>Chọn Doanh Nghiệp</p>
+        <input id="cp_company" value="@ViewBag.company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <p>Mã Doanh Nghiệp</p>
+        <input id="cp_code_company" value="@ViewBag.code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
         <p>Tên Voucher</p>
         <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên voucher">        
         <p>Số Điểm</p>
@@ -102,11 +106,12 @@
     </div>
 </div>
 <table class="table marginBottom0">
-    <tr><th>Tên Voucher</th><th>Ảnh</th><th>Số điểm</th><th>Từ ngày</th><th>Đến ngày</th><th>Số lượng</th><th></th></tr>
+    <tr><th>Công ty</th><th>Tên Voucher</th><th>Ảnh</th><th>Số điểm</th><th>Từ ngày</th><th>Đến ngày</th><th>Số lượng</th><th></th></tr>
     @foreach (var item in (PagedList<voucher_points>)ViewBag.OnePage)
     {
-
+        int? code_company = item.code_company != null ? item.code_company : 0;
         <tr style="border-bottom:1 solid #808080;">
+            <td>@item.company</td>      
             <td>@item.name</td>
             <td>
                 ảnh đại diện<br />
@@ -139,7 +144,7 @@
             <td>@item.from_date</td>
             <td>@item.to_date</td>
             <td>@item.quantity</td>
-            <td><a href="#" onclick="openVoucher(@item.id, '@item.name', '@item.image','@item.big_image','@item.image1','@item.image2','@item.image3',@item.price,'@item.from_date','@item.to_date',@item.quantity)">Sửa</a></td>
+            <td><a href="#" onclick="openVoucher(@item.id,'@item.company',@code_company, '@item.name', '@item.image','@item.big_image','@item.image1','@item.image2','@item.image3',@item.price,'@item.from_date','@item.to_date',@item.quantity)">Sửa</a></td>
             <td><a href="#" onclick="confirmDelVoucher(@item.id,'@item.name');">Xóa</a></td>
         </tr>
     }
@@ -367,5 +372,18 @@
             $('#img_div_image3').hide();
             e.preventDefault();
         })
+    }
+    function searchCompanyName() {
+        var keyword = document.getElementById("cp_company").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#cp_company').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                $('#cp_code_company').val(ui.item.id);
+                return false;
+            },
+            minLength: 1
+        });
     }
 </script>

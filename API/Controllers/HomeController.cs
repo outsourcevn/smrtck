@@ -987,6 +987,15 @@ namespace API.Controllers
                 }
                 long? codeVc = user_id * 1000 + voucher_id + Config.datetimeid();
                 db.Database.ExecuteSqlCommand("update customers set points=points-" + points + " where id=" + user_id);
+                var vcp = db.voucher_points.Find(voucher_id);
+                string company = "";
+                int? code_company = 0;
+                if (vcp != null)
+                {
+                    company = vcp.company;
+                    code_company = vcp.code_company;
+                }
+
                 var us = db.customers.Find(user_id);
                 voucher_log vl=new voucher_log();
                 vl.address = address;
@@ -1000,6 +1009,8 @@ namespace API.Controllers
                 vl.user_name = us.name;
                 vl.user_phone = us.phone;
                 vl.voucher_id = voucher_id;
+                vl.code_company = code_company;
+                vl.company = company;
                 vl.voucher_name = db.voucher_points.Find(voucher_id).name;
                 db.voucher_log.Add(vl);
                 db.SaveChanges();

@@ -240,6 +240,9 @@
           <Property Name="lat" Type="float" />
           <Property Name="address" Type="nvarchar" MaxLength="501" />
           <Property Name="code" Type="bigint" />
+          <Property Name="is_received" Type="int" />
+          <Property Name="company" Type="nvarchar" MaxLength="501" />
+          <Property Name="code_company" Type="int" />
         </EntityType>
         <EntityType Name="voucher_points">
           <Key>
@@ -260,6 +263,8 @@
           <Property Name="image1" Type="nvarchar" MaxLength="150" />
           <Property Name="image2" Type="nvarchar" MaxLength="150" />
           <Property Name="image3" Type="nvarchar" MaxLength="150" />
+          <Property Name="code_company" Type="int" />
+          <Property Name="company" Type="nvarchar" MaxLength="150" />
         </EntityType>
         <EntityType Name="waranty_customer">
           <Key>
@@ -353,8 +358,6 @@
           <EntitySet Name="sn_locations" EntityType="smartcheckModel.sn_locations" />
           <EntitySet Name="sn_smart_point" EntityType="smartcheckModel.sn_smart_point" />
           <EntitySet Name="users" EntityType="smartcheckModel.user" />
-          <EntitySet Name="voucher_log" EntityType="smartcheckModel.voucher_log" />
-          <EntitySet Name="voucher_points" EntityType="smartcheckModel.voucher_points" />
           <EntitySet Name="config_bonus_point" EntityType="smartcheckModel.config_bonus_point" />
           <EntitySet Name="winnings" EntityType="smartcheckModel.winning" />
           <EntitySet Name="splashes" EntityType="smartcheckModel.splash" />
@@ -366,6 +369,8 @@
           <EntitySet Name="companies" EntityType="smartcheckModel.company" />
           <EntitySet Name="config_app" EntityType="smartcheckModel.config_app" />
           <EntitySet Name="customers" EntityType="smartcheckModel.customer" />
+          <EntitySet Name="voucher_points" EntityType="smartcheckModel.voucher_points" />
+          <EntitySet Name="voucher_log" EntityType="smartcheckModel.voucher_log" />
         </EntityContainer>
         <EntityType Name="customer_bonus_log">
           <Key>
@@ -440,44 +445,6 @@
           <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="pagecode" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="voucher_log">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="user_id" Type="Int64" />
-          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="voucher_id" Type="Int64" />
-          <Property Name="voucher_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="points" Type="Int32" />
-          <Property Name="date_time" Type="DateTime" Precision="3" />
-          <Property Name="lon" Type="Double" />
-          <Property Name="lat" Type="Double" />
-          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="code" Type="Int64" />
-        </EntityType>
-        <EntityType Name="voucher_points">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
-          <Property Name="des" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="full_des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="quantity" Type="Int32" />
-          <Property Name="from_date" Type="DateTime" Precision="3" />
-          <Property Name="to_date" Type="DateTime" Precision="3" />
-          <Property Name="from_date_id" Type="Int32" />
-          <Property Name="to_date_id" Type="Int32" />
-          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="price" Type="Int32" />
-          <Property Name="big_image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="image1" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="image2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
-          <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="config_bonus_point">
           <Key>
@@ -681,6 +648,49 @@
           <Property Name="profile_fb" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
           <Property Name="date_birth" Type="DateTime" Precision="3" />
         </EntityType>
+        <EntityType Name="voucher_points">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="des" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="full_des" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="quantity" Type="Int32" />
+          <Property Name="from_date" Type="DateTime" Precision="3" />
+          <Property Name="to_date" Type="DateTime" Precision="3" />
+          <Property Name="from_date_id" Type="Int32" />
+          <Property Name="to_date_id" Type="Int32" />
+          <Property Name="image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="price" Type="Int32" />
+          <Property Name="big_image" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image1" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image2" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="image3" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="voucher_log">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="user_id" Type="Int64" />
+          <Property Name="user_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="user_email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="user_phone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="voucher_id" Type="Int64" />
+          <Property Name="voucher_name" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="points" Type="Int32" />
+          <Property Name="date_time" Type="DateTime" Precision="3" />
+          <Property Name="lon" Type="Double" />
+          <Property Name="lat" Type="Double" />
+          <Property Name="address" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code" Type="Int64" />
+          <Property Name="is_received" Type="Int32" />
+          <Property Name="company" Type="String" MaxLength="501" FixedLength="false" Unicode="true" />
+          <Property Name="code_company" Type="Int32" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -763,46 +773,6 @@
               <MappingFragment StoreEntitySet="users">
                 <ScalarProperty Name="pagecode" ColumnName="pagecode" />
                 <ScalarProperty Name="pass" ColumnName="pass" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="voucher_log">
-            <EntityTypeMapping TypeName="smartcheckModel.voucher_log">
-              <MappingFragment StoreEntitySet="voucher_log">
-                <ScalarProperty Name="code" ColumnName="code" />
-                <ScalarProperty Name="address" ColumnName="address" />
-                <ScalarProperty Name="lat" ColumnName="lat" />
-                <ScalarProperty Name="lon" ColumnName="lon" />
-                <ScalarProperty Name="date_time" ColumnName="date_time" />
-                <ScalarProperty Name="points" ColumnName="points" />
-                <ScalarProperty Name="voucher_name" ColumnName="voucher_name" />
-                <ScalarProperty Name="voucher_id" ColumnName="voucher_id" />
-                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
-                <ScalarProperty Name="user_email" ColumnName="user_email" />
-                <ScalarProperty Name="user_name" ColumnName="user_name" />
-                <ScalarProperty Name="user_id" ColumnName="user_id" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="voucher_points">
-            <EntityTypeMapping TypeName="smartcheckModel.voucher_points">
-              <MappingFragment StoreEntitySet="voucher_points">
-                <ScalarProperty Name="image3" ColumnName="image3" />
-                <ScalarProperty Name="image2" ColumnName="image2" />
-                <ScalarProperty Name="image1" ColumnName="image1" />
-                <ScalarProperty Name="big_image" ColumnName="big_image" />
-                <ScalarProperty Name="price" ColumnName="price" />
-                <ScalarProperty Name="image" ColumnName="image" />
-                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
-                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
-                <ScalarProperty Name="to_date" ColumnName="to_date" />
-                <ScalarProperty Name="from_date" ColumnName="from_date" />
-                <ScalarProperty Name="quantity" ColumnName="quantity" />
-                <ScalarProperty Name="full_des" ColumnName="full_des" />
-                <ScalarProperty Name="des" ColumnName="des" />
                 <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
@@ -1017,6 +987,51 @@
                 <ScalarProperty Name="phone" ColumnName="phone" />
                 <ScalarProperty Name="email" ColumnName="email" />
                 <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="voucher_points">
+            <EntityTypeMapping TypeName="smartcheckModel.voucher_points">
+              <MappingFragment StoreEntitySet="voucher_points">
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="image3" ColumnName="image3" />
+                <ScalarProperty Name="image2" ColumnName="image2" />
+                <ScalarProperty Name="image1" ColumnName="image1" />
+                <ScalarProperty Name="big_image" ColumnName="big_image" />
+                <ScalarProperty Name="price" ColumnName="price" />
+                <ScalarProperty Name="image" ColumnName="image" />
+                <ScalarProperty Name="to_date_id" ColumnName="to_date_id" />
+                <ScalarProperty Name="from_date_id" ColumnName="from_date_id" />
+                <ScalarProperty Name="to_date" ColumnName="to_date" />
+                <ScalarProperty Name="from_date" ColumnName="from_date" />
+                <ScalarProperty Name="quantity" ColumnName="quantity" />
+                <ScalarProperty Name="full_des" ColumnName="full_des" />
+                <ScalarProperty Name="des" ColumnName="des" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="voucher_log">
+            <EntityTypeMapping TypeName="smartcheckModel.voucher_log">
+              <MappingFragment StoreEntitySet="voucher_log">
+                <ScalarProperty Name="code_company" ColumnName="code_company" />
+                <ScalarProperty Name="company" ColumnName="company" />
+                <ScalarProperty Name="is_received" ColumnName="is_received" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="lat" ColumnName="lat" />
+                <ScalarProperty Name="lon" ColumnName="lon" />
+                <ScalarProperty Name="date_time" ColumnName="date_time" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="voucher_name" ColumnName="voucher_name" />
+                <ScalarProperty Name="voucher_id" ColumnName="voucher_id" />
+                <ScalarProperty Name="user_phone" ColumnName="user_phone" />
+                <ScalarProperty Name="user_email" ColumnName="user_email" />
+                <ScalarProperty Name="user_name" ColumnName="user_name" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
