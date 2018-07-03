@@ -344,6 +344,8 @@ namespace API.Controllers
             var pageNumber = page ?? 1;
             var onePage = ctm.Where(o => o.code_company.ToString().Contains(k) || o.company.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             ViewBag.onePage = onePage;
+            ViewBag.PageCount = onePage.PageCount;
+            ViewBag.page = page == null ? 1 : page;
             ViewBag.k = k;
             return View();
         }

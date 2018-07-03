@@ -65,6 +65,34 @@
     }
 </table>
 @*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrcodeConfig", new { page }))*@
+<ul class="pagination pagination-lg">
+    <li><a href="#">Trang:</a></li>
+    @{ int maxPage = ViewBag.PageCount > 5 ? 5 : ViewBag.PageCount;}
+    @for (int i = 1; i <= maxPage; i++)
+    {
+        if (i != ViewBag.page)
+        {
+            <text>
+                <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@i">@i</a></li></text>
+        }
+        else
+        {
+            <text>                
+                <li class="active" style="background-color: #c52d2f;border-color: #c52d2f;color:#fff;"><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@i">@i</a></li>
+            </text>
+        }
+    }
+    @{
+        int page = ViewBag.page;
+        int nextpage = page + 1;
+        <text>
+            <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@nextpage">Trang tiếp</a></li>        
+            <li>...</li>
+            <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@maxPage">Trang cuối</a></li>           
+        </text>
+    }
+</ul><!--/.pagination-->
+
 <!--SmartCheck.Vn là ứng dụng chống hàng giả, bạn có thể tải về trên các chợ ứng dụng, Mã s-->
 <div id="CompanyConfigDialog" style="display:none;min-height:800px;min-width:70%;float:left;left:20%;background:#dbdef2;border:1px solid;" class="col-sm-4 dDialog" >
     <div class="dTitle">Thêm/Sửa - <button type="button" class="btn btn-primary" onclick="saveCompanyConfig()">Đồng Ý</button>-<button type="button" class="btn btn-primary" onclick="closeDDialog('#CompanyConfigDialog')">Hủy</button></div>
