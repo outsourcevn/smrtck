@@ -5,6 +5,9 @@
     ViewBag.Title = "Cấu hình APP Qr Code Sản Phẩm";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     int? code_company = 0;
+    int maxPage = ViewBag.PageCount > 5 ? 5 : ViewBag.PageCount;
+    int page = ViewBag.page;
+    int nextpage = page + 1;
 }
 <style>
     textarea {
@@ -27,6 +30,31 @@
 </div>
 <link href="~/Scripts/dropzone/dropzone.css" rel="stylesheet" />
 <script src="~/Scripts/dropzone/dropzone.js"></script>
+<ul class="pagination pagination-lg">
+    <li><a href="#">Trang:</a></li>  
+    @for (int i = 1; i <= maxPage; i++)
+    {
+        if (i != ViewBag.page)
+        {
+            <text>
+                <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@i">@i</a></li></text>
+        }
+        else
+        {
+            <text>
+                <li class="active" style="background-color: #c52d2f;border-color: #c52d2f;color:#fff;"><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@i">@i</a></li>
+            </text>
+        }
+    }
+    @{
+        
+        <text>
+            <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@nextpage">Trang tiếp</a></li>
+            <li>...</li>
+            <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@maxPage">Trang cuối</a></li>
+        </text>
+    }
+</ul><!--/.pagination-->
 <table class="table marginBottom0">
     <tr><th>ID</th><th>Tên Doanh Nghiệp</th><th>Mã Công Ty</th><th>Tên sản phẩm</th><th>Mã Sản Phẩm</th><th>Ảnh</th><th>Thông tin bảo hành</th></tr>
     @foreach (var item in (PagedList<config_app>)ViewBag.OnePage)
@@ -67,7 +95,7 @@
 @*@Html.PagedListPager((IPagedList)ViewBag.OnePage, page => Url.Action("CompanyQrcodeConfig", new { page }))*@
 <ul class="pagination pagination-lg">
     <li><a href="#">Trang:</a></li>
-    @{ int maxPage = ViewBag.PageCount > 5 ? 5 : ViewBag.PageCount;}
+    
     @for (int i = 1; i <= maxPage; i++)
     {
         if (i != ViewBag.page)
@@ -83,8 +111,7 @@
         }
     }
     @{
-        int page = ViewBag.page;
-        int nextpage = page + 1;
+        
         <text>
             <li><a href="/Admin/CompanyQrcodeConfig?k=@ViewBag.k&page=@nextpage">Trang tiếp</a></li>        
             <li>...</li>
