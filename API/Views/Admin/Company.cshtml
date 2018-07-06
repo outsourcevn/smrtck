@@ -10,7 +10,7 @@
 <div class="panel-heading">
     <div class="form-inline">
         <div class="form-group">
-            <input type="text" id="keyword" class="form-control" placeholder="Nhập số điện thoại hoặc email, tên của công ty" value="@ViewBag.k" style="width:360px;" />
+            <input type="text" id="keyword" class="form-control" placeholder="Nhập số điện thoại hoặc email, tên của công ty" value="@ViewBag.k" style="width:360px;" onkeyup="searchCompanyName();"/>
             <button onclick="searchCompany();" class="btn-default btn-info">Tìm Kiếm</button>
         </div>
         @*<div class="form-group">
@@ -112,5 +112,20 @@
     }
     if ("@ViewBag.k" == "create") {
         openCompany(0);
+    }
+    function searchCompanyName() {
+        var keyword = document.getElementById("keyword").value;
+        var urlSearch = '/Admin/getCompanyList?k=';
+        $('#keyword').autocomplete({
+            source: urlSearch + keyword,
+            select: function (event, ui) {
+                $(event.target).val(ui.item.value);
+                //$('#cp_code_company').val(ui.item.id);
+                //autofillnumber();
+                //autofillpartner();
+                return false;
+            },
+            minLength: 1
+        });
     }
 </script>
