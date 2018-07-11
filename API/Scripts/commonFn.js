@@ -33,6 +33,8 @@ function notifyOK() {
         deleteUser();
     } else if (action == "deleteCompanyConfig") {
         deleteCompanyConfig();
+    } else if (action == "deletePartner") {
+        deletePartner();
     } else if (action == "delCarType") {
         deleteCarType();
     } else if (action == "delHireType") {

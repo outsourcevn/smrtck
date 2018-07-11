@@ -1075,6 +1075,7 @@ namespace API.Controllers
         [HttpPost]
         public string deletePartner(int cpId)
         {
+            if (db.qrcodes.Any(o => o.id_partner == cpId)) return "Đã tồn tại nhà phân phối này trong phát hành tem khối, không thể xóa!";
             return DBContext.deletepartner(cpId);
         }
         [HttpPost]
