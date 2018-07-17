@@ -365,8 +365,11 @@
                     if (document.getElementById("s_from_"+ii+"_"+jj)){
                         //alert(document.getElementById("tbl_"+ii+"_"+jj).style.display);
                         if (document.getElementById("tbl_"+ii+"_"+jj).style.display!="none"){
-                            var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
-                            allTreeItem.push(item);
+                            if (document.getElementById("s_from_"+ii+"_"+jj).value!="" && document.getElementById("s_to_"+ii+"_"+jj).value!=""){
+                                var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
+                                allTreeItem.push(item);
+                            }
+                            
                         }
                     }else break;
                 }

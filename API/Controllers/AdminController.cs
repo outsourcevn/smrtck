@@ -336,6 +336,23 @@ namespace API.Controllers
            
             return View();
         }
+        public string searcSNPartner(long? sn)
+        {
+            int? code_company = 0;
+            if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
+            {
+                code_company = int.Parse(Config.getCookie("company_code"));
+            }
+            if (db.qrcodes.Any(o=>o.stt==sn || (o.from_stt<=sn && o.to_stt<=sn)))
+            {
+                var p = db.qrcodes.Where(o => (o.code_company== code_company && o.stt == sn && o.from_stt == o.to_stt) || (o.code_company== code_company && o.from_stt <= sn && o.to_stt <= sn && o.from_stt < o.to_stt)).FirstOrDefault();
+                return JsonConvert.SerializeObject(p);
+            }
+            else
+            {
+                return "";
+            }
+        }
         public ActionResult CompanyQrcodeConfig(string k, int? page)
         {
             if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });

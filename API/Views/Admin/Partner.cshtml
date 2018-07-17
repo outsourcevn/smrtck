@@ -37,7 +37,18 @@
     </div>
 </div>
 }
-<table class="table marginBottom0">
+else
+{
+    <div class="panel-heading">
+        <div class="form-inline">
+            <div class="form-group">
+                <input type="text" id="keyword" class="form-control" style="width:360px;"  placeholder="Nhập số SN (phải là dạng số)" />
+                <button onclick="searcSNPartner();" class="btn-default btn-info">Tìm Kiếm Số SN</button>
+            </div>            
+        </div>
+    </div>
+}
+<table class="table marginBottom0" id="list_partner">
     <tr><th>Nhà Phân Phối</th><th>Doanh Nghiệp</th><th>Mã Doanh Nghiệp</th></tr>
     @foreach (var item in (PagedList<partner>)ViewBag.OnePage)
     {
@@ -53,7 +64,7 @@
                         @item.name
                     }*@
                 <p id="all_code_@item.id" style="color:red;"></p>
-                @if (ViewBag.k != "") { 
+                @if (ViewBag.k != "" || ViewBag.isadmin == "0") { 
                     <script>getTotalPartnerQrCode(@item.id,@item.code_company);</script>
                 }
             </td>
@@ -153,6 +164,28 @@ else
                     location.reload();
                 } else {
                     alert(rs);
+                }
+            }
+        })
+    }
+    function searcSNPartner(){
+        var keyword = document.getElementById("keyword").value;
+        var url_searcSNPartner="/Admin/searcSNPartner?sn="+keyword;
+        if (keyword == "" || isNaN(keyword)) {
+            alert("Nhập số SN phải là dạng chữ số!");
+            return;
+        }
+        $.ajax({
+            url: url_searcSNPartner, type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                keyword: keyword
+            }),
+            success: function (rs) {
+                if (rs != '') {
+                    alert(rs);
+                } else {
+                    alert("Không tìm thấy số SN này");
                 }
             }
         })

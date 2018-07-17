@@ -82,7 +82,7 @@
                 <td>@item.address</td>
             }
             <td>@item.province</td>
-            <td><a href="#" onclick="Generate('@item.guid')">Xem ảnh QR Code</a></td>            
+            <td><a href="#" onclick="Generate('@item.guid',@item.stt)">Xem ảnh QR Code</a></td>            
         </tr>
     }
 </table>
@@ -211,7 +211,13 @@
             xmlhttp.send();
         }
     }
-    function Generate(guid) {
+    function Generate(guid,stt) {
+        if (stt != null) {
+            if (stt != null && stt != "") {
+                stt = stt * 13 + 27;
+                guid = guid + "-" + stt;
+            }
+        }
         $("#DialogImage").show();
         $("#qrcodeload").attr("src","/Images/loader.gif");
         $.ajax({
