@@ -180,7 +180,7 @@
             var url = "/Admin/CheckAll?type=0&code_company=" + $("#cp_code_company").val() + "&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&id_partner=" + $("#cp_id_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
             window.location.href = url;
         } else {
-            var url = "/Admin/showCheckAll?type=1&company=" + $("#cp_company").val() + "&partner=" + $("#cp_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
+            var url = "/Admin/showCheckAll?type=1&code_company=" + $("#cp_code_company").val() + "&partner=" + $("#cp_partner").val() + "&fdate=" + $("#cp_from").val() + "&tdate=" + $("#cp_to").val() + "&k=" + $("#cp_k").val() + "&order=" + order;
             //$.getJSON(url, function (data) {
             //    var items = [];
             //    $.each(data, function (key, val) {
