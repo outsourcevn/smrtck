@@ -499,6 +499,7 @@ namespace API.Controllers
             var onePage = db.checkalls.Select(p => p); //ctm.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
             if (fdate == null) fdate = DateTime.Now.AddDays(-90);
             if (tdate == null) tdate = DateTime.Now;
+            int pageSize = 20;
             //if (id_partner != null && code_company != null && id_partner != 0 && company != "")
             //{
             //    if (order == null) { 
@@ -526,6 +527,7 @@ namespace API.Controllers
             if (code_company != null)
             {
                 onePage = onePage.Where(o => o.code_company == code_company);
+                pageSize = 1000;
             }
             if (id_partner != null)
             {
@@ -544,23 +546,23 @@ namespace API.Controllers
                 onePage = onePage.Where(o => o.stt.ToString()==k || o.user_phone==k || o.user_email==k || o.guid==k);
             }
             if (order == null){
-                ViewBag.onePage = onePage.OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+                ViewBag.onePage = onePage.OrderByDescending(f => f.id).ToPagedList(pageNumber, pageSize);
             }
             if (order == 1)//sn asc 
             {
-                ViewBag.onePage = onePage.OrderBy(f => f.stt).ToPagedList(pageNumber, 20); 
+                ViewBag.onePage = onePage.OrderBy(f => f.stt).ToPagedList(pageNumber, pageSize); 
             }
             if (order == 2)//sn desc 
             {
-                ViewBag.onePage = onePage.OrderByDescending(f => f.stt).ToPagedList(pageNumber, 20);
+                ViewBag.onePage = onePage.OrderByDescending(f => f.stt).ToPagedList(pageNumber, pageSize);
             }
             if (order == 3)//date asc 
             {
-                ViewBag.onePage = onePage.OrderBy(f => f.date_time).ToPagedList(pageNumber, 20);
+                ViewBag.onePage = onePage.OrderBy(f => f.date_time).ToPagedList(pageNumber, pageSize);
             }
             if (order == 4)//date asc 
             {
-                ViewBag.onePage = onePage.OrderByDescending(f => f.date_time).ToPagedList(pageNumber, 20);
+                ViewBag.onePage = onePage.OrderByDescending(f => f.date_time).ToPagedList(pageNumber, pageSize);
             }
             //ViewBag.onePage = onePage;
             ViewBag.code_company = code_company;            
@@ -1494,22 +1496,22 @@ namespace API.Controllers
             public int count { get; set; }
         }
         [HttpPost]
-        public string showCheckAll(string company, string partner, DateTime? fdate, DateTime? tdate,int? type)
+        public string showCheckAll(int? code_company, string partner, DateTime? fdate, DateTime? tdate,int? type)
         {
             /****** Script for SelectTopNRows command from SSMS  ******/
-            string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+            string query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where code_company=" + code_company + " and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
             if (type == 1)
             {
-                if (partner != null && company != null && partner!="" && company!="")
+                if (partner != null && code_company != null && partner!="" && code_company != 0)
                 {
-                    query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+                    query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where code_company="+ code_company + " and partner like N'" + partner + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
 
                 }
                 else
                 {
-                    if (company != null && company != "")
+                    if (code_company != null && code_company != 0)
                     {
-                        query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where company like N'" + company + "' and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
+                        query = "SELECT company,partner,province,count(*) as count FROM [smartcheck].[dbo].[checkall] where code_company=" + code_company + " and date_time>=N'" + fdate + "' and date_time<=N'" + tdate + "' group by company,partner,province order by company,partner,province";
                     }
                 }
             }
