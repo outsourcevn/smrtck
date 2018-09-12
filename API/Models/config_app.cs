@@ -30,5 +30,6 @@ namespace API.Models
         public string image { get; set; }
         public string product_code { get; set; }
         public string product_date { get; set; }
+        public Nullable<int> is_VFF { get; set; }
     }
 }

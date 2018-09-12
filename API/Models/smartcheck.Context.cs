@@ -41,9 +41,9 @@ namespace API.Models
         public virtual DbSet<checkall> checkalls { get; set; }
         public virtual DbSet<winning_log> winning_log { get; set; }
         public virtual DbSet<company> companies { get; set; }
-        public virtual DbSet<config_app> config_app { get; set; }
         public virtual DbSet<customer> customers { get; set; }
         public virtual DbSet<voucher_points> voucher_points { get; set; }
         public virtual DbSet<voucher_log> voucher_log { get; set; }
+        public virtual DbSet<config_app> config_app { get; set; }
     }
 }

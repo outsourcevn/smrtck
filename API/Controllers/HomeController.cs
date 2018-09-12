@@ -939,10 +939,12 @@ namespace API.Controllers
                 var p = (from q in db.checkalls where q.code_company == company_code && q.date_time >= fromdate && q.date_time <= todate
                          select new
                          {
-                             id=q.id,
-                             TenDoanhNghiep=q.company,
-                             TenNhaPhanPhoi=q.partner,
-                             MaSanPham=q.guid,
+                             id = q.id,
+                             TenDoanhNghiep = q.company,
+                             IdNhaPhanPhoi = q.id_partner,
+                             TenNhaPhanPhoi = q.partner,
+                             IdSanPham = q.guid + "-" + q.stt.ToString(),
+                             MaSanPham =q.guid,
                              SoThuTu=q.stt,
                              KichHoatNgay=q.date_time,
                              Email=q.user_email,
@@ -1143,6 +1145,9 @@ namespace API.Controllers
                 string product_date = "";
                 string buy_more = "";
                 int? id_config_app = 0;
+                int? is_VFF = 0;
+                string web_VFF = "";
+                long id_checked = 0;
                 //Kiểm tra QR code mới hay cũ
                 if (guid != null && guid.Contains("-"))
                 {
@@ -1207,7 +1212,9 @@ namespace API.Controllers
                             product_info = info.product_info;
                             product_code = info.product_code;
                             product_date = info.product_date;
-                            id_config_app = fcfapp.id_config_app;                            
+                            id_config_app = fcfapp.id_config_app;
+                            is_VFF = info.is_VFF;
+                            web_VFF = "https://vff.smartcheck.vn/?code="+guid+"-"+ NUMBER.ToString();
                         }
                         else
                         {
@@ -1229,6 +1236,8 @@ namespace API.Controllers
                             product_code = "";// info.product_code;
                             product_date = "";// info.product_date;
                             id_config_app = 0;// info.id;
+                            web_VFF = "";
+                            is_VFF = 0;
                         }
                     }
                     else
@@ -1247,6 +1256,8 @@ namespace API.Controllers
                         product_code = info.product_code;
                         product_date = info.product_date;
                         id_config_app = info.id;
+                        web_VFF = "";
+                        is_VFF = 0;
                     }
                 }
                 else
@@ -1273,6 +1284,9 @@ namespace API.Controllers
                     field.Add("company_web", "");
                     field.Add("company_address", "");
                     field.Add("partner", "");
+                    field.Add("is_VFF", "0");
+                    field.Add("web_VFF", "");
+                    field.Add("id_checked", id_checked.ToString()); 
                     return Api("success", field, "Gửi thông tin về server thành công!");
                     //var info = db.config_app.Where(o => o.id==1).FirstOrDefault();
                     //label = info.text_in_qr_code;
@@ -1325,6 +1339,9 @@ namespace API.Controllers
                     field.Add("company_address", company_address);
                     field.Add("company_web", company_web);
                     field.Add("partner", partner);
+                    field.Add("is_VFF", is_VFF.ToString());
+                    field.Add("web_VFF", web_VFF);
+                    field.Add("id_checked", cka.id.ToString());
                 }
                 else
                 {
@@ -1371,6 +1388,7 @@ namespace API.Controllers
                     winning_sn = cka.stt;
                     db.checkalls.Add(cka);
                     db.SaveChanges();
+                    id_checked = cka.id;
                     //Ghi nhật ký                                 
                     customer_bonus_log cbl = new customer_bonus_log();   
                     cbl.actions = "Được thưởng điểm khi quét qr code "+guid;                   
@@ -1382,6 +1400,7 @@ namespace API.Controllers
                     cbl.user_phone = ctm.phone;                   
                     db.customer_bonus_log.Add(cbl);
                     db.SaveChanges();
+                   
                     //Quyết định có trúng thưởng hay không
                     try
                     {
@@ -1523,7 +1542,10 @@ namespace API.Controllers
                     field.Add("company_address", company_address);
                     field.Add("company_web", company_web);
                     field.Add("partner", partner);
-                    
+                    field.Add("is_VFF", is_VFF.ToString());
+                    field.Add("web_VFF", web_VFF);
+                    field.Add("id_checked", id_checked.ToString());
+
                 }
                 return Api("success", field, "Gửi thông tin về server thành công!");
             }
@@ -1552,6 +1574,9 @@ namespace API.Controllers
                 field.Add("company_address", "");
                 field.Add("company_web", "");
                 field.Add("partner", "");
+                field.Add("is_VFF","0");
+                field.Add("web_VFF", "");
+                field.Add("id_checked", "0");
                 return Api("error", field, "Cập nhật lỗi sql: " + ex.ToString());
             }
         }

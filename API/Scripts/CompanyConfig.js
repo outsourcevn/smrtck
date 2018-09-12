@@ -35,6 +35,11 @@
                         } else {
                             document.getElementById("cp_is_waranty").checked = false;
                         }
+                        if (obj.is_VFF == 1) {
+                            document.getElementById("cp_is_VFF").checked = true;
+                        } else {
+                            document.getElementById("cp_is_VFF").checked = false;
+                        }
                         $("#CompanyConfigDialog").show();
                     }
                 } else {
@@ -61,6 +66,7 @@
         CKEDITOR.instances['cp_product_info'].setData("");
         CKEDITOR.instances['cp_waranty_text'].setData("");
         document.getElementById("cp_is_waranty").checked = false;
+        document.getElementById("cp_is_VFF").checked = false;
         $("#CompanyConfigDialog").show();
     }
     
@@ -71,8 +77,10 @@ function saveCompanyConfig() {
     var swaranty_text = CKEDITOR.instances.cp_waranty_text.getData();
     var sproduct_info = CKEDITOR.instances.cp_product_info.getData();
     var is_waranty = 0;
+    var is_VFF = 0;
     //alert(document.getElementById("cp_is_waranty").checked);
-    if (document.getElementById("cp_is_waranty").checked==true) { is_waranty = 1;}
+    if (document.getElementById("cp_is_waranty").checked == true) { is_waranty = 1; }
+    if (document.getElementById("cp_is_VFF").checked == true) { is_VFF = 1; }
     //if ($("#cp_ID").val() == "0") { checkDuplicateQrCode(); }
     if ($("#cp_code_company").val() == "-1") {
         alert("Nhập doanh nghiệp!");
@@ -133,7 +141,7 @@ function saveCompanyConfig() {
         data: JSON.stringify({
             ID: $("#cp_ID").val(), company: $("#cp_company").val(), code_company: $("#cp_code_company").val(), image: $("#image").val(), text_in_qr_code: $("#cp_text_in_qr_code").val(), product_code: $("#cp_product_code").val(), text_in_active: $("#cp_text_in_active").val(), text_in_location: $("#cp_text_in_location").val(), text_in_point: $("#cp_text_in_point").val()
             , waranty_year: $("#cp_waranty_year").val(), waranty_text: swaranty_text, waranty_link_web: $("#cp_waranty_link_web").val()
-            , is_waranty: is_waranty, buy_more: sbuy_more, product_info: sproduct_info, product_date: $("#cp_product_date").val()
+            , is_waranty: is_waranty,is_VFF:is_VFF, buy_more: sbuy_more, product_info: sproduct_info, product_date: $("#cp_product_date").val()
         }),
         success: function (rs) {
             if (rs == '') {

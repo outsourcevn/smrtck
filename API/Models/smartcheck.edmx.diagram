@@ -21,10 +21,10 @@
         <EntityTypeShape EntityType="smartcheckModel.checkall" Width="1.5" PointX="9.375" PointY="14.75" />
         <EntityTypeShape EntityType="smartcheckModel.winning_log" Width="1.5" PointX="16.375" PointY="0.75" />
         <EntityTypeShape EntityType="smartcheckModel.company" Width="1.5" PointX="3.375" PointY="16.75" />
-        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="13.375" PointY="6.75" />
         <EntityTypeShape EntityType="smartcheckModel.customer" Width="1.5" PointX="13.375" PointY="11.75" />
         <EntityTypeShape EntityType="smartcheckModel.voucher_points" Width="1.5" PointX="15.375" PointY="11.75" />
         <EntityTypeShape EntityType="smartcheckModel.voucher_log" Width="1.5" PointX="15.375" PointY="6.75" />
+        <EntityTypeShape EntityType="smartcheckModel.config_app" Width="1.5" PointX="5.375" PointY="16.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
