@@ -620,12 +620,49 @@
             });
         }
     }
+    function toHashNumber(numbers) {
+        var rs = "";        
+        for (i = 0; i < numbers.length; i++) {
+            if (numbers[i] == "0") {
+                rs = rs + "l2";
+            }
+            if (numbers[i] == "1") {
+                rs = rs + "x8";
+            }
+            if (numbers[i] == "2") {
+                rs = rs + "n4";
+            }
+            if (numbers[i] == "3") {
+                rs = rs + "k9";
+            }
+            if (numbers[i] == "4") {
+                rs = rs + "o7";
+            }
+            if (numbers[i] == "5") {
+                rs = rs + "p1";
+            }
+            if (numbers[i] == "6") {
+                rs = rs + "y3";
+            }
+            if (numbers[i] == "7") {
+                rs = rs + "z0";
+            }
+            if (numbers[i] == "8") {
+                rs = rs + "a5";
+            }
+            if (numbers[i] == "9") {
+                rs = rs + "c6";
+            }           
+        }
+        return rs;
+    }
+    //alert(toHashNumber("0123456789"));
     function Generate(guid, type) {
         if (type == 1) {
             var stt = prompt("Nhập số thứ tự", "");
             if (stt != null && stt != "") {
                 stt = stt * 13 + 27;
-                guid = guid + "-" + stt;
+                guid = guid + "-" + toHashNumber(stt+"");
             }
         }
         $("#DialogImage").show();

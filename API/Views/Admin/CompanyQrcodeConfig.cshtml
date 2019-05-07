@@ -126,9 +126,9 @@
     <div class="dDialogContent" style="min-height: 800px;">
         <input type="hidden" id="cp_ID"/>
         <p>Chọn Doanh Nghiệp</p>        
-        <input id="cp_company" type="text" class="form-control" placeholder="Gõ tìm tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <input id="cp_company" type="text" value="@ViewBag.company" class="form-control" placeholder="@ViewBag.company" onkeyup="searchCompanyName();">
         <p>Mã Doanh Nghiệp</p>
-        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã" disabled>
+        <input id="cp_code_company" type="text" value="@ViewBag.code_company" class="form-control" placeholder="@ViewBag.code_company" disabled>
         <p>Tên sản phẩm </i></p>
         <textarea id="cp_text_in_qr_code" class="form-control" placeholder="Thông báo ở QR Code" style="height:67px;"></textarea>
         <p>Mã Sản Phẩm</p>
@@ -209,6 +209,7 @@
     var totalRow=0;//Tổng số sản phẩm cần cấu hình cho khối
     var maxRowItem=0;//Số dòng lớn nhất của khối nào đó
     var arr_total_items_each_row=[];//Số khối của sản phẩm
+    var is_admin=@ViewBag.is_admin;//User co phai la admin?
     function showBlock(){
         var code_company = @code_company;
         var url = "/Admin/getTotalBlockOfCompany?code_company=" + code_company;
@@ -229,7 +230,7 @@
         xmlhttp.send();
     }
     function loadWarantyYear(){
-        $("#cp_waranty_year").html("");        
+        $("#cp_waranty_year").html("");
         for(var i=0;i<100;i++){
             $("#cp_waranty_year").append("<option selected value=\""+i+"\">"+i+" tháng</option>");
         }
@@ -370,7 +371,7 @@
                                 var item = { code_company: @code_company, id_config_app: arr_id_config_app[ii],from_sn:document.getElementById("s_from_"+ii+"_"+jj).value,to_sn:document.getElementById("s_to_"+ii+"_"+jj).value};
                                 allTreeItem.push(item);
                             }
-                            
+
                         }
                     }else break;
                 }
@@ -417,32 +418,41 @@
             }
         }
     }
+    if (is_admin!=1){
+        $('#cp_company').css("placeholder", "@ViewBag.company");
+        //$('#cp_company').val("@ViewBag.company");
+        $('#cp_company').prop("disabled", true);
+    }
     function searchCompanyName(type) {
         var keyword = document.getElementById("cp_company").value;
         //alert(keyword);
-        var urlSearch = '/Admin/getCompanyList?k=';
-        $('#cp_company').autocomplete({
-            source: urlSearch + keyword,
-            select: function (event, ui) {
-                //alert(keyword);
-                $(event.target).val(ui.item.value);
-                $('#cp_code_company').val(ui.item.id);
-                return false;
-            },
-            minLength: 1
-        });
+        if (is_admin==1){
+            var urlSearch = '/Admin/getCompanyList?k=';
+            $('#cp_company').autocomplete({
+                source: urlSearch + keyword,
+                select: function (event, ui) {
+                    //alert(keyword);
+                    $(event.target).val(ui.item.value);
+                    $('#cp_code_company').val(ui.item.id);
+                    return false;
+                },
+                minLength: 1
+            });
+        }
     }
     function searchCompanyNameSearch(type) {
         var keyword = document.getElementById("keyword").value;
-        var urlSearch = '/Admin/getCompanyList?k=';
-        $('#keyword').autocomplete({
-            source: urlSearch + keyword,
-            select: function (event, ui) {
-                $(event.target).val(ui.item.value);
-                $('#key_code_company').val(ui.item.id);
-                return false;
-            },
-            minLength: 1
-        });
+        if (is_admin==1){
+            var urlSearch = '/Admin/getCompanyList?k=';
+            $('#keyword').autocomplete({
+                source: urlSearch + keyword,
+                select: function (event, ui) {
+                    $(event.target).val(ui.item.value);
+                    $('#key_code_company').val(ui.item.id);
+                    return false;
+                },
+                minLength: 1
+            });
+        }
     }
 </script>

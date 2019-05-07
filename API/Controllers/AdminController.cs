@@ -186,7 +186,7 @@ namespace API.Controllers
         }
         public ActionResult HistoryWin(string k,int? code_company, int? page)
         {
-            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            //if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
             if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
             {
                 code_company = int.Parse(Config.getCookie("company_code"));
@@ -202,7 +202,7 @@ namespace API.Controllers
             }
             else
             {
-                var onePage = ctm.Where(o => (o.winning_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)) || o.code_company==code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                var onePage = ctm.Where(o => ((o.winning_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k))) && o.code_company==code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
                 ViewBag.isadmin = "0";
                 ViewBag.onePage = onePage;
             }
@@ -212,7 +212,7 @@ namespace API.Controllers
         }
         public ActionResult HistoryVoucher(string k, int? code_company,int? page)
         {
-            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            //if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
             if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
             {
                 code_company = int.Parse(Config.getCookie("company_code"));
@@ -228,7 +228,7 @@ namespace API.Controllers
             }
             else
             {
-                var onePage = ctm.Where(o => (o.voucher_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k)) || o.code_company == code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
+                var onePage = ctm.Where(o => ((o.voucher_name.Contains(k) || o.user_phone.Contains(k) || o.user_name.Contains(k) || o.user_email.Contains(k))) && o.code_company == code_company).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
                 ViewBag.isadmin = "0";
                 ViewBag.onePage = onePage;
             }
@@ -314,10 +314,11 @@ namespace API.Controllers
             {
                 code_company = int.Parse(Config.getCookie("company_code"));
             }
+            if (code_company == null) code_company = 0;
             if (k == null) k = "";
             var ctm = db.partners;
             var pageNumber = page ?? 1;
-
+           
             if (Config.getCookie("is_admin") == "1")
             {
                 var onePage = ctm.Where(o => o.company.Contains(k) || o.name.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 100);
@@ -331,9 +332,13 @@ namespace API.Controllers
                 ViewBag.onePage = onePage;
             }
             ViewBag.k = k;
-            ViewBag.company = Config.getCookie("company_name");
+            if (code_company != 0)
+            {
+                ViewBag.company = HttpUtility.HtmlDecode(db.companies.Where(o => o.code == code_company).FirstOrDefault().name);
+            }
+            else ViewBag.company = "";
             ViewBag.code_company = Config.getCookie("company_code");
-           
+            
             return View();
         }
         public string searcSNPartner(long? sn)
@@ -355,14 +360,31 @@ namespace API.Controllers
         }
         public ActionResult CompanyQrcodeConfig(string k, int? page)
         {
-            if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+            //if (Config.getCookie("is_admin") != "1") return RedirectToAction("Login", "Admin", new { message = "Bạn không được cấp quyền truy cập chức năng này" });
+
+            int code_company = 0;
+            string company = "";
+            int is_admin = 0;
+            if (Config.getCookie("company_code") != "" && Config.getCookie("is_admin") != "1")
+            {
+                code_company = int.Parse(Config.getCookie("company_code"));
+                company = db.companies.Where(o=>o.code== code_company).FirstOrDefault().name;
+            }
             if (k == null) k = "";
             var ctm = db.config_app;
             var pageNumber = page ?? 1;
-            var onePage = ctm.Where(o => o.code_company.ToString().Contains(k) || o.company.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            var onePage = ctm.Where(o =>o.code_company==code_company && (o.code_company.ToString().Contains(k) || o.company.Contains(k))).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            if (Config.getCookie("is_admin") == "1")
+            {
+                is_admin = 1;
+                onePage = ctm.Where(o => o.code_company.ToString().Contains(k) || o.company.Contains(k)).OrderByDescending(f => f.id).ToPagedList(pageNumber, 20);
+            }
             ViewBag.onePage = onePage;
             ViewBag.PageCount = onePage.PageCount;
             ViewBag.page = page == null ? 1 : page;
+            ViewBag.code_company =HttpUtility.HtmlEncode(code_company);
+            ViewBag.company = company;
+            ViewBag.is_admin = is_admin;
             ViewBag.k = k;
             return View();
         }
@@ -1581,7 +1603,7 @@ namespace API.Controllers
         public ActionResult uploadimgproduct()
         {
             //if (Config.getCookie("logged") == "") return RedirectToAction("Login", "Account");
-            if (Config.getCookie("is_admin") != "1") return Json(new { Message = "Error" }, JsonRequestBehavior.AllowGet);
+            //if (Config.getCookie("is_admin") != "1") return Json(new { Message = "Error" }, JsonRequestBehavior.AllowGet);
             var fName = "";
             try
             {

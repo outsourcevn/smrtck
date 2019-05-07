@@ -23,7 +23,7 @@
     }
 </script>
 <h2>@ViewBag.Title</h2>
-@if (ViewBag.isadmin == "1") { 
+ 
 <button type="button" class="btn btn-primary" onclick="openPartner(0)">Thêm Mới</button><br /><br />
 <div class="panel-heading">
     <div class="form-inline">
@@ -36,18 +36,15 @@
             </div>*@
     </div>
 </div>
-}
-else
-{
+
     <div class="panel-heading">
         <div class="form-inline">
             <div class="form-group">
-                <input type="text" id="keyword" class="form-control" style="width:360px;"  placeholder="Nhập số SN (phải là dạng số)" />
+                <input type="text" id="keyword2" class="form-control" style="width:360px;"  placeholder="Nhập số SN (phải là dạng số)" />
                 <button onclick="searcSNPartner();" class="btn-default btn-info">Tìm Kiếm Số SN</button>
             </div>            
         </div>
     </div>
-}
 <table class="table marginBottom0" id="list_partner">
     <tr><th>Nhà Phân Phối</th><th>Doanh Nghiệp</th><th>Mã Doanh Nghiệp</th></tr>
     @foreach (var item in (PagedList<partner>)ViewBag.OnePage)
@@ -89,11 +86,11 @@ else
     <div class="dDialogContent">
         <input type="hidden" id="cp_ID" />
         <p>Tên Nhà Phân Phối</p>
-        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên">
+        <input id="cp_name" type="text" class="form-control" placeholder="Nhập tên" >
         <p>Tên doanh nghiệp</p>
-        <input id="cp_company" type="text" class="form-control" placeholder="Nhập tên doanh nghiệp" onkeyup="searchCompanyName();">
+        <input id="cp_company" type="text" class="form-control" value="@HttpUtility.HtmlDecode(ViewBag.company)" placeholder="@HttpUtility.HtmlDecode(ViewBag.company)" onkeyup="searchCompanyName();">
         <p>Mã doanh nghiệp</p>
-        <input id="cp_code_company" type="text" class="form-control" placeholder="Nhập mã doanh nghiệp" disabled>
+        <input id="cp_code_company" type="text" value="@ViewBag.code_company" class="form-control" placeholder="@ViewBag.code_company" disabled>
         <div class="divBtn">
             <button type="button" class="btn btn-primary" onclick="savePartner()">Đồng Ý</button>
             <button type="button" class="btn btn-primary" onclick="closeDDialog('#PartnerDialog')">Hủy</button>
@@ -105,6 +102,7 @@ else
 </script>
 <script type="text/javascript" src="~/Scripts/Partner.js"></script>
 <script>
+    var is_admin="@ViewBag.isadmin";
     function searchPartner() {
 
         window.location.href = "/Admin/Partner?k=" + $("#keyword").val();
@@ -112,34 +110,45 @@ else
     }
     function searchCompanyName2(type) {
         var keyword = document.getElementById("keyword").value;
-        var urlSearch = '/Admin/getCompanyList?k=';
-        $('#keyword').autocomplete({
-            source: urlSearch + keyword,
-            select: function (event, ui) {
-                $(event.target).val(ui.item.value);
-                return false;
-            },
-            minLength: 1
-        });
+        if (is_admin!="0"){
+            var urlSearch = '/Admin/getCompanyList?k=';
+            $('#keyword').autocomplete({
+                source: urlSearch + keyword,
+                select: function (event, ui) {
+                    $(event.target).val(ui.item.value);
+                    return false;
+                },
+                minLength: 1
+            });
+        }
+    }
+    if (is_admin!="1"){
+        $('#cp_company').css("placeholder", "@ViewBag.company");
+        //$('#cp_company').val("@ViewBag.company");
+        $('#cp_company').prop("disabled", true);
     }
     function searchCompanyName(type) {
         var keyword = document.getElementById("cp_company").value;
         var urlSearch = '/Admin/getCompanyList?k=';
-        $('#cp_company').autocomplete({
-            source: urlSearch + keyword,
-            select: function (event, ui) {
-                $(event.target).val(ui.item.value);
-                $('#cp_code_company').val(ui.item.id);
-                return false;
-            },
-            minLength: 1
-        });
+        if (is_admin!="0"){
+            $('#cp_company').autocomplete({
+                source: urlSearch + keyword,
+                select: function (event, ui) {
+                    $(event.target).val(ui.item.value);
+                    $('#cp_code_company').val(ui.item.id);
+                    return false;
+                },
+                minLength: 1
+            });
+        }
     }
     function openPartner(id, name, company, code_company) {
         $("#cp_ID").val(id);
         $("#cp_name").val(name);
-        $("#cp_company").val(company);
-        $("#cp_code_company").val(code_company);
+        if (is_admin=="1"){
+            $("#cp_company").val(company);
+            $("#cp_code_company").val(code_company);
+        }
         $("#PartnerDialog").show();
     }
     function savePartner() {
@@ -152,7 +161,7 @@ else
             alert("Nhập tên công ty!");
             return;
         }
-       
+
         $.ajax({
             url: url_addUpdatePartner, type: 'post',
             contentType: 'application/json',
@@ -169,7 +178,7 @@ else
         })
     }
     function searcSNPartner(){
-        var keyword = document.getElementById("keyword").value;
+        var keyword = document.getElementById("keyword2").value;
         var url_searcSNPartner="/Admin/searcSNPartner?sn="+keyword;
         if (keyword == "" || isNaN(keyword)) {
             alert("Nhập số SN phải là dạng chữ số!");

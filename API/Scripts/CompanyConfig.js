@@ -13,6 +13,7 @@
                     $("#cp_ID").val(id);
                     for (var i = 0; i < 1; ++i) {
                         var obj = json[i];
+                       
                         $("#cp_company").val(obj.company);
                         $("#cp_code_company").val(obj.code_company);
                         $("#cp_text_in_qr_code").val(obj.text_in_qr_code);
@@ -49,10 +50,12 @@
         });
     } else {
         $("#cp_ID").val(0);
-        $("#cp_company").val("");
+        if (is_admin==1){
+            $("#cp_company").val("");
+            $("#cp_code_company").val("");
+        }
         $("#image").val("");
-        $("#prd_image").attr("src", "");
-        $("#cp_code_company").val("");
+        $("#prd_image").attr("src", "");       
         $("#cp_text_in_qr_code").val("");
         $("#cp_product_code").val("");
         $("#cp_product_date").val("");
@@ -82,7 +85,10 @@ function saveCompanyConfig() {
     if (document.getElementById("cp_is_waranty").checked == true) { is_waranty = 1; }
     if (document.getElementById("cp_is_VFF").checked == true) { is_VFF = 1; }
     //if ($("#cp_ID").val() == "0") { checkDuplicateQrCode(); }
-    if ($("#cp_code_company").val() == "-1") {
+    //alert($("#cp_company").val());
+    //alert($("#cp_code_company").val());
+    //return;
+    if ($("#cp_code_company").val() == "-1" || $("#cp_code_company").val() == "") {
         alert("Nhập doanh nghiệp!");
         return;
     }
